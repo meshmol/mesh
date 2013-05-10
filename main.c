@@ -25,6 +25,7 @@ int exitflag = 0;
 int initflag = 1;
 int debugflag = 0;
 int safeflag = 0;
+int caseflag = 0; //no-fold-case default
 int step_on = 0;
 int prof_on = 0;
 clock_t gctime;
@@ -79,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.7 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.10 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -3085,8 +3086,8 @@ int issymch(char c){
 
 
 void gettoken(void){
-	char c;
-    int pos;
+	char c, directive[20];
+    int pos,i;
     
     if(stok.flag == BACK){
     	stok.flag = GO;
@@ -3104,8 +3105,11 @@ void gettoken(void){
         stok.ch = NUL;
         return;
     }
-
-	c = tolower(getc(input_port));
+	
+    if(caseflag)
+		c = tolower(getc(input_port));
+    else
+    	c = getc(input_port);
     
  	skip:
     //スペース等のスキップ
@@ -3124,6 +3128,7 @@ void gettoken(void){
         }
         goto skip;
     }
+    
     
     //ファイルの終端ならFILEENDを返す。
     if(c == EOF){
@@ -3191,15 +3196,50 @@ void gettoken(void){
             			stok.ch = c;
                         break;
                     }
+                    if(c == '|'){
+                        reskip:
+                    	c = getc(input_port);
+                    	while(c != '|'){
+                        	c = getc(input_port);
+                        }
+                        c = getc(input_port);
+                        if(c == '#'){
+                        		c = getc(input_port);
+                            	goto skip;
+                        }
+                        else
+                        		goto reskip;
+                    }
+                    if(c == '!'){
+                    	i = 0;
+                        c = getc(input_port);
+                        while((c != SPACE) && (c != EOL) && (c != TAB) && (c != EOF)){
+                            directive[i] = c;
+                            i++;
+                            c = getc(input_port);
+                        }
+                        directive[i] = NUL;
+                        if(strcmp(directive,"fold-case") == 0)
+                        	caseflag = 1;
+                        else if(strcmp(directive,"no-fold-case") == 0)
+                        	caseflag = 0;
+                            
+                        c = getc(input_port);
+                        goto skip;
+                    }
                     ungetc(c, input_port);
                     c = '#';
                     }		
         default: {
         	pos = 0; stok.buf[pos++] = c;
             dot_exception:
-        	while(((c=tolower(getc(input_port))) != EOL) && (pos < BUFSIZE) && 
-            		(c != SPACE) && (c != '(') && (c != ')'))
-            	stok.buf[pos++] = c;
+        	while(((c=getc(input_port)) != EOL) && (pos < BUFSIZE) && 
+            		(c != SPACE) && (c != '(') && (c != ')')){
+            	if(caseflag)
+                	stok.buf[pos++] = tolower(c);
+                else
+                	stok.buf[pos++] = c;
+            }
             
             stok.buf[pos] = NUL;
             stok.ch = c;

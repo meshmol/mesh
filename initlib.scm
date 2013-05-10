@@ -74,7 +74,8 @@
     eof-object? input-port? output-port? current-input-port current-output-port
     read-char peek-char char-ready? exit apply gbc values
     map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
-    dynamic-wind call-with-values exact-integer? when unless)
+    dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
+    raise-continuable)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -82,8 +83,41 @@
     
     (define-macro unless
       (lambda (pred . else)
-        `(if (not ,pred) (undefined) (begin ,@else)))))
-)
+        `(if (not ,pred) (undefined) (begin ,@else))))
+    
+    (define *current-exception-handlers*
+      (list (lambda (condition)
+              (error "unhandled exception" condition))))
+    
+    (define (with-exception-handler handler thunk)
+      (with-exception-handlers (cons handler *current-exception-handlers*)
+                               thunk))
+    
+    (define (with-exception-handlers new-handlers thunk)
+      (let ((previous-handlers *current-exception-handlers*))
+        (dynamic-wind
+          (lambda ()
+            (set! *current-exception-handlers* new-handlers))
+          thunk
+          (lambda ()
+            (set! *current-exception-handlers* previous-handlers)))))
+    
+    (define (raise obj)
+      (let ((handlers *current-exception-handlers*))
+        (with-exception-handlers (cdr handlers)
+                                 (lambda ()
+                                   ((car handlers) obj)
+                                   (error "handler returned"
+                                          (car handlers)
+                                          obj)))))
+    
+    (define (raise-continuable obj)
+      (let ((handlers *current-exception-handlers*))
+        (with-exception-handlers (cdr handlers)
+                                 (lambda ()
+                                   ((car handlers) obj)))))
+    
+))
 
 
 
