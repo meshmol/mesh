@@ -500,7 +500,7 @@ int make_vector(int n, int obj){
     return(res);
 }
 
-int make_u8vector(int n, int obj){
+int make_u8vector(int n, unsigned char obj){
 	int res,i;
     unsigned char *u8vec;
     
@@ -522,7 +522,7 @@ void vector_set(int v, int n, int obj){
     SET_VEC_ELT(v,n,obj);
 }
 
-void u8vector_set(int v, int n, int obj){
+void u8vector_set(int v, int n, unsigned char obj){
 	
     SET_U8VEC_ELT(v,n,obj);
 }

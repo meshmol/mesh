@@ -824,12 +824,39 @@ int f_hygienic_namep(int n){
 int f_make_vector(int n){
 	int arg1,arg2;
     
-    arg2 = pop_s();
-    arg1 = pop_s();
-    if(nullp(arg2))
+    if(n == 2){
+    	arg2 = pop_s();
+    	arg1 = pop_s();
+	}
+    else{
+    	arg1 = pop_s();
     	arg2 = undef;
+    }    
     
     return(make_vector(get_int(arg1),arg2));
+}
+
+int f_make_bytevector(int n){
+	int arg1,arg2;
+    unsigned char v;
+    
+    if(n == 2){
+    	arg2 = pop_s();
+    	arg1 = pop_s();
+        if(!integerp(arg2) && !charp(arg2))
+        	exception("make-bytevector", ILLEGAL_ARGUMENT, arg2);
+	}
+    else{
+    	arg1 = pop_s();
+    	arg2 = make_int(0);
+    }    
+    
+    if(integerp(arg2))
+    	v = (unsigned char)get_int(arg2);
+    else
+    	v = (unsigned char)GET_CHAR(arg2);
+        
+    return(make_u8vector(get_int(arg1),v));
 }
 
 int f_vector_set(int n){
@@ -869,6 +896,23 @@ int f_vector(int n){
     	vector_set(res,i-1,pop_s());
     
 	return(res);
+}
+
+int f_bytevector(int n){
+	int arg,i,res;
+    unsigned char v;
+    
+    res = make_u8vector(n,0);
+    for(i=n; i>0; i--){
+    	arg = pop_s();
+        if(integerp(arg))
+        	v = (unsigned char)get_int(arg);
+        else
+        	v = (unsigned char)GET_CHAR(arg);
+            
+        u8vector_set(res,i-1,v);
+    }
+    return(res);
 }
 
 int f_vector_length(int n){
@@ -4414,6 +4458,7 @@ void initsubr(void){
     defsubr("nan?",(int)f_nanp);
     defsubr("square",(int)f_square);
     defsubr("bytevector?",(int)f_bytevectorp);
+    defsubr("make-bytevector",(int)f_make_bytevector);
 }
 
 void initsyntax(void){

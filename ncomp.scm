@@ -660,7 +660,7 @@
     (list->string 1 1 #t #f)
     (string-copy 1 1 #t #f)
     (string-fill! 1 1 #t #t)
-    (make-vector 2 2 #t #f)
+    (make-vector 1 2 #t #f)
     (vector-set! 3 3 #t #f)
     (vector 1 infinity #t #f)
     (vector-ref 2 2 #t #f)
@@ -737,6 +737,7 @@
     (nan? 1 1 #t #f)
     (square 1 1 #t #f)
     (bytevector? 1 1 #t #f)
+    (make-bytevector 1 2 #t #t)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

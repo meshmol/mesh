@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.11 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.13 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -4409,11 +4409,13 @@ void printvec(int x){
     
     fprintf(output_port, "#(");
     len = GET_CDR(x);
-    for(i=0; i<len-1; i++){
+    if(len != 0){
+    	for(i=0; i<len-1; i++){
+    		print(GET_VEC_ELT(x,i));
+        	fprintf(output_port, " ");
+    	}	
     	print(GET_VEC_ELT(x,i));
-        fprintf(output_port, " ");
-    }
-    print(GET_VEC_ELT(x,i));
+	}
     fprintf(output_port, ")");
 }
 
@@ -4422,10 +4424,12 @@ void print_u8vec(int x){
     
     fprintf(output_port, "#u8(");
     len = GET_CDR(x);
-    for(i=0; i<len-1; i++){
-    	printf("%d ", GET_U8VEC_ELT(x,i));
+    if(len != 0){
+    	for(i=0; i<len-1; i++){
+    		printf("%d ", GET_U8VEC_ELT(x,i));
+    	}
+    	printf("%d", GET_U8VEC_ELT(x,i));
     }
-    printf("%d", GET_U8VEC_ELT(x,i));
     fprintf(output_port, ")");
     
 }

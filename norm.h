@@ -1,6 +1,7 @@
 // normal header
 
 
+
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
@@ -600,9 +601,9 @@ int make_str(char *name);
 int make_char(char *name);
 int make_port(FILE *port, int type);
 int make_vector(int n, int obj);
-int make_u8vector(int n, int obj);
+int make_u8vector(int n, unsigned char obj);
 void vector_set(int v, int n, int obj);
-void u8vector_set(int v, int n, int obj);
+void u8vector_set(int v, int n, unsigned char obj);
 int vector_ref(int v, int n);
 unsigned char u8vector_ref(int v, int n);
 int vector_length(int v);
@@ -877,6 +878,7 @@ int f_finityp(int n);
 int f_nanp(int n);
 int f_square(int n);
 int f_bytevectorp(int n);
+int f_make_bytevector(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

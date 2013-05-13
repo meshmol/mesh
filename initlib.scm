@@ -75,7 +75,7 @@
     read-char peek-char char-ready? exit apply gbc values flush-output-port square
     map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
     dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
-    raise-continuable bytevector?)
+    raise-continuable bytevector? make-bytevector)
   (begin
     (define-macro when
       (lambda (pred . true)
