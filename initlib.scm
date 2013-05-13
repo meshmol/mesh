@@ -72,10 +72,10 @@
     make-vector vector-set! vector vector-ref vector-length vector-fill! vector->list list->vector
     open-input-file open-output-file close-input-port close-output-port
     eof-object? input-port? output-port? current-input-port current-output-port
-    read-char peek-char char-ready? exit apply gbc values
+    read-char peek-char char-ready? exit apply gbc values flush-output-port square
     map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
     dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
-    raise-continuable)
+    raise-continuable bytevector?)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -123,7 +123,8 @@
 
 (define-library (scheme inexact)
   (export
-    sin cos tan asin acos atan log exp sqrt))
+    sin cos tan asin acos atan log exp sqrt
+    infinity? finity? nan?))
 
 (define-library (scheme complex)
   (export
@@ -131,7 +132,8 @@
 
 (define-library (scheme division)
   (import (scheme base))
-  (export floor/ round/ truncate/ ceiling/)
+  (export floor/ floor-quotient floor-remainder round/ round-quotient round-remainder 
+          truncate/ truncate-quotient truncate-remainder)
   (begin
     (define (floor/ n1 n2)
       (when (zero? n2)
@@ -142,6 +144,24 @@
              (r (- n1 (* n2 q))))
         (values q r)))
     
+    (define (floor-quotient n1 n2)
+      (when (zero? n2)
+        (error "in floor-quotient devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in floor-quotient not integer " n1 n2))
+      (let* ((q (floor (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        q))
+    
+    (define (floor-remainder n1 n2)
+      (when (zero? n2)
+        (error "in floor-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in floor-remainder not integer " n1 n2))
+      (let* ((q (floor (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
+    
     (define (round/ n1 n2)
       (when (zero? n2)
         (error "in round/ devide by zero " n1 n2))
@@ -150,6 +170,24 @@
       (let* ((q (round (/ n1 n2)))
              (r (- n1 (* n2 q))))
         (values q r)))
+    
+    (define (round-quotient n1 n2)
+      (when (zero? n2)
+        (error "in round-quotient devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in round-quotient not integer " n1 n2))
+      (let* ((q (round (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        q))
+    
+    (define (round-remainder n1 n2)
+      (when (zero? n2)
+        (error "in round-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in round-remainder not integer " n1 n2))
+      (let* ((q (round (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
     
     (define (truncate/ n1 n2)
       (when (zero? n2)
@@ -160,17 +198,24 @@
              (r (- n1 (* n2 q))))
         (values q r)))
     
-    
-    (define (ceiling/ n1 n2)
+    (define (truncate-quotient n1 n2)
       (when (zero? n2)
-        (error "in ceiling/ devide by zero " n1 n2))
+        (error "in truncate-quotient devide by zero " n1 n2))
       (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in ceiling/ not integer " n1 n2))
-      (let* ((q (ceiling (/ n1 n2)))
+        (error "in truncate-quotient not integer " n1 n2))
+      (let* ((q (truncate (/ n1 n2)))
              (r (- n1 (* n2 q))))
-        (values q r)))
+        q))
     
-))
+    (define (truncate-remainder n1 n2)
+      (when (zero? n2)
+        (error "in truncate-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in truncate-remainder not integer " n1 n2))
+      (let* ((q (truncate (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
+    ))
 
 
   

@@ -17,6 +17,7 @@
         ((identifier-free? x) (comp-var x env val? more? in-lambda?))
         ((atom? x ) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
+        ((bytevector? x) (comp-const x val? more? in-lambda?))
         ((macro-name? (car x))
          (comp (macroexpand-1 x) env val? more? has-lambda? in-lambda? tail? if?))
         ((hygienic-name? (car x))
@@ -730,6 +731,12 @@
     (exact-integer? 1 1 #t #f)
     (file-exists? 1 1 #t #f)
     (system 1 1 #t #t)
+    (flush-output-port 0 1 #t #t)
+    (infinity? 1 1 #t #f)
+    (finity? 1 1 #t #f)
+    (nan? 1 1 #t #f)
+    (square 1 1 #t #f)
+    (bytevector? 1 1 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

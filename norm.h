@@ -1,5 +1,6 @@
 // normal header
 
+
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
@@ -17,6 +18,10 @@
 #define NIL			0
 #define BOOLT		1
 #define BOOLF		2
+#define PINF		3
+#define MINF		4
+#define PNAN		5
+#define MNAN		6
 #define BIGNUM_BASE	1000000000
 #define HASHTBSIZE	100
 #define MODULESIZE	100
@@ -34,9 +39,46 @@ int cell_hash_table[HASHTBSIZE][MODULESIZE];
 int dyna_env_p1;
 int dyna_env_p2;
 
-typedef enum tag 	{EMP,BIGBANG,INTN,FLTN,COMP,BIG,RAT,SYM,LIS,VEC,ELT,BOL,STR,CHR,SUBR,SYNT,
-					CLOS,HCONT,SCONT,MAC,MUL,PRT,EOFO,IDNT,SYNCLO,HYG,CODE,STACK,ENV,MEM,REF,EMPSET} tag;
+
 typedef enum flag 	{FRE,USE} flag;
+
+#define EMP 	0
+#define BIGBANG 1
+#define INTN 	2
+#define FLTN 	3
+#define COMP	4
+#define BIG 	5
+#define RAT 	6
+#define SYM 	7
+#define LIS 	8
+#define VEC 	9
+#define ELT 	10
+#define BOL 	11
+#define STR 	12
+#define CHR 	13
+#define SUBR 	14
+#define SYNT 	15
+#define CLOS 	16
+#define HCONT 	17
+#define SCONT 	18
+#define MAC 	19
+#define MUL 	20
+#define PRT 	21
+#define EOFO 	22
+#define IDNT 	23
+#define SYNCLO 	24
+#define HYG 	25
+#define CODE 	26
+#define STACK 	27
+#define ENV 	28
+#define MEM 	29
+#define REF 	30
+#define EMPSET 	31
+#define INF 	32
+#define NANN 	33
+#define U8VEC	34
+
+
 
 /*
 BIGBANG	虚無 空リストを表す。常に0番地に唯一存在する。
@@ -72,6 +114,9 @@ STACK   配列型のスタック
 MEM		継続用のメモリ保存データ
 REF		Prolog変数
 EMPSET  空集合
+INF		無限
+NANN	not a number for Normal
+U8VEC	byte vector
 */
 
 
@@ -84,6 +129,7 @@ struct cell {
                 int 	( *subr) ();
                 FILE	*port;
                 int		*dyna_vec;
+                unsigned char *u8_dyna_vec;
             } car;
             union{
             	int intnum;
@@ -91,7 +137,7 @@ struct cell {
         };
     } val;
     int		aux;
-	tag		tag;
+	char	tag;
     flag	flag;
 	char 	*name;
     char 	args_cnt;
@@ -109,7 +155,7 @@ typedef struct prof prof;
 
 typedef enum toktype 	{LPAREN,RPAREN,LBRAKET,RBRAKET,QUOTE,QUASIQUOTE,UNQUOTE,SPLICING,VECTOR,
 						DOT,INTEGER,FLOAT_N,RATIONAL,BIGNUM,BINARY,OCTAL,DECNUM,HEXNUM,EXPTNUM,
-                        COMPLEX,SYMBOL,SBOOL,STRING,
+                        COMPLEX,SYMBOL,SBOOL,STRING,INFINITY_NUMBER,NOT_A_NUMBER,U8VECTOR,
                         CHARACTER,FILEEND,OTHER} toktype;
 typedef enum backtrack 	{GO,BACK} backtrack;
 typedef enum exactness	{YES,NO} exactness;
@@ -234,6 +280,7 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define IS_COMPLEX(addr)	memory[addr].tag == COMP
 #define IS_LIST(addr)		memory[addr].tag == LIS
 #define IS_VECTOR(addr)		memory[addr].tag == VEC
+#define IS_U8VECTOR(addr)	memory[addr].tag == U8VEC
 #define IS_NIL(addr)		memory[addr].tag == BIGBANG
 #define IS_SUBR(addr)		memory[addr].tag == SUBR
 #define IS_CHARACTER(addr)	memory[addr].tag == CHR
@@ -250,6 +297,9 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define IS_SYNCLO(addr)		memory[addr].tag == SYNCLO
 #define IS_ENV(addr)		memory[addr].tag == ENV
 #define IS_CODE(addr)		memory[addr].tag == CODE
+#define IS_PORT(addr)		memory[addr].tag == PRT
+#define IS_INF(addr)		(addr == PINF || addr == MINF)
+#define IS_NAN(addr)		(addr == PNAN || addr == MNAN)
 #define HAS_NAME(addr,x)	strcmp(memory[addr].name,x) == 0
 #define SAME_NAME(addr1,addr2) strcmp(memory[addr1].name, memory[addr2].name) == 0
 #define GREATER_NAME(addr1,addr2) strcmp(memory[addr1].name, memory[addr2].name) > 0
@@ -265,6 +315,9 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define GET_VEC_ELT(addr,i)			memory[addr].val.car.dyna_vec[i]
 #define SET_VEC_ELT(addr,i,x)		memory[addr].val.car.dyna_vec[i] = x
 #define SET_VEC(addr,x)				memory[addr].val.car.dyna_vec = x
+#define GET_U8VEC_ELT(addr,i)		memory[addr].val.car.u8_dyna_vec[i]
+#define SET_U8VEC_ELT(addr,i,x)		memory[addr].val.car.u8_dyna_vec[i] = x
+#define SET_U8VEC(addr,x)			memory[addr].val.car.u8_dyna_vec = x
 
 #define GET_ENV_MAT_ELT(addr,i,j)	emem1[memory[addr].val.car.intnum + 1 + (i)*(memory[addr].aux) + (j)]
 #define SET_ENV_MAT_ELT(addr,i,j,x)	emem1[memory[addr].val.car.intnum + 1 + (i)*(memory[addr].aux) + (j)] = (x)
@@ -334,6 +387,8 @@ int hextoken(char buf[]);
 int expttoken(char buf[]);
 int symtoken(char buf[]);
 int booltoken(char buf[]);
+int inftoken(char buf[]);
+int nantoken(char buf[]);
 int charcmp(char buf[], char cmp[]);
 int define_to_letrec(int lis);
 int definep(int x);
@@ -353,6 +408,7 @@ void printbig(int x);
 void printlist1(int x);
 void printlist(int x);
 void printvec(int x);
+void print_u8vec(int x);
 void memorydump(int start, int end);
 void gbc(void);
 void markcell(int addr);
@@ -426,6 +482,7 @@ int booleanp(int x);
 int procedurep(int x);
 int multvalp(int x);
 int vectorp(int x);
+int bytevectorp(int x);
 int identifierp(int x);
 int syntactic_closurep(int x);
 int equalp(int x1, int x2);
@@ -441,6 +498,22 @@ int append(int x, int y);
 int append2(int x, int y);
 
 //compute.c
+int integerp(int x);
+int mathematical_integerp(int x);
+int positivep(int x);
+int negativep(int x);
+int exactp(int x);
+int inexactp(int x);
+int bignump(int x);
+int floatp(int x);
+int numberp(int x);
+int realp(int x);
+int rationalp(int x);
+int infinityp(int x);
+int nanp(int x);
+int complexp(int x);
+int positive_zerop(int x);
+int negative_zerop(int x);
 int zerop(int x);
 int numeqp(int x, int y);
 int eqp(int x1, int x2);
@@ -455,6 +528,7 @@ int flttorat(int x);
 int flttobig(int x);
 int inexact_to_exact(int x);
 int realtocomp(int x);
+int inverse(int x);
 int plus(int arg1, int arg2);
 int minus(int arg1, int arg2);
 int mult(int arg1, int arg2);
@@ -498,6 +572,10 @@ int get_tag(int addr);
 int make_NIL(void);
 int make_bool(char *name);
 int returnbool(char *name);
+int returninf(char *name);
+int returnnan(char *name);
+int make_inf(char *name);
+int make_nan(char *name);
 int make_int(int intn);
 int addr_to_int(int addr);
 int make_big(char *bignum);
@@ -506,6 +584,7 @@ int norm_rat(int x);
 int make_rat(int n, int d);
 void norm_comp(int x);
 int make_comp(double real, double imag);
+int make_comp1(int x, int y);
 int hash(char *name);
 int findsym(char *name, int index);
 int addsym(char *name, int index);
@@ -521,10 +600,14 @@ int make_str(char *name);
 int make_char(char *name);
 int make_port(FILE *port, int type);
 int make_vector(int n, int obj);
+int make_u8vector(int n, int obj);
 void vector_set(int v, int n, int obj);
+void u8vector_set(int v, int n, int obj);
 int vector_ref(int v, int n);
+unsigned char u8vector_ref(int v, int n);
 int vector_length(int v);
 int vector(int lis);
+int u8vector(int lis);
 int make_ident(char *name);
 int make_env(int i, int j);
 int make_code(int i);
@@ -767,6 +850,7 @@ int f_vm2(int n);
 int f_lambda_asm(int n);
 int f_error(int n);
 int f_flush(int n);
+int f_flush_output_port(int n);
 int f_set_trace(int n);
 int f_set_untrace(int n);
 int f_transfer(int n);
@@ -788,6 +872,11 @@ int f_global_boundp(int n);
 int f_exact_integerp(int n);
 int f_file_existsp(int n);
 int f_system(int n);
+int f_infinityp(int n);
+int f_finityp(int n);
+int f_nanp(int n);
+int f_square(int n);
+int f_bytevectorp(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

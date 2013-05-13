@@ -91,14 +91,16 @@ int floatp(int x){
 }	
 
 int numberp(int x){	
-    if(IS_INTEGER(x) || (IS_FLOAT(x)) || IS_RATIONAL(x) || IS_BIGNUM(x) ||(IS_COMPLEX(x)))
+    if(IS_INTEGER(x) || (IS_FLOAT(x)) || IS_RATIONAL(x) || IS_BIGNUM(x) 
+    	|| IS_COMPLEX(x) || IS_INF(x) || IS_NAN(x))
     	return(1);
     else
     	return(0);
 }
 
 int realp(int x){
-	if(IS_INTEGER(x) || (IS_FLOAT(x)) || IS_RATIONAL(x) || IS_BIGNUM(x))
+	if(IS_INTEGER(x) || (IS_FLOAT(x)) || IS_RATIONAL(x) || IS_BIGNUM(x)
+    	|| IS_INF(x) || IS_NAN(x))
     	return(1);
     else
     if(IS_COMPLEX(x) && (GET_IMAG_FLT(x) == 0))
@@ -114,11 +116,55 @@ int rationalp(int x){
     	return(0);
 }
 
+int infinityp(int x){
+	
+    if(IS_INF(x))
+    	return(1);
+    else if(IS_COMPLEX(x) && (IS_INF(GET_CAR(x) || IS_INF(GET_CDR(x)))))
+    	return(1);
+    else
+    	return(0);
+}
+
+int nanp(int x){
+	
+    if(IS_NAN(x))
+    	return(1);
+    else if(IS_COMPLEX(x) && (IS_NAN(GET_CAR(x)) || IS_NAN(GET_CDR(x))))
+    	return(1);
+    else
+    	return(0);
+}
+
 int complexp(int x){
 	if(!IS_INTEGER(x) && IS_COMPLEX(x))
     	return(1);
     else
     	return(0);
+}
+
+int positive_zerop(int x){
+	
+	if(!negative_zerop(x))
+    	return(1);
+    else
+    	return(0);
+}
+
+int negative_zerop(int x){
+	double m,n;
+    
+    if(!IS_FLOAT(x))
+    	return(0);
+    if(!zerop(x))
+    	return(0);
+    m = GET_FLT(x);
+    n = 1 / m;
+    if(n < 0)
+    	return(1);
+    else
+    	return(0);
+    	
 }
 
 //比較
@@ -148,6 +194,15 @@ int numeqp(int x, int y){
 	//bignumであって全部のセルが同じ数ならば等しい。
     if(bignump(x) && bignump(y)){
     	if(big_eqp(x,y))
+        	return(1);
+        else
+        	return(0);
+    }
+    //inf.nanの場合にはセルアドレスが同じならば等しい。
+    if((infinityp(x) || nanp(x)) && (infinityp(y) || nanp(y))){
+    	if(x == y)
+        	return(1);
+		else if(car(x) == car(y) && cdr(x) == cdr(y)) //複素数の場合
         	return(1);
         else
         	return(0);
@@ -412,6 +467,27 @@ int realtocomp(int x){
     return(res);
 }
 
+int inverse(int x){
+	int tag;
+    
+    tag = GET_TAG(x);
+    switch(tag){
+    	case INTN:	mult(make_int(-1),x);
+        case FLTN:	mult(make_flt(-1.0),x);
+        case RAT:	mult(make_int(-1),x);
+        case BIG:	mult(make_int(-1),x);
+        case NANN:	if(x == PNAN)
+        				return(MNAN);
+        			else
+                    	return(PNAN);
+        case INF:	if(x == PINF)
+        				return(MINF);
+        			else
+                    	return(PINF);
+    }
+    return(undef);
+}
+
 
 //-----------------------------------
 //四則演算
@@ -447,9 +523,32 @@ int plus(int arg1, int arg2){
                 
                 case COMP: {n = GET_INT(arg1);
                 			x1 = (double)n;
-                            x2 = GET_REAL_FLT(arg2);
-                            y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1+x2,y2));}   
+                            s = BOOLF;
+                            t = BOOLF;
+                            if(infinityp(car(arg2)) || nanp(car(arg2))){
+                            	if(nanp(car(arg2)))
+                                	s = PNAN;
+                                else
+                            		s = car(arg2);
+                            }
+                            if(infinityp(cdr(arg2)) || nanp(cdr(arg2))){
+                            	if(nanp(cdr(arg2)))
+                                	t = PNAN;
+                                else
+                                	t = cdr(arg2);
+                            }
+                            if(s == BOOLF){
+                            	x2 = GET_REAL_FLT(arg2);
+                                s = make_flt(x1+x2);
+                            }
+                            if(t == BOOLF){	
+                            	y2 = GET_IMAG_FLT(arg2);
+                                t = make_flt(y2);
+                			}
+                            return(make_comp1(s,t));}
+                
+                case INF:	return(arg2);
+                case NANN:	return(PNAN); 
             }
         case BIG:
         	switch(tag2){
@@ -475,10 +574,35 @@ int plus(int arg1, int arg2){
                             x2 = (double)s/t;
                             return(make_flt(x1+x2));}
                 case BIG:	return(BOOLF);
-                case COMP: {x1 = GET_REAL_FLT(arg1);
-                			x2 = GET_REAL_FLT(arg2);
-                            y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1+x2,y2));}
+                case COMP: {x1 = GET_FLT(arg1);
+                			s = BOOLF;
+                            t = BOOLF;
+                			if(infinityp(car(arg2)) || nanp(car(arg2))){
+                            	if(nanp(car(arg2)))
+                                	s = PNAN;
+                                else
+                            		s = car(arg2);
+                            }
+                            if(infinityp(cdr(arg2)) || nanp(cdr(arg2))){
+                            	if(nanp(cdr(arg2)))
+                                	t = PNAN;
+                                else
+                                	t = cdr(arg2);
+                            }
+                            if(s == BOOLF){
+                            	x2 = GET_REAL_FLT(arg2);
+                                s = make_flt(x1+x2);
+                            }
+                            if(t == BOOLF){	
+                            	y2 = GET_IMAG_FLT(arg2);
+                                t = make_flt(y2);
+                			}
+                            return(make_comp1(s,t));}
+                
+                case INF:	return(arg2);
+                
+                case NANN:	return(PNAN);    
+                            
         	}
         case RAT:
         	switch(tag2){
@@ -534,7 +658,32 @@ int plus(int arg1, int arg2){
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
                             return(make_comp(x1+x2,y1+y2));}
-            }               
+            }
+        case INF:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	if(arg1 == arg2)
+                				return(arg1);
+                			else
+                            	return(PNAN);
+                case NANN:	return(PNAN);
+                case COMP: {y2 = GET_IMAG_FLT(arg2);
+                            return(make_comp1(arg1,make_flt(y2)));}
+            }
+        case NANN:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	return(arg1);
+                case NANN:	return(PNAN);
+                case COMP: {y2 = GET_IMAG_FLT(arg2);
+                            return(make_comp1(PNAN,make_flt(y2)));}               
+    		}
     }
     return(undef);
 }
@@ -573,7 +722,10 @@ int minus(int arg1, int arg2){
                 			x1 = (double)n;
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1-x2,-y2));}   
+                            return(make_comp(x1-x2,-y2));}
+                
+                case INF:	return(inverse(arg2));
+                case NANN:	return(PNAN);    
             }
         case BIG:
         	switch(tag2){
@@ -655,7 +807,32 @@ int minus(int arg1, int arg2){
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
                             return(make_comp(x1-x2,y1-y2));}
-            }               
+            }
+        case INF:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	if(arg1 != arg2)
+                				return(arg1);
+                			else
+                            	return(PNAN);
+                case NANN:	return(PNAN);
+                case COMP: {y2 = GET_IMAG_FLT(arg2);
+                            return(make_comp1(arg1,make_flt(-y2)));}
+            }
+        case NANN:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	return(arg1);
+                case NANN:	return(PNAN);
+                case COMP: {y2 = GET_IMAG_FLT(arg2);
+                            return(make_comp1(arg1,make_flt(-y2)));}               
+    		}               
     }
     return(undef); 
 }
@@ -778,7 +955,30 @@ int mult(int arg1, int arg2){
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
                             return(make_comp(x1*x2-y1*y2,x1*y2+y1*x2));}
-            }               
+            }
+        case INF:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	if(arg1 == arg2)
+                				return(PINF);
+                			else
+                            	return(MINF);
+                case NANN:	return(PNAN);
+                case COMP: 	return(make_comp1(arg1,arg1));
+            }
+        case NANN:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	return(arg1);
+                case NANN:	return(PNAN);
+                case COMP: 	return(make_comp1(PNAN,PNAN));               
+    		}                       
     }
     return(undef);  
 }
@@ -789,14 +989,24 @@ int divide(int arg1, int arg2){
     double x1,y1,x2,y2;
     
     tag1 = GET_TAG(arg1);
-    tag2 = GET_TAG(arg2);
+    tag2 = GET_TAG(arg2); 
 	switch(tag1){
     	case INTN:
         	switch(tag2){
-        		case INTN: {n = GET_INT(arg1);
+        		case INTN: {n = GET_INT(arg1); 
                 			s = GET_INT(arg2);
                             return(make_rat(n,s));}
-                case FLTN: {n = GET_INT(arg1);
+                case FLTN: {if(positivep(arg1) && positive_zerop(arg2))
+                            	return(PINF); //+inf.0
+                			if(negativep(arg1) && positive_zerop(arg2))
+                            	return(MINF); //-inf.0
+                            if(positivep(arg1) && negative_zerop(arg2))
+                            	return(MINF); //-inf.0
+                            if(negativep(arg1) && negative_zerop(arg2))
+                            	return(PINF); //+inf.0
+                            if(zerop(arg1) && zerop(arg2))
+                            	return(PNAN); //+nan.0
+                			n = GET_INT(arg1);
                 			x1 = (double)n;
                             y1 = GET_FLT(arg2);
                             return(make_flt(x1/y1));}
@@ -811,7 +1021,15 @@ int divide(int arg1, int arg2){
                             y1 = 0;
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1*x2/(y1*y1+y2*y2),-x1*y2/(y1*y1+y2*y2)));}   
+							return(make_comp((x1*x2+y1*y2)/(x2*x2+y2*y2),(y1*x2-x1*y2)/(x2*x2+y2*y2)));}
+                
+                case INF:	if((positivep(arg1) && arg2 == PINF) || (negativep(arg1) && arg2 == MINF))
+                				return(make_flt(0.0));
+                			else
+                            	return(make_flt(-0.0));
+                
+                case NANN:	return(PNAN);
+   
             }
 		case BIG:
         	switch(tag2){
@@ -825,7 +1043,17 @@ int divide(int arg1, int arg2){
                 			s = GET_INT(arg2);
                             x2 = (double)s;
                             return(make_flt(x1/x2));}
-                case FLTN: {x1 = GET_FLT(arg1);
+                case FLTN: {if(positivep(arg1) && positive_zerop(arg2))
+                            	return(PINF); //+inf.0
+                			if(negativep(arg1) && positive_zerop(arg2))
+                            	return(MINF); //-inf.0
+                            if(positivep(arg1) && negative_zerop(arg2))
+                            	return(MINF); //-inf.0
+                            if(negativep(arg1) && negative_zerop(arg2))
+                            	return(PINF); //+inf.0
+                            if(zerop(arg1) && zerop(arg2))
+                            	return(PNAN); //+nan.0
+                			x1 = GET_FLT(arg1);
                 			x2 = GET_FLT(arg2);
                             return(make_flt(x1/x2));}
                 case RAT:  {x1 = GET_FLT(arg1);
@@ -838,7 +1066,8 @@ int divide(int arg1, int arg2){
                 			y1 = 0;
                 			x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1*x2/(y1*y1+y2*y2),-x1*y2/(y1*y1+y2*y2)));}
+                            return(make_comp((x1*x2+y1*y2)/(x2*x2+y2*y2),(y1*x2-x1*y2)/(x2*x2+y2*y2)));}
+                            
         	}
         case RAT:
         	switch(tag2){
@@ -863,7 +1092,8 @@ int divide(int arg1, int arg2){
                             y1 = 0;
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
-                            return(make_comp(x1*x2/(y1*y1+y2*y2),-x1*y2/(y1*y1+y2*y2)));}
+                            return(make_comp((x1*x2+y1*y2)/(x2*x2+y2*y2),(y1*x2-x1*y2)/(x2*x2+y2*y2)));}
+                            
         }
         
         case COMP:
@@ -873,7 +1103,11 @@ int divide(int arg1, int arg2){
                             n = GET_INT(arg2);
                             x2 = (double)n;
                             return(make_comp(x1/x2,y1/x2));}
-                case FLTN: {x1 = GET_REAL_FLT(arg1);
+                case FLTN: {if(zerop(arg1) && zerop(arg2))
+                				return(PNAN);
+                			if(zerop(arg2))
+                            	return(make_comp1(PINF,PINF));
+                			x1 = GET_REAL_FLT(arg1);
                 			y1 = GET_IMAG_FLT(arg1);
                             x2 = GET_FLT(arg2);
                             return(make_comp(x1/x2,y1/x2));}
@@ -889,7 +1123,41 @@ int divide(int arg1, int arg2){
                             x2 = GET_REAL_FLT(arg2);
                             y2 = GET_IMAG_FLT(arg2);
                             return(make_comp((x1*x2+y1*y2)/(x2*x2+y2*y2),(y1*x2-x1*y2)/(x2*x2+y2*y2)));}
-            }               
+            }
+        case INF:
+        	switch(tag2){
+            	case INTN:
+                case RAT:
+                case BIG:	if(positivep(arg2))
+                            	return(arg1);
+                            else
+                            	return(inverse(arg1));
+                case FLTN:	if(positive_zerop(arg2))
+                				return(PINF);
+                			else if(negative_zerop(arg2))
+                            	return(MINF);
+                            else if(positivep(arg2))
+                            	return(arg1);
+                            else
+                            	return(inverse(arg1));
+                				
+                case INF:	if(arg1 == arg2)
+                				return(PINF);
+                			else
+                            	return(MINF);
+                case NANN:	return(PNAN);
+                case COMP: 	return(make_comp1(arg1,arg1));
+            }
+        case NANN:
+        	switch(tag2){
+            	case INTN:
+                case FLTN:
+                case RAT:
+                case BIG:
+                case INF:	return(arg1);
+                case NANN:	return(PNAN);
+                case COMP: 	return(make_comp1(PNAN,PNAN));               
+    		}                 
     }
     return(undef);  
 }

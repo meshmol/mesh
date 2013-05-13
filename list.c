@@ -286,7 +286,7 @@ int butlast(int lis){
 
 int atomp(int x){
     if(numberp(x) || symbolp(x) || charp(x) || stringp(x) || booleanp(x) || identifierp(x)
-                  || IS_SYNCLO(x))
+                  || IS_SYNCLO(x) || IS_INF(x) || IS_NAN(x))
     	return(1);
     else
     	return(0);
@@ -412,6 +412,17 @@ int multvalp(int x){
 int vectorp(int x){
 	if(0 <= x && x <= CELLSIZE){
 		if(IS_VECTOR(x))
+    		return(1);
+    	else
+    		return(0);
+    }
+    else
+    	return(0);
+}
+
+int bytevectorp(int x){
+	if(0 <= x && x <= CELLSIZE){
+		if(IS_U8VECTOR(x))
     		return(1);
     	else
     		return(0);

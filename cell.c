@@ -45,6 +45,10 @@ void initcell(void){
     make_NIL();
     make_bool("#t");
     make_bool("#f");
+    make_inf("+inf.0");
+    make_inf("-inf.0");
+    make_nan("+nan.0");
+    make_nan("-nan.0");
     undef	= make_sym("undef");
 	end_of_file = make_sym("end_of_file");
     SET_TAG(end_of_file,EOFO);
@@ -53,78 +57,6 @@ void initcell(void){
     unquote	= make_sym("unquote");
     unquote_splicing = make_sym("unquote-splicing");
     empty_set = make_empty_set(); //空集合　多値で利用する。
-/*    
-//以下、コンパイラが使う定数。
-    make_int(0);
-	make_int(1);
-    make_int(2);
-	make_int(-1);
-    make_int(3);
-    //subrのセルアドレスをずらさないため
-    make_char("A");
-    make_char("B");
-    make_char("C");
-    make_char("D");
-    make_char("L");
-    make_str("L");
-    make_sym("tarai");
-    make_sym("bar");
-    make_sym("begin");
-    make_sym("set!");
-	make_sym("if");
-    make_sym("lambda");
-    make_sym("define");
-    make_sym("define-macro");
-    make_sym("define-syntax");
-    make_sym("compile");
-    make_sym("comp");
-    make_sym("comp-begin");
-    make_sym("comp-lambda");
-    make_sym("comp-if");
-    make_sym("gen");
-    make_sym("gen-var");
-    make_sym("gen-set");
-    make_sym("gen-label");
-    make_sym("seq");
-    make_sym("comp-args");
-    make_sym("in-env?");
-    make_sym("in-env-iter");
-    make_sym("in-args?");
-    make_sym("nth-args");
-    make_sym("label?");
-    make_sym("args-count");
-    make_sym("length=1?");
-    make_sym("asm");
-    make_sym("pass1");
-    make_sym("pass1-iter");
-    make_sym("pass2");
-    make_sym("pass2-iter");
-    make_sym("op-count");
-    make_sym("op-code?");
-    make_sym("op-code");
-    make_sym("mnemonic->code");
-	make_sym("mnemonic");
-	make_sym("nop");
-    make_sym("halt");
-    make_sym("const");
-    make_sym("lvar");
-    make_sym("gvar");
-    make_sym("lset");
-    make_sym("gset");
-    make_sym("pop");
-    make_sym("jump");
-    make_sym("tjump");
-    make_sym("fjump");
-    make_sym("return");
-    make_sym("args");
-    make_sym("call");
-    make_sym("callj");
-    make_sym("fn");
-    make_sym("save");
-    make_sym("prim");
-    make_sym("def");
-    make_sym("defm");
-    make_sym("defh"); */
 }
 
 void initmodule(void){
@@ -148,8 +80,9 @@ void initmodule(void){
     module_table[16][0] = list2(make_sym("scheme"),make_sym("char"));
     module_table[17][0] = list3(make_sym("scheme"),make_sym("char"),make_sym("normalization"));
     module_table[18][0] = list2(make_sym("scheme"),make_sym("time"));
+    module_table[19][0] = list2(make_sym("scheme"),make_sym("r5rs"));
     
-    module_table_end = 18;
+    module_table_end = 19;
 }
 
 
@@ -199,6 +132,41 @@ int returnbool(char *name){
     return(undef);
 }
 
+int returninf(char *name){
+	if(name[0] == '+')
+    	return(PINF);
+    if(name[0] == '-')
+    	return(MINF);
+	
+    return(undef);    
+}
+
+int returnnan(char *name){
+	if(name[0] == '+')
+    	return(PNAN);
+    if(name[0] == '-')
+    	return(MNAN);
+
+    return(undef);
+}
+
+int make_inf(char *name){
+	int addr;
+    
+    addr = freshcell();
+    SET_TAG(addr,INF);
+    SET_NAME(addr,name);
+    return(addr);
+}
+
+int make_nan(char *name){
+	int addr;
+    
+    addr = freshcell();
+    SET_TAG(addr,NANN);
+    SET_NAME(addr,name);
+    return(addr);
+}
 
 int make_int(int intn){
 	int addr;
@@ -301,9 +269,9 @@ int norm_rat(int x){
     n = GET_CAR(x);
     m = GET_CDR(x);
     
-    if(n == 0){
+    if(n == 0)
     	return(make_int(0));
-    }	
+        	
     u = int_gcd(abs(n),abs(m));
     n = n/u;
     m = m/u;
@@ -350,7 +318,16 @@ int make_comp(double real, double imag){
     return(addr);
 }
 
-
+//inf,nanがある場合に使用する。
+int make_comp1(int x, int y){
+	int addr;
+    
+    addr = freshcell();
+    SET_TAG(addr,COMP);
+    SET_CAR(addr,x);
+    SET_CDR(addr,y);
+    return(addr);
+}
 
 int hash(char *name){
 	int res;
@@ -523,14 +500,41 @@ int make_vector(int n, int obj){
     return(res);
 }
 
+int make_u8vector(int n, int obj){
+	int res,i;
+    unsigned char *u8vec;
+    
+    res = freshcell();
+	u8vec = (unsigned char *)malloc(sizeof(unsigned char)*n);
+    if(u8vec == NULL)
+    	exception("make_u8vector", MALLOC_OVERF, NIL);
+    else
+    	SET_U8VEC(res,u8vec);
+    for(i=0; i<n; i++)
+    	SET_U8VEC_ELT(res,i,obj);
+    SET_TAG(res,U8VEC);
+    SET_CDR(res,n);
+    return(res);
+}
+
 void vector_set(int v, int n, int obj){
 	
     SET_VEC_ELT(v,n,obj);
 }
 
+void u8vector_set(int v, int n, int obj){
+	
+    SET_U8VEC_ELT(v,n,obj);
+}
+
 int vector_ref(int v, int n){
 	
     return(GET_VEC_ELT(v,n));
+}
+
+unsigned char u8vector_ref(int v, int n){
+	
+    return(GET_U8VEC_ELT(v,n));
 }
 
 int vector_length(int v){
@@ -550,6 +554,30 @@ int vector(int lis){
         lis = cdr(lis);
     }
     
+    return(res);
+}
+
+int u8vector(int lis){
+	int len,i,elt,res;
+    unsigned char v;
+    
+    len = length(lis);
+    i = 0;
+    v = 0;
+    res = make_u8vector(len,undef);
+    while(!nullp(lis)){
+    	elt = car(lis);
+        if(integerp(elt))
+        	v = (unsigned char)get_int(elt);
+        else if(charp(elt))
+        	v = (unsigned char)GET_CHAR(elt);
+        else
+        	exception("make_u8vector", ILLEGAL_ARGUMENT, elt);
+		
+    	u8vector_set(res,i,v);
+        i++;
+        lis = cdr(lis);
+    }
     return(res);
 }
 

@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.10 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.11 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -3005,8 +3005,32 @@ int read(void){
         					return(make_rat(atoi(stok.before),atoi(stok.after)));
         				else
                         	return(exact_to_inexact(make_rat(atoi(stok.before),atoi(stok.after))));
-        case COMPLEX:	if(stok.ctype == RECTANGLER)	
-                            return(make_comp(atof(stok.before),atof(stok.after)));
+        case COMPLEX:	if(stok.ctype == RECTANGLER){
+        					x = BOOLF;
+                            y = BOOLF;
+        					if(strcmp(stok.before,"+inf.0") ==0)
+                            	x = PINF;
+                            if(strcmp(stok.before,"-inf.0") ==0)
+                            	x = MINF;
+                            if(strcmp(stok.before,"+nan.0") ==0)
+                            	x = PNAN;
+                            if(strcmp(stok.before,"-nan.0") ==0)
+                            	x = MNAN;
+                            if(strcmp(stok.after,"+inf.0") ==0)
+                            	y = PINF;
+                            if(strcmp(stok.after,"-inf.0") ==0)
+                            	y = MINF;
+                            if(strcmp(stok.after,"+nan.0") ==0)
+                            	y = PNAN;
+                            if(strcmp(stok.after,"-nan.0") ==0)
+                            	y = MNAN;
+                            if(x == BOOLF)
+                            	x = make_flt(atof(stok.before));
+                            if(y == BOOLF)
+                            	y = make_flt(atof(stok.after));
+                            
+                            return(make_comp1(x,y));
+        				}
                         //POLAR
                         else{
                         	r = atof(stok.before);
@@ -3017,6 +3041,10 @@ int read(void){
                         }
         case SYMBOL:	return(make_sym(stok.buf));
         case SBOOL:		return(returnbool(stok.buf));
+        case INFINITY_NUMBER:
+        				return(returninf(stok.buf));
+        case NOT_A_NUMBER:
+        				return(returnnan(stok.buf));
         case STRING:	return(make_str(stok.buf));
         case CHARACTER:	return(make_char(stok.buf));
         case QUOTE:		return(cons(quote, cons(read(),NIL)));
@@ -3029,6 +3057,7 @@ int read(void){
                         }}
         case LPAREN:	return(readlist());
         case VECTOR:	return(vector(readlist()));
+        case U8VECTOR:	return(u8vector(readlist()));
         case RPAREN:	exception("",EXTRA_PAREN, NIL);
     }				
     exception("",CANT_READ,make_str(stok.buf));
@@ -3183,6 +3212,25 @@ void gettoken(void){
                     	stok.type = VECTOR;
                         break;
                     }
+                    if(c == 'u'){
+                    	c = getc(input_port);
+                        if(c == '8'){
+                        	c = getc(input_port);
+                            if(c == '(')
+                        		stok.type = U8VECTOR;
+                            else{
+                            	ungetc(c, input_port);
+                        		c = '8';
+                                ungetc(c, input_port);
+                        		c = 'u';
+                            }
+                        }        		
+                        else{
+                        	ungetc(c, input_port);
+                        	c = 'u';
+                        }
+                        break;	
+                    }
                     if(c == '\\'){
                 		pos = 0;
                     	c = getc(input_port);
@@ -3244,6 +3292,15 @@ void gettoken(void){
             stok.buf[pos] = NUL;
             stok.ch = c;
         	
+            if(inftoken(stok.buf)){
+            	stok.type = INFINITY_NUMBER;
+                break;
+            }
+            if(nantoken(stok.buf)){
+            	stok.type = NOT_A_NUMBER;
+                break;
+            }
+            
             //先に複素数の判定をしないと-1-2iのようなケースでシンボルになってしまう。
             if(comptoken(stok.buf)){
             	stok.type = COMPLEX;
@@ -3712,13 +3769,30 @@ int comptoken(char buf[]){
     if(tok.sepch == NUL)
     	goto minus;
     
+    insertstr('+', tok.after);
+    
     //1+iのような場合
     if((inttoken(tok.before) || flttoken(tok.before)) &&
-    	tok.after[0] == NUL){
+    	tok.after[1] == NUL){
     	strcpy(stok.before, tok.before);
         stok.after[0] = '1';
         stok.after[1] = NUL;
     	return(1);
+    }
+	
+    //n+inf.0 , inf.0+n , n+nan.0 , nan.0+n などの場合
+	if(((inttoken(tok.before) || flttoken(tok.before)) &&
+    	(inftoken(tok.after)  || nantoken(tok.after)))
+        ||
+       ((inftoken(tok.before) || nantoken(tok.before)) &&
+       	(inttoken(tok.after)  || flttoken(tok.after)))
+        ||
+       ((inftoken(tok.before) || nantoken(tok.before)) &&
+        (inftoken(tok.after)  || nantoken(tok.after)))){
+        
+        strcpy(stok.before, tok.before);
+       	strcpy(stok.after, tok.after);
+       	return(1);
     }
     
     //通常のn+miの場合
@@ -3746,6 +3820,22 @@ int comptoken(char buf[]){
         stok.after[1] = '1';
         stok.after[2] = NUL;
     	return(1);
+    }
+    
+    
+    //n-inf.0 , inf.0-n , n-nan.0 , nan.0-n などの場合
+	if(((inttoken(tok.before) || flttoken(tok.before)) &&
+    	(inftoken(tok.after)  || nantoken(tok.after)))
+        ||
+       ((inftoken(tok.before) || nantoken(tok.before)) &&
+       	(inttoken(tok.after)  || flttoken(tok.after)))
+        ||
+       ((inftoken(tok.before) || nantoken(tok.before)) &&
+        (inftoken(tok.after)  || nantoken(tok.after)))){
+        
+        strcpy(stok.before, tok.before);
+       	strcpy(stok.after, tok.after);
+       	return(1);
     }
         
     //通常のn-miの場合
@@ -3882,6 +3972,25 @@ int booltoken(char buf[]){
     return(1);
 }
 
+int inftoken(char buf[]){
+	
+    if(strcmp(buf,"+inf.0") == 0)
+     	return(1);
+    else if(strcmp(buf,"-inf.0") == 0)
+    	return(1);
+    else
+    	return(0);
+}
+
+int nantoken(char buf[]){
+	
+    if(strcmp(buf,"+nan.0") == 0)
+    	return(1);
+    else if(strcmp(buf,"-nan.0") == 0)
+    	return(1);
+    else
+    	return(0);
+}
 
 int charcmp(char buf[], char cmp[]){
 	int i;
@@ -3998,6 +4107,8 @@ int quasi_to_procedure(int lis){
     if(atomp(lis))
     	return(lis);
     if(vectorp(lis))
+    	return(lis);
+    if(bytevectorp(lis))
     	return(lis);
     if(car(lis) == quasiquote)
     	return(transfer(cadr(lis),1));
@@ -4127,10 +4238,17 @@ void print(int x){
                     fprintf(output_port, "%d", GET_CDR(x));
                     break;
                     
-        case COMP: printflt(GET_REAL_FLT(x));
-        			if(GET_IMAG_FLT(x) >= 0)
-                    	fprintf(output_port, "+");
-                    printflt(GET_IMAG_FLT(x));
+        case COMP: 	if(floatp(GET_CAR(x)))
+        				printflt(GET_REAL_FLT(x));
+                    else
+                    	print(GET_CAR(x));
+                    if(floatp(GET_CDR(x))){
+                    	if(GET_IMAG_FLT(x) >= 0)
+                    		fprintf(output_port, "+");
+                        printflt(GET_IMAG_FLT(x)); 
+                    }
+                    else
+                    	print(GET_CDR(x));
                     fprintf(output_port, "i");
                     break;
         			
@@ -4147,6 +4265,8 @@ void print(int x){
                		break;
         			
         case BOL:	fprintf(output_port, "%s", GET_NAME(x)); break;
+        case INF:	fprintf(output_port, "%s", GET_NAME(x)); break;
+        case NANN:	fprintf(output_port, "%s", GET_NAME(x)); break;
         case STR:  	fprintf(output_port, "\"");
         			fprintf(output_port, "%s", GET_NAME(x));
                     fprintf(output_port, "\""); break;
@@ -4199,6 +4319,8 @@ void print(int x){
                     	break;
                     }
         case VEC:  	printvec(x);
+        			break;
+        case U8VEC:	print_u8vec(x);
         			break;
         case MUL:  	n = GET_VEC_ELT(x,0);
         			for(i=1; i<n; i++){
@@ -4295,6 +4417,18 @@ void printvec(int x){
     fprintf(output_port, ")");
 }
 
+void print_u8vec(int x){
+	int len,i;
+    
+    fprintf(output_port, "#u8(");
+    len = GET_CDR(x);
+    for(i=0; i<len-1; i++){
+    	printf("%d ", GET_U8VEC_ELT(x,i));
+    }
+    printf("%d", GET_U8VEC_ELT(x,i));
+    fprintf(output_port, ")");
+    
+}
                             
 //-------デバッグ用------------------  
 void cellprint(int addr);
@@ -4335,6 +4469,8 @@ void cellprint(int addr){
         case CHR:	printf("Chr    "); print(addr); break;
         case LIS:	printf("Lis    "); break;
         case BOL:	printf("Bol    "); print(addr); break;
+        case INF:	printf("Inf    "); print(addr); break;
+        case NANN:	printf("Nan    "); print(addr); break;
         case BIG:	printf("Big    "); printf("%d",GET_INT(addr)); break;
         case RAT:	printf("Rat    "); print(addr); break;
         case SUBR:	printf("Sub    "); break;

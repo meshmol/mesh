@@ -1860,18 +1860,26 @@ int f_div(int n){
     	exception("/", NOT_NUMBER, arg2);
 
 	if(n == 0){
-		if(zerop(arg2))
+		if(integerp(arg2) && zerop(arg2))
         	exception("/", DIVIDE_ZERO, arg2);
         else
     		return(divide(make_int(1),arg2));
-    }    
+    }
+    if(n == 1){
+    	if(integerp(arg2) && zerop(arg2))
+        	exception("/", DIVIDE_ZERO, arg2);
+        else
+    		return(divide(pop_s(),arg2));
+    
+    }
+        
     while(n > 1){
     	arg1 = pop_s();
         n--;
-        	
+        print(arg1);	
         if(!numberp(arg1))
     		exception("/", NOT_NUMBER, arg1);
-        if(zerop(arg1))
+        if(integerp(arg1) && zerop(arg1))
         	exception("/", DIVIDE_ZERO, arg1);
         
         arg2 = mult(arg1,arg2);
@@ -3384,6 +3392,8 @@ int macroexpand(int x){
     	return(x);
     else if(vectorp(x))
     	return(x);
+	else if(bytevectorp(x))
+    	return(x);
     else if(eqp(car(x),quote))
     	return(cadr(x));
     else if(macro_namep(car(x)))
@@ -3710,6 +3720,19 @@ int f_flush(int n){
     return(undef);
 }
 
+int f_flush_output_port(int n){
+	int arg;
+    
+    if(n == 0)
+    	fflush(stdout);
+    else{
+    	arg = pop_s();
+        if(!IS_PORT(arg))
+        	exception("flush-output-port", NOT_PORT, arg);
+        fflush(GET_PORT(arg));
+    }
+    return(undef);
+}
 
 int f_set_trace(int n){
 	int i,fn;
@@ -4072,6 +4095,57 @@ int f_system(int n){
     return(undef);
 }
 
+int f_infinityp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(infinityp(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+int f_finityp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(numberp(arg) && !infinityp(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+int f_nanp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(nanp(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+int f_square(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!numberp(arg))
+    	exception("square",NOT_NUMBER,arg);
+    
+    return(mult(arg,arg));
+}
+
+int	f_bytevectorp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(IS_U8VECTOR(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+
 //subrを環境に登録する。
 void defsubr(char *name, int func){
 	int sym,val;
@@ -4335,6 +4409,11 @@ void initsubr(void){
     defsubr("exact-integer?",(int)f_exact_integerp);
     defsubr("file-exists?",(int)f_file_existsp);
     defsubr("system",(int)f_system);
+    defsubr("infinity?",(int)f_infinityp);
+    defsubr("finity?",(int)f_finityp);
+    defsubr("nan?",(int)f_nanp);
+    defsubr("square",(int)f_square);
+    defsubr("bytevector?",(int)f_bytevectorp);
 }
 
 void initsyntax(void){

@@ -208,6 +208,9 @@ void init_r7rs(void){
     defsubr("values",(int)f_values);
     defsubr("exact-integer?",(int)f_exact_integerp);
 	defsubr("error",(int)f_error);
+    defsubr("flush-output-port",(int)f_flush_output_port);
+    defsubr("square",(int)f_square);
+    defsubr("bytevector?",(int)f_bytevectorp);
 	
 	
     current_module = 4; //(scheme inexact)
@@ -220,6 +223,9 @@ void init_r7rs(void){
     defsubr("log",(int)f_log);
     defsubr("exp",(int)f_exp);
     defsubr("sqrt",(int)f_sqrt);
+    defsubr("infinity?",(int)f_infinityp);
+    defsubr("finity?",(int)f_finityp);
+    defsubr("nan?",(int)f_nanp);
     
     current_module = 5; //(scheme complex)
     defsubr("real-part",(int)f_realpart);
