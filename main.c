@@ -74,13 +74,13 @@ int s_code_pointer_end = 0;
 
 //------main-----------------------
 int main( int argc, char *argv[] ){
-	int addr,sexp,i;
+	int sexp,i;
     char szPath[128],szDrive[4],szDir[128],szFileName[32],szExt[4];
     char initfile[128],compfile[128],normfile[128],kidsfile[128];
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.13 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.14 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -192,8 +192,6 @@ int main( int argc, char *argv[] ){
             goto repl;
         }
         else{
-    		for(addr=0; addr<= CELLSIZE; addr++)
-    			free(memory[addr].name);
 			printf("- good bye. -\n");
 			return 0;
         }
@@ -330,6 +328,12 @@ void exception(char *fn, int code, int arg){
                                 break;
         case NOT_BOOL:			printf("Exception in %s: ", fn);
         						print(arg); printf(" is not a boolean\n");
+                                break;
+        case NOT_VECTOR:		printf("Exception in %s: ", fn);
+        						print(arg); printf(" is not a vector\n");
+                                break;
+        case NOT_BYTE_VECTOR:	printf("Exception in %s: ", fn);
+        						print(arg); printf(" is not a bytevector\n");
                                 break;
         case NOT_IDENTIFIER:	printf("Exception in %s: ", fn);
         						print(arg); printf(" is not a identifier\n");
@@ -4759,10 +4763,13 @@ void clrcell(int addr){
     }
 	
     
-    if(tag == CODE || tag == STACK || tag == VEC || tag == U8VEC || tag == MEM){
+    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM){
         free(memory[addr].val.car.dyna_vec);
     }
     
+    if(tag == U8VEC){
+    	free(memory[addr].val.car.u8_dyna_vec);
+    }
     
     SET_TAG(addr,EMP);
     SET_CAR(addr,0);

@@ -739,6 +739,7 @@
     (bytevector? 1 1 #t #f)
     (make-bytevector 1 2 #t #t)
     (bytevector 0 infinity #t #t)
+    (bytevector-length 1 1 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

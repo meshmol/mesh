@@ -16,4 +16,24 @@
       '()
       (cons (string-ref (car args) n)
             (string-nth n (cdr args)))))
+
+(define (vector-map f . args)
+  (list->vector 
+    (reverse 
+      (vector-map1 f (apply min (map vector-length args)) args))))
+
+
+(define (vector-map1 f n args)
+  (if (= n 0)
+      '()
+      (cons (apply f (vector-nth (- n 1) args))
+            (vector-map1 f (- n 1) args))))
+
+
+(define (vector-nth n args)
+  (if (null? args)
+      '()
+      (cons (vector-ref (car args) n)
+            (vector-nth n (cdr args)))))
+
  

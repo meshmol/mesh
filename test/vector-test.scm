@@ -12,3 +12,8 @@
 (vector-fill! a 5)
 (test* "vector-fill!" #(5 5 5) a)
 
+
+(test* "(vector-map cadr '#((a b)(d e)(g h)))" #(b e h) (vector-map cadr '#((a b)(d e)(g h))))
+(test* "(vector-map + '#(1 2 3) '#(4 5 6 7 ))" #(5 7 9) (vector-map + '#(1 2 3) '#(4 5 6 7 )))
+
+

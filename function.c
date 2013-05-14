@@ -919,6 +919,17 @@ int f_vector_length(int n){
 	int arg;
     
     arg = pop_s();
+    if(!vectorp(arg))
+    	exception("vector-length", NOT_VECTOR, arg);
+    return(make_int(vector_length(arg)));
+}
+
+int f_bytevector_length(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!bytevectorp(arg))
+    	exception("bytevector-length", NOT_BYTE_VECTOR, arg);
     return(make_int(vector_length(arg)));
 }
 

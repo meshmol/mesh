@@ -478,6 +478,15 @@ int equalp(int x1, int x2){
             	return(0);
         return(1);	
     }
+    if(bytevectorp(x1) && bytevectorp(x2)){
+    	if(vector_length(x1) != vector_length(x2))
+        	return(0);
+        n = vector_length(x1);
+        for(i=0; i<n; i++)
+        	if(GET_U8VEC_ELT(x1,i) != GET_U8VEC_ELT(x2,i))
+            	return(0);
+        return(1);	
+    }
 	if(atomp(x1) && atomp(x2))
     	return(eqvp(x1,x2));
     if(equalp(car(x1),car(x2)))

@@ -224,6 +224,7 @@ typedef struct septoken septoken;
 #define ILLEGAL_VMCODE		42
 #define MALLOC_OVERF		43
 #define NOT_EXIST_LIB		44
+#define NOT_BYTE_VECTOR		45
 
 #define EOL		'\n'
 #define RET		'\r'
@@ -878,6 +879,7 @@ int f_square(int n);
 int f_bytevectorp(int n);
 int f_make_bytevector(int n);
 int f_bytevector(int n);
+int f_bytevector_length(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);
