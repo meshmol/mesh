@@ -1,5 +1,6 @@
 ;;初等関数ライブラリ
 
+(import (scheme inexact))
 
 ;;リストlsに関数fを適用した値の総和を求める。
 (define (sum f ls)
@@ -200,7 +201,6 @@
 ;;sicp
 ;;繰り返し二乗法によるmod計算。
 ;; a^n (mod m)を計算する。SICPより借用。
-(define (square n) (* n n))
 (define (expmod a n m)
   (cond ((= 0 n) 1)
         ((even? n)

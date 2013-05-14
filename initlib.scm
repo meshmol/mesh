@@ -408,7 +408,8 @@
         (scheme write)
         (scheme read)
         (scheme eval)
-        (scheme char))
+        (scheme char)
+        (scheme inexact))
 
 
   
