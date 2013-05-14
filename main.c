@@ -4759,7 +4759,7 @@ void clrcell(int addr){
     }
 	
     
-    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM){
+    if(tag == CODE || tag == STACK || tag == VEC || tag == U8VEC || tag == MEM){
         free(memory[addr].val.car.dyna_vec);
     }
     

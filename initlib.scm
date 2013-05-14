@@ -53,7 +53,8 @@
 
 (define-library (scheme base)
   (import (normal system)
-          (normal compile))
+          (normal compile)
+          (scheme char))
   (export
     car cdr cons caar cdar cddr cadr caaar cdaar cadar caadr cddar caddr cdadr
     cdddr caaaar cdaaar cadaar caadar caaadr cddaar caddar caaddr cdaadr cdadar
@@ -75,7 +76,7 @@
     read-char peek-char char-ready? exit apply gbc values flush-output-port square
     map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
     dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
-    raise-continuable bytevector? make-bytevector)
+    raise-continuable bytevector? make-bytevector bytevector string-map)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -116,6 +117,25 @@
         (with-exception-handlers (cdr handlers)
                                  (lambda ()
                                    ((car handlers) obj)))))
+    
+    (define (string-map f . args)
+      (list->string 
+        (reverse 
+          (string-map1 f (apply min (map string-length args)) args))))
+    
+    (define (string-map1 f n args)
+      (if (= n 0)
+          '()
+          (cons (apply f (string-nth (- n 1) args))
+                (string-map1 f (- n 1) args))))
+    
+    
+    (define (string-nth n args)
+      (if (null? args)
+          '()
+          (cons (string-ref (car args) n)
+                (string-nth n (cdr args)))))
+    
     
 ))
 
@@ -365,11 +385,12 @@
         `(sys-set-untrace ,@(map (lambda (x) (list 'quote x)) fn))))))
     
 
-(import (scheme base))
-(import (scheme load))
-(import (scheme write))
-(import (scheme read))
-(import (scheme eval))
+(import (scheme base)
+        (scheme load)
+        (scheme write)
+        (scheme read)
+        (scheme eval)
+        (scheme char))
 
 
   

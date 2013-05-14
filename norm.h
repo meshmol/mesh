@@ -1,7 +1,5 @@
 // normal header
 
-
-
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
@@ -879,6 +877,7 @@ int f_nanp(int n);
 int f_square(int n);
 int f_bytevectorp(int n);
 int f_make_bytevector(int n);
+int f_bytevector(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

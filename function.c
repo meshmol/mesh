@@ -4459,6 +4459,7 @@ void initsubr(void){
     defsubr("square",(int)f_square);
     defsubr("bytevector?",(int)f_bytevectorp);
     defsubr("make-bytevector",(int)f_make_bytevector);
+    defsubr("bytevector",(int)f_bytevector);
 }
 
 void initsyntax(void){
