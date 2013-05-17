@@ -910,9 +910,29 @@ int f_vector_ref(int n){
     	exception("vector-ref", NOT_VECTOR, arg1);
 	if(!IS_INTEGER(arg2) || negativep(arg2))
     	exception("vector-ref",NOT_EXACT, arg2);
+    if(get_int(arg2) >= vector_length(arg1))
+    	exception("vector-ref", OUT_OF_RANGE,arg2);
     
     return(vector_ref(arg1,get_int(arg2)));
 }
+
+int f_bytevector_u8_ref(int n){
+	int arg1,arg2,res;
+    
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!bytevectorp(arg1))
+    	exception("bytevector-u8-ref", NOT_BYTE_VECTOR, arg1);
+	if(!IS_INTEGER(arg2) || negativep(arg2))
+    	exception("bytevector-u8-ref",NOT_EXACT, arg2);
+    if(get_int(arg2) >= vector_length(arg1))
+    	exception("bytevector-u8-ref", OUT_OF_RANGE,arg2);
+    
+    res = make_int((int)u8vector_ref(arg1,get_int(arg2)));
+    return(res);
+}
+
+
 
 int f_vector(int n){
 	int i,res;
@@ -4498,6 +4518,7 @@ void initsubr(void){
     defsubr("make-bytevector",(int)f_make_bytevector);
     defsubr("bytevector",(int)f_bytevector);
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
+    defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
 }
 
 void initsyntax(void){

@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.16 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.18 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -380,6 +380,10 @@ void exception(char *fn, int code, int arg){
                                 printf("\n");
         						break;
         case IMMUTABLE_OBJ:		printf("Exceptionin %s: can't modify immutable object ", fn);
+        						print(arg);
+                                printf("\n");
+        						break;
+        case OUT_OF_RANGE:		printf("Exceptionin %s: out of range ", fn);
         						print(arg);
                                 printf("\n");
         						break;			

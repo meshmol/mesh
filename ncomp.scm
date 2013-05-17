@@ -741,6 +741,7 @@
     (bytevector 0 infinity #t #t)
     (bytevector-length 1 1 #t #f)
     (bytevector-u8-set! 3 3 #t #f)
+    (bytevector-u8-ref 2 2 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹
