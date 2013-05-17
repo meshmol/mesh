@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.14 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.16 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -378,7 +378,11 @@ void exception(char *fn, int code, int arg){
         case NOT_EXIST_LIB:		printf("Exception in import: not exist library ");
         						print(arg);
                                 printf("\n");
-        						break;				
+        						break;
+        case IMMUTABLE_OBJ:		printf("Exceptionin %s: can't modify immutable object ", fn);
+        						print(arg);
+                                printf("\n");
+        						break;			
     }
     //ステップ実行中止
     stepflag = 0;
@@ -2982,7 +2986,7 @@ void push_back_trace(int proc, int args){
 int read(void){
 	char *e;
     double r,s,x,y;
-    int tag;
+    int tag,res;
                 
     gettoken();
     tag = (int)stok.type;
@@ -3060,8 +3064,12 @@ int read(void){
                             			return(cons(unquote,cons(read(),NIL)));}
                         }}
         case LPAREN:	return(readlist());
-        case VECTOR:	return(vector(readlist()));
-        case U8VECTOR:	return(u8vector(readlist()));
+        case VECTOR:	res = vector(readlist());
+        				SET_AUX(res,1); //immutable objext
+        				return(res);
+        case U8VECTOR:	res= u8vector(readlist());
+        				SET_AUX(res,1); //immutable objext
+        				return(res);
         case RPAREN:	exception("",EXTRA_PAREN, NIL);
     }				
     exception("",CANT_READ,make_str(stok.buf));
@@ -3220,8 +3228,10 @@ void gettoken(void){
                     	c = getc(input_port);
                         if(c == '8'){
                         	c = getc(input_port);
-                            if(c == '(')
+                            if(c == '('){
                         		stok.type = U8VECTOR;
+                                break;
+                            }
                             else{
                             	ungetc(c, input_port);
                         		c = '8';
@@ -3232,8 +3242,7 @@ void gettoken(void){
                         else{
                         	ungetc(c, input_port);
                         	c = 'u';
-                        }
-                        break;	
+                        }	
                     }
                     if(c == '\\'){
                 		pos = 0;

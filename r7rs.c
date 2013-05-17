@@ -214,6 +214,7 @@ void init_r7rs(void){
     defsubr("make-bytevector",(int)f_make_bytevector);
     defsubr("bytevector",(int)f_bytevector);
     defsubr("bytevector-length",(int)f_bytevector_length);
+    defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
 	
 	
     current_module = 4; //(scheme inexact)

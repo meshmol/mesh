@@ -1,6 +1,6 @@
 ;;初等関数ライブラリ
 
-(import (scheme inexact))
+
 
 ;;リストlsに関数fを適用した値の総和を求める。
 (define (sum f ls)

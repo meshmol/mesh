@@ -875,6 +875,32 @@ int f_vector_set(int n){
     return(undef);
 }
 
+int f_bytevector_u8_set(int n){
+	int arg1,arg2,arg3;
+    unsigned char b;
+    
+    
+    arg3 = pop_s();
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!bytevectorp(arg1))
+    	exception("bytevector-u8-set",NOT_BYTE_VECTOR, arg1);
+	if(GET_AUX(arg1) == 1)
+    	exception("bytevector-u8-set",IMMUTABLE_OBJ, arg1);
+    if(!IS_INTEGER(arg2) || negativep(arg2))
+    	exception("bytevector-u8-set!",NOT_EXACT, arg2);
+    if(!integerp(arg3) && !charp(arg3))
+    	exception("bytevector-u8-set!",ILLEGAL_ARGUMENT, arg3);
+    
+    if(integerp(arg3))
+    	b = (unsigned char)get_int(arg3);
+    else
+    	b = (unsigned char)GET_CHAR(arg3);
+    
+    u8vector_set(arg1,get_int(arg2),b);
+    return(undef);
+}
+
 int f_vector_ref(int n){
 	int arg1,arg2;
     
@@ -4471,6 +4497,7 @@ void initsubr(void){
     defsubr("bytevector?",(int)f_bytevectorp);
     defsubr("make-bytevector",(int)f_make_bytevector);
     defsubr("bytevector",(int)f_bytevector);
+    defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
 }
 
 void initsyntax(void){

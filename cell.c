@@ -559,22 +559,22 @@ int vector(int lis){
 
 int u8vector(int lis){
 	int len,i,elt,res;
-    unsigned char v;
+    unsigned char b;
     
     len = length(lis);
     i = 0;
-    v = 0;
+    b = 0;
     res = make_u8vector(len,undef);
     while(!nullp(lis)){
     	elt = car(lis);
         if(integerp(elt))
-        	v = (unsigned char)get_int(elt);
+        	b = (unsigned char)get_int(elt);
         else if(charp(elt))
-        	v = (unsigned char)GET_CHAR(elt);
+        	b = (unsigned char)GET_CHAR(elt);
         else
         	exception("make_u8vector", ILLEGAL_ARGUMENT, elt);
 		
-    	u8vector_set(res,i,v);
+    	u8vector_set(res,i,b);
         i++;
         lis = cdr(lis);
     }

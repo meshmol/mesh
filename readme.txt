@@ -1,4 +1,3 @@
-
 I'm trying to implement Scheme compiler in compliance with R7RS-Small.
 
 To install Normal-Scheme you need a MinGW gcc compiler.
