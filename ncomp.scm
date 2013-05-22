@@ -654,7 +654,7 @@
     (make-string 1 1 #t #f)
     (string 1 1 #t #f)
     (string-ref 2 2 #t #f)
-    (string-set! 2 2 #t #t)
+    (string-set! 3 3 #t #t)
     (substring 1 1 #t #f)
     (string->list 1 1 #t #f)
     (list->string 1 1 #t #f)
@@ -742,6 +742,7 @@
     (bytevector-length 1 1 #t #f)
     (bytevector-u8-set! 3 3 #t #f)
     (bytevector-u8-ref 2 2 #t #f)
+    (bytevector-append 0 infinity #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

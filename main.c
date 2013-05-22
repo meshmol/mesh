@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.18 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.22 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -3057,7 +3057,9 @@ int read(void){
         				return(returninf(stok.buf));
         case NOT_A_NUMBER:
         				return(returnnan(stok.buf));
-        case STRING:	return(make_str(stok.buf));
+        case STRING:	res = make_str(stok.buf);
+        				SET_AUX(res,1); //immutable object
+        				return(res);
         case CHARACTER:	return(make_char(stok.buf));
         case QUOTE:		return(cons(quote, cons(read(),NIL)));
         case QUASIQUOTE:return(cons(quasiquote,cons(read(),NIL)));

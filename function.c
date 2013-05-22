@@ -868,6 +868,8 @@ int f_vector_set(int n){
     arg1 = pop_s();
     if(!vectorp(arg1))
     	exception("vector-set!",NOT_VECTOR, arg1);
+    if(GET_AUX(arg1) == 1)
+    	exception("vector-set",IMMUTABLE_OBJ, arg1);
     if(!IS_INTEGER(arg2) || negativep(arg2))
     	exception("vector-set!",NOT_EXACT, arg2);
     
@@ -1025,6 +1027,32 @@ int	f_list_to_vector(int n){
     return(res);
 }
 
+int f_bytevector_append(int n){
+	int arg,args,i,l,m,res;
+    
+    args = NIL;
+    l = 0;
+    for(i=0; i<n; i++){
+    	arg = pop_s();
+		if(!bytevectorp(arg))
+        	exception("bytevector-append", NOT_BYTE_VECTOR, arg);
+    	args = cons(arg,args);
+        l = l + vector_length(arg);
+    }
+    
+    res = make_u8vector(l,0);
+    l = 0;
+    while(!nullp(args)){
+    	arg = car(args);
+        m = vector_length(arg);
+		args = cdr(args);
+        for(i=0; i<m; i++){
+        	u8vector_set(res,l,u8vector_ref(arg,i));
+       		l++;
+        }
+    }
+    return(res);
+}
 
 //-----------文字------------------------------
 int f_char_eqp(int n){
@@ -1758,6 +1786,8 @@ int f_string_set(int n){
     arg1 = pop_s();
     if(!stringp(arg1))
     	exception("string-set", NOT_STRING, arg1);
+    if(GET_AUX(arg1) == 1)
+    	exception("string-set",IMMUTABLE_OBJ, arg1);
     if(!integerp(arg2))
     	exception("string-set", NOT_INTEGER, arg2);
     if(!charp(arg3))
@@ -4519,6 +4549,7 @@ void initsubr(void){
     defsubr("bytevector",(int)f_bytevector);
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
     defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
+    defsubr("bytevector-append",(int)f_bytevector_append);
 }
 
 void initsyntax(void){

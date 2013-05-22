@@ -77,7 +77,7 @@
     map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
     dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
     raise-continuable bytevector? make-bytevector bytevector bytevector-length string-map vector-map
-    bytevector-u8-set! bytevector-u8-ref)
+    bytevector-u8-set! bytevector-u8-ref bytevector-append)
   (begin
     (define-macro when
       (lambda (pred . true)
