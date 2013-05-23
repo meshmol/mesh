@@ -307,6 +307,10 @@
             (x)
             x)))))
 
+
+(define-library (scheme process-context)
+  (export command-line))
+
 (define-library (scheme time)
   (import (normal system)
           (scheme base)

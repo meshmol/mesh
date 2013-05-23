@@ -244,6 +244,9 @@ void init_r7rs(void){
     current_module = 9;
     defsubr("eval",(int)f_eval);
     
+    current_module = 11; //(scheme process-context)
+    defsubr("command-line",(int)f_command_line);
+    
     current_module = 12; //(scheme load)
     defsubr("load",(int)f_load);
     

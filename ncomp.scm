@@ -743,6 +743,7 @@
     (bytevector-u8-set! 3 3 #t #f)
     (bytevector-u8-ref 2 2 #t #f)
     (bytevector-append 0 infinity #t #f)
+    (command-line 0 0 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

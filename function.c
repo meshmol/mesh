@@ -60,7 +60,8 @@ extern int module_table_end;
 extern int current_module;
 extern int back_trace[TRACE_DEPTH][2];
 extern int back_trace_end;
-
+extern int command_line_count;
+extern char *command_line[10];
 
 extern int s_head;
 extern int s_tail;
@@ -4276,6 +4277,19 @@ int	f_bytevectorp(int n){
     	return(BOOLF);
 }
 
+int f_command_line(int n){
+	int i,res;
+    
+    res = NIL;
+    if(command_line_count == 1)
+    	res = make_str(command_line[0]); 
+    else{
+    	for(i=command_line_count; i>0; i--)
+        	res = cons(make_str(command_line[i-1]),res);
+    }
+    return(res);
+}
+
 
 //subrを環境に登録する。
 void defsubr(char *name, int func){
@@ -4550,6 +4564,7 @@ void initsubr(void){
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
     defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
     defsubr("bytevector-append",(int)f_bytevector_append);
+    defsubr("command-line",(int)f_command_line);
 }
 
 void initsyntax(void){

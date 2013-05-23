@@ -57,6 +57,8 @@ int export_rename;
 int back_trace[TRACE_DEPTH][2];
 int back_trace_end = 0;
 int cont_count = 0;
+int command_line_count;
+char *command_line[10];
 
 
 //------vm2起動時のデータ保存用------
@@ -75,12 +77,17 @@ int s_code_pointer_end = 0;
 //------main-----------------------
 int main( int argc, char *argv[] ){
 	int sexp,i;
+    
+    command_line_count = argc;
+    for(i=0; i<argc; i++)
+    	command_line[i] = argv[i];
+        
     char szPath[128],szDrive[4],szDir[128],szFileName[32],szExt[4];
     char initfile[128],compfile[128],normfile[128],kidsfile[128];
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.22 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.23 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
