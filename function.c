@@ -4546,7 +4546,9 @@ void initsubr(void){
     defsubr("make-rectangular",(int)f_make_rectangular);
     defsubr("make-polar",(int)f_make_polar);
     defsubr("exact->inexact",(int)f_exact_inexact);
+    defsubr("inexact",(int)f_exact_inexact);
 	defsubr("inexact->exact",(int)f_inexact_exact);
+    defsubr("exact",(int)f_inexact_exact);
     defsubr("remainder",(int)f_remainder);
 	defsubr("modulo",(int)f_modulo);
     defsubr("quotient",(int)f_quotient);

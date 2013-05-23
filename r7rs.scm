@@ -100,3 +100,11 @@ asdf
       (let* ((q (truncate (/ n1 n2)))
              (r (- n1 (* n2 q))))
         r))
+
+(define (exact-integer-sqrt k)
+  (when (negative? k) (error "in exact-integer-sqrt negative " k))
+  (when (not (exact? k)) (error "in exact-integer-sqrt inexact " k))
+  (let* ((s (exact (floor (sqrt k))))
+         (r (- k (square s))))
+    (values s r)))
+  

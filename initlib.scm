@@ -51,9 +51,16 @@
   (export compile assemble compile-file map for-each and or let let* cond letrec do case
           call/cc call-with-current-continuation dynamic-wind call-with-values))
 
+(define-library (scheme inexact)
+  (export
+    sin cos tan asin acos atan log exp sqrt
+    infinity? finity? nan?))
+
+
 (define-library (scheme base)
   (import (normal system)
           (normal compile)
+          (scheme inexact)
           (scheme char))
   (export
     car cdr cons caar cdar cddr cadr caaar cdaar cadar caadr cddar caddr cdadr
@@ -66,7 +73,7 @@
     + - * / < <= > >= =
     expt not odd? even? floor ceiling truncate round numerator denominator positive?
     negative? abs max min exact->inexact inexact->exact remainder modulo quotient
-    gcd lcm string-append number->string string->number
+    gcd lcm string-append number->string string->number exact inexact exact-integer-sqrt
     string=? string>? string>=? string<? string<=? string-ci=? string-ci>? string-ci>=?
     string-ci<? string-ci<=? string->symbol symbol->string string-length make-string
     string string-ref string-set! substring string->list list->string string-copy string-fill!
@@ -156,14 +163,15 @@
           (cons (vector-ref (car args) n)
                 (vector-nth n (cdr args)))))
     
+    (define (exact-integer-sqrt k)
+      (if (negative? k) (error "in exact-integer-sqrt negative " k))
+      (if (not (exact? k)) (error "in exact-integer-sqrt inexact " k))
+      (let* ((s (exact (floor (sqrt k))))
+             (r (- k (square s))))
+        (values s r)))
+  
 ))
 
-
-
-(define-library (scheme inexact)
-  (export
-    sin cos tan asin acos atan log exp sqrt
-    infinity? finity? nan?))
 
 (define-library (scheme complex)
   (export

@@ -151,7 +151,9 @@ void init_r7rs(void){
     defsubr("max",(int)f_max);
     defsubr("min",(int)f_min);
     defsubr("exact->inexact",(int)f_exact_inexact);
+    defsubr("inexact",(int)f_exact_inexact);
 	defsubr("inexact->exact",(int)f_inexact_exact);
+    defsubr("exact",(int)f_inexact_exact);
     defsubr("remainder",(int)f_remainder);
 	defsubr("modulo",(int)f_modulo);
     defsubr("quotient",(int)f_quotient);
