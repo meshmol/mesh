@@ -1,5 +1,7 @@
 I'm trying to implement Scheme compiler in compliance with R7RS-Small.
 
+And also Normal will include 'Prolog'in future.
+
 To install Normal-Scheme you need a MinGW gcc compiler.
 
 Normal-Scheme can run only on Window7 or later.
