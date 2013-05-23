@@ -1028,6 +1028,50 @@ int	f_list_to_vector(int n){
     return(res);
 }
 
+int f_bytevector_copy(int n){
+	int arg1,arg2,arg3,start,end,i,j,res;
+    
+    
+    if(n == 1){
+    	arg1 = pop_s();
+    	if(!bytevectorp(arg1))
+    		exception("bytevector-copy", NOT_BYTE_VECTOR, arg1);
+        start = 0;
+        end = vector_length(arg1);
+    }
+    else if(n == 2){
+    	arg2 = pop_s();
+        arg1 = pop_s();
+        if(!bytevectorp(arg1))
+    		exception("bytevector-copy", NOT_BYTE_VECTOR, arg1);
+        if(!IS_INTEGER(arg2) || negativep(arg2))
+    		exception("bytevector-copy",NOT_EXACT, arg2);
+        start = get_int(arg2);
+        end = vector_length(arg1);
+    }
+    else{
+    	arg3 = pop_s();
+        arg2 = pop_s();
+        arg1 = pop_s();
+        if(!bytevectorp(arg1))
+    		exception("bytevector-copy", NOT_BYTE_VECTOR, arg1);
+        if(!IS_INTEGER(arg2) || negativep(arg2))
+    		exception("bytevector-copy",NOT_EXACT, arg2);
+        if(!IS_INTEGER(arg3) || negativep(arg3))
+    		exception("bytevector-copy",NOT_EXACT, arg3);
+        start = get_int(arg2);
+        end = get_int(arg3);
+    }
+    
+    res = make_u8vector(end-start, 0);
+    j = 0;
+    for(i=start; i<end; i++){
+    	u8vector_set(res,j,u8vector_ref(arg1,i));
+        j++;
+    }
+    return(res);
+}
+
 int f_bytevector_append(int n){
 	int arg,args,i,l,m,res;
     
@@ -4291,6 +4335,7 @@ int f_command_line(int n){
 }
 
 
+
 //subrを環境に登録する。
 void defsubr(char *name, int func){
 	int sym,val;
@@ -4563,6 +4608,7 @@ void initsubr(void){
     defsubr("bytevector",(int)f_bytevector);
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
     defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
+    defsubr("bytevector-copy",(int)f_bytevector_copy);
     defsubr("bytevector-append",(int)f_bytevector_append);
     defsubr("command-line",(int)f_command_line);
 }

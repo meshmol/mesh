@@ -884,6 +884,7 @@ int f_bytevector(int n);
 int f_bytevector_length(int n);
 int f_bytevector_u8_set(int n);
 int f_bytevector_u8_ref(int n);
+int f_bytevector_copy(int n);
 int f_bytevector_append(int n);
 int f_command_line(int n);
 

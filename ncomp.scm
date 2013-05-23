@@ -742,6 +742,7 @@
     (bytevector-length 1 1 #t #f)
     (bytevector-u8-set! 3 3 #t #f)
     (bytevector-u8-ref 2 2 #t #f)
+    (bytevector-copy 1 3 #t #t)
     (bytevector-append 0 infinity #t #f)
     (command-line 0 0 #t #f)
     ))
