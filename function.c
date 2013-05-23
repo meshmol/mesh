@@ -1072,6 +1072,73 @@ int f_bytevector_copy(int n){
     return(res);
 }
 
+int f_bytevector_copy2(int n){
+	int arg1,arg2,arg3,arg4,arg5,at,start,end,i,j,res;
+    
+    
+    if(n == 3){
+    	arg3 = pop_s();
+        arg2 = pop_s();
+    	arg1 = pop_s();
+    	if(!bytevectorp(arg1))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg1);
+        if(!IS_INTEGER(arg2) || negativep(arg2))
+    		exception("bytevector-copy!", NOT_EXACT, arg2);
+        if(!bytevectorp(arg3))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg3);
+        at = get_int(arg2);
+        start = 0;
+        end = vector_length(arg3);
+    }
+    else if(n == 4){
+    	arg4 = pop_s();
+        arg3 = pop_s();
+    	arg2 = pop_s();
+        arg1 = pop_s();
+        if(!bytevectorp(arg1))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg1);
+        if(!IS_INTEGER(arg2) || negativep(arg2))
+    		exception("bytevector-copy!",NOT_EXACT, arg2);
+        if(!bytevectorp(arg3))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg3);
+        if(!IS_INTEGER(arg4) || negativep(arg4))
+    		exception("bytevector-copy!",NOT_EXACT, arg4);
+        at = get_int(arg2);
+        start = get_int(arg3);
+        end = vector_length(arg4);
+    }
+    else{
+    	arg5 = pop_s();
+        arg4 = pop_s();
+    	arg3 = pop_s();
+        arg2 = pop_s();
+        arg1 = pop_s();
+        if(!bytevectorp(arg1))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg1);
+        if(!IS_INTEGER(arg2) || negativep(arg2))
+    		exception("bytevector-copy!",NOT_EXACT, arg2);
+        if(!bytevectorp(arg3))
+    		exception("bytevector-copy!", NOT_BYTE_VECTOR, arg3);
+        if(!IS_INTEGER(arg4) || negativep(arg4))
+    		exception("bytevector-copy!",NOT_EXACT, arg4);
+        if(!IS_INTEGER(arg5) || negativep(arg5))
+    		exception("bytevector-copy!",NOT_EXACT, arg5);
+        at = get_int(arg2);
+        start = get_int(arg4);
+        end = get_int(arg5);
+    }
+    
+    res = arg1;
+    j = at;
+    for(i=start; i<end; i++){
+    	u8vector_set(res,j,u8vector_ref(arg3,i));
+        j++;
+    }
+    return(res);
+}
+
+
+
 int f_bytevector_append(int n){
 	int arg,args,i,l,m,res;
     
@@ -4609,6 +4676,7 @@ void initsubr(void){
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
     defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
     defsubr("bytevector-copy",(int)f_bytevector_copy);
+	defsubr("bytevector-copy!",(int)f_bytevector_copy2);
     defsubr("bytevector-append",(int)f_bytevector_append);
     defsubr("command-line",(int)f_command_line);
 }

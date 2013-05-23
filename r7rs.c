@@ -217,6 +217,7 @@ void init_r7rs(void){
     defsubr("bytevector-u8-set!",(int)f_bytevector_u8_set);
     defsubr("bytevector-u8-ref",(int)f_bytevector_u8_ref);
     defsubr("bytevector-copy",(int)f_bytevector_copy);
+    defsubr("bytevector-copy!",(int)f_bytevector_copy2);
     defsubr("bytevector-append",(int)f_bytevector_append);
 	
 	
