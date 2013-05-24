@@ -542,6 +542,39 @@ int f_listref(int n){
     return(listref(arg1,m));
 }
 
+int f_listset(int n){
+	int arg1,arg2,arg3,i,l,m,before,after,temp;
+    
+    arg3 = pop_s();
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!pairp(arg1))
+    	exception("list-set!", NOT_PAIR, arg1);
+    if(GET_AUX(arg1) == 1)
+    	exception("list-set!", IMMUTABLE_OBJ, arg1);
+    if(!IS_INTEGER(arg2) || negativep(arg2))
+    	exception("list-set!",NOT_EXACT,arg2);
+    m = get_int(arg2);
+    l= length(arg1);
+    if(m >= l)
+    	exception("list-set!",OUT_OF_RANGE, arg2);
+    
+    if(m == 0)
+    	arg1 = cons(arg3,cdr(arg1));
+    else{
+    	temp = arg1;
+    	for(i=1; i<l; i++){
+    		before = temp;
+        	after = cddr(temp);
+        	if(i == m){
+            	SET_CDR(before,cons(arg3,after));	
+            }
+            temp = cdr(temp);	
+       } 		
+    }
+    return(arg1);
+}
+
 int f_last(int n){
 	int arg;
     
@@ -4467,6 +4500,7 @@ void initsubr(void){
     defsubr("reverse!",(int)f_reverse2);
     defsubr("list-tail",(int)f_listtail);
     defsubr("list-ref",(int)f_listref);
+    defsubr("list-set!",(int)f_listset);
     defsubr("append",(int)f_append);
     defsubr("append!",(int)f_append2);
     defsubr("set-car!",(int)f_setcar);

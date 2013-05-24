@@ -94,6 +94,7 @@ void init_r7rs(void){
     defsubr("reverse!",(int)f_reverse2);
     defsubr("list-tail",(int)f_listtail);
     defsubr("list-ref",(int)f_listref);
+    defsubr("list-set!",(int)f_listset);
     defsubr("append",(int)f_append);
     defsubr("append!",(int)f_append2);
     defsubr("set-car!",(int)f_setcar);

@@ -532,6 +532,7 @@
     (reverse! 1 1 #t #t)
     (list-tail 1 1 #t #f)
     (list-ref 2 2 #t #f)
+    (list-set! 3 3 #t #t)
     (append 2 2 #t #f)
     (append! 2 infinity #t #ft)
     (set-car! 2 2 #t #f)

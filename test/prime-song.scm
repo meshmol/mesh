@@ -354,6 +354,7 @@
 
 
 ;;p785
+(import (scheme lazy))
 (define-syntax s-cons
   (syntax-rules ()
     ((_ x y)(cons x (delay y)))))

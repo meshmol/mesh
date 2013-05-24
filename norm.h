@@ -672,6 +672,7 @@ int f_length(int n);
 int f_pair_length(int n);
 int f_listtail(int n);
 int f_listref(int n);
+int f_listset(int n);
 int f_last(int n);
 int	f_butlast(int n);
 int f_nullp(int n);
@@ -888,6 +889,7 @@ int f_bytevector_copy(int n);
 int f_bytevector_copy2(int n);
 int f_bytevector_append(int n);
 int f_command_line(int n);
+
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

@@ -66,7 +66,8 @@
     car cdr cons caar cdar cddr cadr caaar cdaar cadar caadr cddar caddr cdadr
     cdddr caaaar cdaaar cadaar caadar caaadr cddaar caddar caaddr cdaadr cdadar
     cadddr cdaddr cddadr cdddar cddddr assq assv assoc memq memv member reverse
-    reverse! list-tail list-ref append append! set-car! set-cdr! list make-list length newline
+    reverse! list-tail list-ref list-set! append append! set-car! set-cdr! list
+     make-list length newline
     write-char null? list? pair? atom? eq? eqv? equal? boolean? procedure? number?
     integer? real? rational? complex? exact? inexact? symbol? string? char? bignum?
     vector? macro? zero? error
