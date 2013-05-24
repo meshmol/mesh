@@ -10,6 +10,7 @@
 #include <setjmp.h>
 #include <time.h>
 #include <windows.h>
+#include <tchar.h>
 #include "norm.h"
 
  
@@ -4434,6 +4435,25 @@ int f_command_line(int n){
     return(res);
 }
 
+int f_get_environment_variable(int n){
+	int arg,res;
+    DWORD dwResult;
+    TCHAR val[2048];
+
+    arg = pop_s();
+    if(!stringp(arg))
+    	exception("get-environment-variable", NOT_STRING, arg);
+
+    dwResult = GetEnvironmentVariable(_T(GET_NAME(arg)),val,sizeof(val));
+    if(dwResult != 0){
+        res = make_str((char*)val);
+    }
+    else
+    	res = BOOLF;
+    
+	return(res);    
+}
+
 
 
 //subrを環境に登録する。
@@ -4715,6 +4735,8 @@ void initsubr(void){
 	defsubr("bytevector-copy!",(int)f_bytevector_copy2);
     defsubr("bytevector-append",(int)f_bytevector_append);
     defsubr("command-line",(int)f_command_line);
+    defsubr("get-environment-variable",(int)f_get_environment_variable);
+    
 }
 
 void initsyntax(void){

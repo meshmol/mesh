@@ -749,6 +749,7 @@
     (bytevector-copy! 3 5 #t #t)
     (bytevector-append 0 infinity #t #f)
     (command-line 0 0 #t #f)
+    (get-environment-variable 1 1 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

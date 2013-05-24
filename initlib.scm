@@ -318,7 +318,7 @@
 
 
 (define-library (scheme process-context)
-  (export command-line))
+  (export command-line get-environment-variable))
 
 (define-library (scheme time)
   (import (normal system)

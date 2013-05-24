@@ -251,6 +251,7 @@ void init_r7rs(void){
     
     current_module = 11; //(scheme process-context)
     defsubr("command-line",(int)f_command_line);
+    defsubr("get-environment-variable",(int)f_get_environment_variable);
     
     current_module = 12; //(scheme load)
     defsubr("load",(int)f_load);

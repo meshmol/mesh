@@ -889,6 +889,7 @@ int f_bytevector_copy(int n);
 int f_bytevector_copy2(int n);
 int f_bytevector_append(int n);
 int f_command_line(int n);
+int f_get_environment_variable(int n);
 
 
 void defsubr(char *name, int func);
