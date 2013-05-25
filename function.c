@@ -2895,8 +2895,17 @@ int f_sqrt(int n){
     if(!numberp(arg))
     	exception("sqrt", NOT_NUMBER, arg);
     
-    if(realp(arg))
+    if(realp(arg) && !negativep(arg))
     	return(make_flt(sqrt(GET_FLT(exact_to_inexact(arg)))));
+    if(realp(arg) && negativep(arg)){
+    	x = GET_FLT(exact_to_inexact(arg));
+        y = 0;
+        z = x+y*I;
+        z1 = csqrt(z);
+        x1 = creal(z1);
+        y1 = cimag(z1);
+        return(make_comp(x1,y1));
+    }	
     if(complexp(arg)){
     	x = GET_REAL_FLT(arg);
         y = GET_IMAG_FLT(arg);
