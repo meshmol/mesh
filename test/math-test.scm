@@ -101,6 +101,8 @@
 (test* "(ceiling 3.14)" 4.0 (ceiling 3.14))
 (test* "(ceiling -2.72)" -2.0  (ceiling -2.72))
 
+(test* "(sqrt -1)" 0.0+1.0i (sqrt -1))
+
 
 ;;; 
 (define (deterministic-prime? n)

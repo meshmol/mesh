@@ -324,7 +324,7 @@
   (import (normal system)
           (scheme base)
           (scheme write))
-  (export time)
+  (export current-jiffy jiffies-per-second time)
   (begin
     (define-macro time
       (lambda (expr)

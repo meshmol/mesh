@@ -707,6 +707,8 @@
     (timer-set 0 0 #t #t)
     (timer-get 0 0 #t #t)
     (timer-gbc 0 0 #t #t)
+    (current-jiffy 0 0 #t #f)
+    (jiffies-per-second 0 0 #t #f)
     (eval 1 1 #t #f)
     (load 1 1 #t #t)
     (error 2 infinity #t #t)

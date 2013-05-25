@@ -3961,6 +3961,21 @@ int f_timer_gbc(int n){
     return(make_flt(time));
 }
 
+int f_current_jiffy(int n){
+	clock_t t1;
+    double t2;
+    
+    t1 = clock();
+    t2 = (double)t1;
+    return(make_flt(t2));
+}
+
+int f_jiffies_per_second(int n){
+	double t;
+    
+    t = (double)CLOCKS_PER_SEC;
+    return(make_flt(t));
+}
 
 int f_eval(int n){
 	int arg;
@@ -4706,6 +4721,8 @@ void initsubr(void){
     defsubr("sys-timer-set",(int)f_timer_set);
     defsubr("sys-timer-get",(int)f_timer_get);
     defsubr("sys-timer-gbc",(int)f_timer_gbc);
+    defsubr("current-jiffy",(int)f_current_jiffy);
+    defsubr("jiffies-per-second",(int)f_jiffies_per_second);
     defsubr("eval",(int)f_eval);
     defsubr("error",(int)f_error);
     defsubr("flush",(int)f_flush);

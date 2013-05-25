@@ -286,6 +286,10 @@ void init_r7rs(void){
     defsubr("integer->char",(int)f_integer_to_char);
     defsubr("char-upcase",(int)f_char_upcase);
     defsubr("char-downcase",(int)f_char_downcase);
+    
+    current_module = 18; //(scheme time)
+    defsubr("current-jiffy",(int)f_current_jiffy);
+    defsubr("jiffies-per-second",(int)f_jiffies_per_second);
 	
     current_module = 2;
 }

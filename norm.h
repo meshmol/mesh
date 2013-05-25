@@ -845,6 +845,8 @@ int f_vmcode(int n);
 int f_timer_set(int n);
 int f_timer_get(int n);
 int f_timer_gbc(int n);
+int f_current_jiffy(int n);
+int f_jiffies_per_second(int n);
 int f_eval(int n);
 int f_inspect(int n);
 int f_env(int n);
