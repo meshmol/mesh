@@ -205,7 +205,6 @@ void init_r7rs(void){
     defsubr("read-char",(int)f_read_char);
     defsubr("peek-char",(int)f_peek_char);
     defsubr("char-ready?",(int)f_char_readyp);
-    defsubr("exit",(int)f_exit);
 	defsubr("apply",(int)f_apply);
     defsubr("gbc",(int)f_gbc);
     defsubr("values",(int)f_values);
@@ -252,6 +251,7 @@ void init_r7rs(void){
     current_module = 11; //(scheme process-context)
     defsubr("command-line",(int)f_command_line);
     defsubr("get-environment-variable",(int)f_get_environment_variable);
+	defsubr("exit",(int)f_exit);
     
     current_module = 12; //(scheme load)
     defsubr("load",(int)f_load);

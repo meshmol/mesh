@@ -115,9 +115,11 @@ int main( int argc, char *argv[] ){
         		p++;
                 switch(*p){
                 	case '2': /* -T(tail compiler2) */
+                    	_makepath(initfile,szDrive, szDir, "xinitlib", "o"); 
 						_makepath(compfile,szDrive, szDir, "xcomp", "o"); 
                     	break;
                 	case '1': /* -R(recursive compiler1) */
+                    	_makepath(initfile,szDrive, szDir, "initlib", "o");
                     	_makepath(compfile,szDrive, szDir, "ncomp", "o");
                     	break;
                     case 'S': /*セーフモード*/
@@ -1183,23 +1185,65 @@ int vm1(void){
         goto *JUMPTABLE[code[pc]];
     
     CASE_IMPLIB:
-        x = ARG1; //<name idintifier>
+		x = ARG1; //<name idintifier>
         while(!nullp(x)){
         	m = car(x);
-        	for(i=0; i<module_table_end; i++)
-        		if(equalp(module_table[i][0],m))
-            		goto implib_exit;
+            if(eqvp(car(m),make_sym("only"))){
+            	o = cddr(m); //only symbols
+				m = cadr(m); //module_name
+                for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_only_exit;
         
-        	exception("", NOT_EXIST_LIB, m);
+        		exception("", NOT_EXIST_LIB, m);
         
-        	implib_exit:
-        	y = module_table[i][1]; //export-list
+        		implib_only_exit:
+                y = module_table[i][1]; //export-list
         
-        	while(!nullp(y)){
-        		n = car(y);
-            	SET_CAR(remake(n),GET_CAR(n));
-            	y = cdr(y);
-        	}
+        		while(!nullp(y)){
+        			n = car(y);
+                    if(memv(n,o) != BOOLF)
+                        SET_CAR(remake(n),GET_CAR(n));
+            		
+                    y = cdr(y);
+        		}
+            }
+            else if(eqvp(car(m),make_sym("except"))){
+				o = cddr(m); //only symbols
+				m = cadr(m); //module_name
+                for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_except_exit;
+        
+        		exception("", NOT_EXIST_LIB, m);
+        
+        		implib_except_exit:
+                y = module_table[i][1]; //export-list
+        
+        		while(!nullp(y)){
+        			n = car(y);
+                    if(memv(n,o) == BOOLF)
+                        SET_CAR(remake(n),GET_CAR(n));
+            		
+                    y = cdr(y);
+        		}
+            }
+            else{
+        		for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_else_exit;
+        
+        		exception("", NOT_EXIST_LIB, m);
+        
+        		implib_else_exit:
+        		y = module_table[i][1]; //export-list
+        
+        		while(!nullp(y)){
+        			n = car(y);
+            		SET_CAR(remake(n),GET_CAR(n));
+            		y = cdr(y);
+        		}
+            }
             x = cdr(x);
         }
         push_s(undef);
@@ -2404,20 +2448,62 @@ int vm2(void){
         x = ARG1; //<name idintifier>
         while(!nullp(x)){
         	m = car(x);
-        	for(i=0; i<module_table_end; i++)
-        		if(equalp(module_table[i][0],m))
-            		goto implib_exit;
+            if(eqvp(car(m),make_sym("only"))){
+            	o = cddr(m); //only symbols
+				m = cadr(m); //module_name
+                for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_only_exit;
         
-        	exception("", NOT_EXIST_LIB, m);
+        		exception("", NOT_EXIST_LIB, m);
         
-        	implib_exit:
-        	y = module_table[i][1]; //export-list
+        		implib_only_exit:
+                y = module_table[i][1]; //export-list
         
-        	while(!nullp(y)){
-        		n = car(y);
-            	SET_CAR(remake(n),GET_CAR(n));
-            	y = cdr(y);
-        	}
+        		while(!nullp(y)){
+        			n = car(y);
+                    if(memv(n,o) != BOOLF)
+                        SET_CAR(remake(n),GET_CAR(n));
+            		
+                    y = cdr(y);
+        		}
+            }
+            else if(eqvp(car(m),make_sym("except"))){
+				o = cddr(m); //only symbols
+				m = cadr(m); //module_name
+                for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_except_exit;
+        
+        		exception("", NOT_EXIST_LIB, m);
+        
+        		implib_except_exit:
+                y = module_table[i][1]; //export-list
+        
+        		while(!nullp(y)){
+        			n = car(y);
+                    if(memv(n,o) == BOOLF)
+                        SET_CAR(remake(n),GET_CAR(n));
+            		
+                    y = cdr(y);
+        		}
+            }
+            else{
+        		for(i=0; i<module_table_end; i++)
+        			if(equalp(module_table[i][0],m))
+            			goto implib_else_exit;
+        
+        		exception("", NOT_EXIST_LIB, m);
+        
+        		implib_else_exit:
+        		y = module_table[i][1]; //export-list
+        
+        		while(!nullp(y)){
+        			n = car(y);
+            		SET_CAR(remake(n),GET_CAR(n));
+            		y = cdr(y);
+        		}
+            }
             x = cdr(x);
         }
         push_s(undef);
