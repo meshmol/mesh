@@ -4,6 +4,21 @@ test1
 asdf
 |#
 
+
+ (define-syntax define-values 
+   (syntax-rules () 
+     ((define-values () exp) 
+      (call-with-values (lambda () exp) (lambda () (undefined))))
+     ((define-values (var . vars) exp) 
+      (begin  
+        (define var (call-with-values (lambda () exp) list)) 
+        (define-values vars (apply values (cdr var))) 
+        (define var (car var)))) 
+     ((define-values var exp) 
+      (define var (call-with-values (lambda () exp) list))))) 
+
+
+
 ;;directive test
 #!fold-case
 

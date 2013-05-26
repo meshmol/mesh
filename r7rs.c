@@ -251,6 +251,7 @@ void init_r7rs(void){
     current_module = 11; //(scheme process-context)
     defsubr("command-line",(int)f_command_line);
     defsubr("get-environment-variable",(int)f_get_environment_variable);
+    defsubr("get-environment-variables",(int)f_get_environment_variables);
 	defsubr("exit",(int)f_exit);
     
     current_module = 12; //(scheme load)
@@ -288,8 +289,23 @@ void init_r7rs(void){
     defsubr("char-downcase",(int)f_char_downcase);
     
     current_module = 18; //(scheme time)
+    defsubr("current-second",(int)f_current_second);
     defsubr("current-jiffy",(int)f_current_jiffy);
     defsubr("jiffies-per-second",(int)f_jiffies_per_second);
 	
+    current_module = 0; //user
+	defsyntax("quote");
+    defsyntax("begin");
+    defsyntax("set!");
+	defsyntax("if");
+	defsyntax("lambda");
+    defsyntax("define");
+    defsyntax("define-macro");
+    defsyntax("define-syntax");
+    defsyntax("define-library");
+    defsyntax("export");
+    defsyntax("import");
+    defsyntax("syntax-rules");
+    
     current_module = 2;
 }

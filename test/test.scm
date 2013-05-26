@@ -14,6 +14,6 @@
     (take-numbers ls)
     ))
 
-(define (print x y)
-  (display x)
-  (display y))
+(define (print . x)
+  (for-each display x))
+

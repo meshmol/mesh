@@ -707,6 +707,7 @@
     (timer-set 0 0 #t #t)
     (timer-get 0 0 #t #t)
     (timer-gbc 0 0 #t #t)
+    (current-second 0 0 #t #f)
     (current-jiffy 0 0 #t #f)
     (jiffies-per-second 0 0 #t #f)
     (eval 1 1 #t #f)
@@ -752,6 +753,7 @@
     (bytevector-append 0 infinity #t #f)
     (command-line 0 0 #t #f)
     (get-environment-variable 1 1 #t #f)
+    (get-environment-variables 0 0 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

@@ -3961,20 +3961,29 @@ int f_timer_gbc(int n){
     return(make_flt(time));
 }
 
+int f_current_second(int n){
+	time_t t;
+    double s;
+    
+    t = time(NULL);
+    s = (double)t;
+    return(make_flt(s));
+}
+
 int f_current_jiffy(int n){
 	clock_t t1;
-    double t2;
+    int t2;
     
     t1 = clock();
-    t2 = (double)t1;
-    return(make_flt(t2));
+    t2 = (int)t1;
+    return(make_int(t2));
 }
 
 int f_jiffies_per_second(int n){
-	double t;
+	int t;
     
-    t = (double)CLOCKS_PER_SEC;
-    return(make_flt(t));
+    t = (int)CLOCKS_PER_SEC;
+    return(make_int(t));
 }
 
 int f_eval(int n){
@@ -4478,6 +4487,48 @@ int f_get_environment_variable(int n){
 	return(res);    
 }
 
+int f_get_environment_variables(int n){
+	int i,res;
+    char *envstr, varname[128];
+    LPTSTR l_str;
+    DWORD dwResult;
+    TCHAR val[2048];
+    
+    res = NIL;
+    envstr = GetEnvironmentStrings();
+    
+    l_str = envstr;
+	//最初の3個は意味のないデータなので飛ばす。
+    for(i=0; i<3; i++){	
+    	while (*l_str != NUL) l_str++;
+        	l_str++;
+    }
+    while (1){
+    	if (*l_str == NUL) break; 
+        i = 0;
+        while(*l_str != '='){
+        	varname[i] = *l_str;
+            l_str++;
+            i++;
+        }
+        varname[i] = NUL;	
+    
+        dwResult = GetEnvironmentVariable(_T(varname),val,sizeof(val));
+        if(dwResult != 0){
+        	res = cons(cons(make_str(varname),make_str((char*)val)),res);
+    	}
+    	else
+    		res = cons(cons(make_str(varname),BOOLF),res);
+        
+        while (*l_str != NUL) l_str++;
+        l_str++;
+    
+    }
+	
+    FreeEnvironmentStrings(envstr);
+    return(reverse(res));
+	
+}
 
 
 //subrを環境に登録する。
@@ -4721,6 +4772,7 @@ void initsubr(void){
     defsubr("sys-timer-set",(int)f_timer_set);
     defsubr("sys-timer-get",(int)f_timer_get);
     defsubr("sys-timer-gbc",(int)f_timer_gbc);
+    defsubr("current-second",(int)f_current_second);
     defsubr("current-jiffy",(int)f_current_jiffy);
     defsubr("jiffies-per-second",(int)f_jiffies_per_second);
     defsubr("eval",(int)f_eval);
@@ -4762,6 +4814,7 @@ void initsubr(void){
     defsubr("bytevector-append",(int)f_bytevector_append);
     defsubr("command-line",(int)f_command_line);
     defsubr("get-environment-variable",(int)f_get_environment_variable);
+	defsubr("get-environment-variables",(int)f_get_environment_variables);
     
 }
 

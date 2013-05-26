@@ -1,52 +1,15 @@
 
 (define-library (normal system)
   (export
-    pair-length
-    last
-    butlast
-    sys-code
-    sys-env
-    sys-timer-set
-    sys-timer-get
-    sys-timer-gbc
-    primitive-name?
-    macroexpand-1
-    macroexpand
-    addr
-    entity-addr
-    undefined
-    step
-    vm2-step
-    vm1
-    vm2
-    dump
-    addr-prt
-    room
-    macro-name?
-    hygienic-name?
-    gensym
-    flush
-    sys-set-trace
-    sys-set-untrace
-    transfer
-    debug
-    profiler
-    current-module
-    sys-cont-room
-    make-syntactic-closure
-    symbol->identifier
-    identifier->symbol
-    syntactic-closure?
-    identifier?
-    identifier-bind!
-    identifier-free?
-    identifier-bound?
-    identifier-bound
-    global-bound?
-    inspect
-    lambda/asm
-    system))
-  
+    addr addr-prt butlast current-module debug dump entity-addr flush gensym
+    global-bound? hygienic-name? identifier->symbol identifier-bind! identifier-bound
+    identifier-bound? identifier-free? identifier? inspect lambda/asm last
+    macro-name? macroexpand macroexpand-1 make-syntactic-closure pair-length
+    primitive-name? profiler room step symbol->identifier syntactic-closure?
+    sys-code sys-cont-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
+    sys-timer-get sys-timer-set system transfer undefined vm1 vm2 vm2-step))
+    
+    
 (define-library (normal compile)
   (export compile assemble compile-file map for-each and or let let* cond letrec do case
           call/cc call-with-current-continuation dynamic-wind call-with-values))
@@ -63,29 +26,29 @@
           (only (scheme inexact) sqrt)
           (scheme char))
   (export
-    car cdr cons caar cdar cddr cadr caaar cdaar cadar caadr cddar caddr cdadr
-    cdddr caaaar cdaaar cadaar caadar caaadr cddaar caddar caaddr cdaadr cdadar
-    cadddr cdaddr cddadr cdddar cddddr assq assv assoc memq memv member reverse
-    reverse! list-tail list-ref list-set! append append! set-car! set-cdr! list
-     make-list length newline
-    write-char null? list? pair? atom? eq? eqv? equal? boolean? procedure? number?
-    integer? real? rational? complex? exact? inexact? symbol? string? char? bignum?
-    vector? macro? zero? error
-    + - * / < <= > >= =
-    expt not odd? even? floor ceiling truncate round numerator denominator positive?
-    negative? abs max min exact->inexact inexact->exact remainder modulo quotient
-    gcd lcm string-append number->string string->number exact inexact exact-integer-sqrt
-    string=? string>? string>=? string<? string<=? string-ci=? string-ci>? string-ci>=?
-    string-ci<? string-ci<=? string->symbol symbol->string string-length make-string
-    string string-ref string-set! substring string->list list->string string-copy string-fill!
-    make-vector vector-set! vector vector-ref vector-length vector-fill! vector->list list->vector
-    open-input-file open-output-file close-input-port close-output-port
-    eof-object? input-port? output-port? current-input-port current-output-port
-    read-char peek-char char-ready? apply gbc values flush-output-port square
-    map for-each and or let let* cond letrec do case call/cc call-with-current-continuation
-    dynamic-wind call-with-values exact-integer? when unless with-exception-handler raise
-    raise-continuable bytevector? make-bytevector bytevector bytevector-length string-map vector-map
-    bytevector-u8-set! bytevector-u8-ref bytevector-copy bytevector-copy! bytevector-append)
+    * + - / < <= = > >= abs and append append! apply assoc assq assv atom? bignum?
+    boolean? bytevector bytevector-append bytevector-copy bytevector-copy!
+    bytevector-length bytevector-u8-ref bytevector-u8-set! bytevector?
+    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
+    cadr call-with-current-continuation call-with-values call/cc car case cdaaar
+    cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar cddddr cdddr
+    cddr cdr ceiling char-ready? char? close-input-port close-output-port complex?
+    cond cons current-input-port current-output-port denominator do
+    dynamic-wind eof-object? eq? equal? eqv? error even? exact exact->inexact
+    exact-integer-sqrt exact-integer? exact? expt floor flush-output-port for-each
+    gbc gcd inexact inexact->exact inexact? input-port? integer? lcm length
+    let let* letrec list list->string list->vector list-ref list-set! list-tail list?
+    macro? make-bytevector make-list make-string make-vector map max member memq memv
+    min modulo negative? newline not null? number->string number? numerator odd?
+    open-input-file open-output-file or output-port? pair? peek-char positive?
+    procedure? quotient raise raise-continuable rational? read-char real? remainder
+    reverse reverse! round set-car! set-cdr! square string string->list string->number
+    string->symbol string-append string-ci<=? string-ci<? string-ci=? string-ci>=?
+    string-ci>? string-copy string-fill! string-length string-map string-ref string-set!
+    string<=? string<? string=? string>=? string>? string? substring symbol->string
+    symbol? truncate unless values vector vector->list vector-fill! vector-length
+    vector-map vector-ref vector-set! vector? when with-exception-handler
+    write-char zero?)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -318,13 +281,13 @@
 
 
 (define-library (scheme process-context)
-  (export command-line get-environment-variable exit))
+  (export command-line get-environment-variable get-environment-variables exit))
 
 (define-library (scheme time)
   (import (normal system)
           (scheme base)
           (scheme write))
-  (export time)
+  (export current-second current-jiffy jiffies-per-second time)
   (begin
     (define-macro time
       (lambda (expr)
@@ -415,7 +378,16 @@
     (define-macro untrace
       (lambda fn
         `(sys-set-untrace ,@(map (lambda (x) (list 'quote x)) fn))))))
-    
+
+;;Gauche‚Æ‚ÌŒÝŠ·ƒ‰ƒCƒuƒ‰ƒŠ
+;;‚æ‚­Žg‚¤‚à‚Ì‚¾‚¯
+(define-library (normal gauche)
+  (import (only (scheme base) for-each)
+          (only (scheme write) display))
+  (export print)
+  (begin
+    (define (print . x)
+      (for-each display x))))
 
 (import (scheme base)
         (scheme load)
@@ -424,6 +396,7 @@
         (scheme eval)
         (scheme char)
         (scheme inexact)
+        (only (normal system) macroexpand macroexpand-1)
         (only (scheme process-context) exit))
 
 

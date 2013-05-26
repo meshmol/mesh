@@ -261,7 +261,7 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define SET_TAG(addr,x)		memory[addr].tag = x
 #define SET_FLAG_FREE(addr)	memory[addr].flag = FRE
 #define SET_FLAG_USE(addr)	memory[addr].flag = USE
-#define SET_NAME(addr,x)	memory[addr].name = (char *)malloc(SYMSIZE); strcpy(memory[addr].name,x);
+#define SET_NAME(addr,x)	memory[addr].name = (char *)malloc(strlen(x)+1); strcpy(memory[addr].name,x);
 #define SET_CHAR(addr,x)	memory[addr].name = (char *)malloc(CHARSIZE); memory[addr].name[0] = x; memory[addr].name[1] = NUL;
 #define SET_FLT(addr,x) 	memory[addr].val.fltnum = x
 #define SET_REAL_FLT(addr,x) 	memory[addr].val.car.intnum = make_flt(x)
@@ -845,6 +845,7 @@ int f_vmcode(int n);
 int f_timer_set(int n);
 int f_timer_get(int n);
 int f_timer_gbc(int n);
+int f_current_second(int n);
 int f_current_jiffy(int n);
 int f_jiffies_per_second(int n);
 int f_eval(int n);
@@ -892,7 +893,7 @@ int f_bytevector_copy2(int n);
 int f_bytevector_append(int n);
 int f_command_line(int n);
 int f_get_environment_variable(int n);
-
+int f_get_environment_variables(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

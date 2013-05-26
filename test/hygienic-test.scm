@@ -1,5 +1,10 @@
 
 
+(define-syntax foo
+  (syntax-rules ()
+    ((_ (x . y))
+     (list x y))))
+
 (define-syntax nil!
   (syntax-rules ()
     ((_ x)
