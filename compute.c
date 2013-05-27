@@ -198,6 +198,14 @@ int numeqp(int x, int y){
         else
         	return(0);
     }
+	//複素数同市の場合には実部、虚部が等しいならば等しい。
+    if(complexp(x) && complexp(y)){
+    	if(GET_REAL_FLT(x) == GET_REAL_FLT(y) &&
+           GET_IMAG_FLT(x) == GET_IMAG_FLT(y))
+        	return(1);
+        else
+        	return(0);
+    }
     //inf.nanの場合にはセルアドレスが同じならば等しい。
     if((infinityp(x) || nanp(x)) && (infinityp(y) || nanp(y))){
     	if(x == y)
