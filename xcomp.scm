@@ -684,6 +684,8 @@
     (current-output-port 1 1 #t #f)
     (read-char 1 1 #t #f)
     (peek-char 1 1 #t #f)
+    (read-line 0 0 #t #f)
+    (read-string 1 1 #t #f)
     (char-ready? 1 1 #t #f)
     (exit 0 0 #t #t)
     (gensym 0 1 #t #f)
@@ -753,6 +755,7 @@
     (bytevector-append 0 infinity #t #f)
     (command-line 0 0 #t #f)
     (get-environment-variable 1 1 #t #f)
+    (get-environment-variables 0 0 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

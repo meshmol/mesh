@@ -12,7 +12,7 @@
     
 (define-library (normal compile)
   (export compile assemble compile-file map for-each and or let let* cond letrec do case
-          call/cc call-with-current-continuation dynamic-wind call-with-values))
+          call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind))
 
 (define-library (scheme inexact)
   (export
@@ -48,7 +48,7 @@
     string<=? string<? string=? string>=? string>? string? substring symbol->string
     symbol? truncate unless values vector vector->list vector-fill! vector-length
     vector-map vector-ref vector-set! vector? when with-exception-handler
-    write-char zero?)
+    write-char zero? read-line read-string)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -281,7 +281,12 @@
 
 
 (define-library (scheme process-context)
-  (export command-line get-environment-variable get-environment-variables exit))
+  (import (normal compile))
+  (export command-line get-environment-variable get-environment-variables exit emergency-exit)
+  (begin
+    (define (emergency-exit . obj)
+      (do-wind winders)
+      (exit))))
 
 (define-library (scheme time)
   (import (normal system)
