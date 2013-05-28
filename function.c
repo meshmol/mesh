@@ -4043,6 +4043,7 @@ int f_error(int n){
     
 	printf("Exception: ");
     display_str(arg1);
+    printf(" ");
     while(!nullp(arg2)){
     	print(car(arg2));
         printf(" ");

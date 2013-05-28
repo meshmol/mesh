@@ -714,7 +714,7 @@
     (jiffies-per-second 0 0 #t #f)
     (eval 1 1 #t #f)
     (load 1 1 #t #t)
-    (error 2 infinity #t #t)
+    (error 1 infinity #t #t)
     (flush 0 1 #t #t)
     (set-trace 0 infinity #t #t)
     (set-untrace 0 infinity #t #t)
