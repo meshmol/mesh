@@ -4073,16 +4073,22 @@ int symtoken(char buf[]){
 }
 
 int booltoken(char buf[]){
-	if(!(buf[0] == '#'))
-    	return(0);
-    if(!(buf[1] == 't' || buf[1] == 'T' 
-    	|| buf[1] == 'f' || buf[1] == 'F'))
-        return(0);
-    if(!(buf[2] == NUL))
-    	return(0);
+	if(strcmp(buf,"#t") == 0)
+    	return(1);
+    if(strcmp(buf,"#T") == 0)
+    	return(1);
+    if(strcmp(buf,"#true") == 0)
+    	return(1);
+    if(strcmp(buf,"#f") == 0)
+    	return(1);
+    if(strcmp(buf,"#F") == 0)
+    	return(1);
+    if(strcmp(buf,"#false") == 0)
+    	return(1);
     
-    return(1);
+    return(0);
 }
+    
 
 int inftoken(char buf[]){
 	
