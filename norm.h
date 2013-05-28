@@ -805,6 +805,8 @@ int f_not(int n);
 int f_read(int n);
 int f_read_char(int n);
 int f_peek_char(int n);
+int f_read_line(int n);
+int f_read_string(int n);
 int	f_char_readyp(int n);
 int f_load(int n);
 int	f_open_input_file(int n);

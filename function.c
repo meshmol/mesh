@@ -3195,6 +3195,42 @@ int f_peek_char(int n){
     }
 }
 
+int f_read_line(int n){
+	char str[BUFSIZE],c;
+    int pos;
+    
+    pos = 0;
+    c = getc(input_port);
+    while((c != EOL) && (c != EOF)){
+    	str[pos] = c;
+        pos++;
+        c = getc(input_port);	
+    }
+	str[pos] = NUL;
+    return(make_str(str));
+}
+
+int f_read_string(int n){
+	char str[BUFSIZE],c;
+    int arg,pos,m;
+    
+    arg = pop_s();
+    if(!IS_INTEGER(arg) || negativep(arg))
+    	exception("read-string",NOT_EXACT,arg);
+    
+    m = get_int(arg);    
+    pos = 0;
+    c = getc(input_port);
+    while((c != EOF) && (m > 0)){
+    	str[pos] = c;
+        pos++;
+        m--;
+        c = getc(input_port);	
+    }
+	str[pos] = NUL;
+    return(make_str(str));
+}
+
 //実装困難につき常時#tを返すこととする。
 int	f_char_readyp(int n){
 	return(BOOLT);
@@ -4748,6 +4784,8 @@ void initsubr(void){
     defsubr("current-output-port",(int)f_current_output_port);
     defsubr("read-char",(int)f_read_char);
     defsubr("peek-char",(int)f_peek_char);
+    defsubr("read-line",(int)f_read_line);
+    defsubr("read-string",(int)f_read_string);
     defsubr("char-ready?",(int)f_char_readyp);
     defsubr("lambda/asm",(int)f_lambda_asm);
     defsubr("exit",(int)f_exit);

@@ -204,6 +204,8 @@ void init_r7rs(void){
     defsubr("current-output-port",(int)f_current_output_port);
     defsubr("read-char",(int)f_read_char);
     defsubr("peek-char",(int)f_peek_char);
+    defsubr("read-line",(int)f_read_line);
+    defsubr("read-string",(int)f_read_string);
     defsubr("char-ready?",(int)f_char_readyp);
 	defsubr("apply",(int)f_apply);
     defsubr("gbc",(int)f_gbc);
