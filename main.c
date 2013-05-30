@@ -87,7 +87,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.26 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.5.31 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();

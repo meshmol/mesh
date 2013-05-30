@@ -4263,7 +4263,7 @@ int f_sys_cont_room(int n){
     return(undef);
 }
 
-int f_make_sc(int lvar){
+int f_make_syntactic_closure(int lvar){
 	int env,fv,expr,res;
     
     expr = pop_s();
@@ -4281,6 +4281,35 @@ int f_make_sc(int lvar){
     return(res);	
 }
 
+int f_syntactic_closure_expr(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!syntactic_closurep(arg))
+    	exception("syntactic-closure-expr", NOT_SYNTACTIC, arg);
+    
+    return(GET_CAR(arg));
+}
+
+int f_syntactic_closure_env(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!syntactic_closurep(arg))
+    	exception("syntactic-closure-env", NOT_SYNTACTIC, arg);
+    
+    return(GET_CDR(arg));
+}
+
+int f_syntactic_closure_freevar(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!syntactic_closurep(arg))
+    	exception("syntactic-closure-freevar", NOT_SYNTACTIC, arg);
+    
+    return(GET_AUX(arg));
+}
 
 int f_symbol_to_identifier(int n){
 	int arg;
@@ -4825,7 +4854,10 @@ void initsubr(void){
     defsubr("current-module",(int)f_current_module);
     defsubr("values",(int)f_values);
 	defsubr("sys-cont-room",(int)f_sys_cont_room);
-    defsubr("make-syntactic-closure",(int)f_make_sc);
+    defsubr("make-syntactic-closure",(int)f_make_syntactic_closure);
+    defsubr("syntactic-closure-expr",(int)f_syntactic_closure_expr);
+    defsubr("syntactic-closure-env",(int)f_syntactic_closure_env);
+    defsubr("syntactic-closure-freevar",(int)f_syntactic_closure_freevar);
     defsubr("symbol->identifier",(int)f_symbol_to_identifier);
     defsubr("identifier->symbol",(int)f_identifier_to_symbol);
     defsubr("syntactic-closure?",(int)f_syntactic_closurep);

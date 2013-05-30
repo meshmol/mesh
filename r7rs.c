@@ -38,7 +38,10 @@ void init_r7rs(void){
     defsubr("profiler",(int)f_prof);
     defsubr("current-module",(int)f_current_module);
     defsubr("sys-cont-room",(int)f_sys_cont_room);
-    defsubr("make-syntactic-closure",(int)f_make_sc);
+    defsubr("make-syntactic-closure",(int)f_make_syntactic_closure);
+    defsubr("syntactic-closure-expr",(int)f_syntactic_closure_expr);
+    defsubr("syntactic-closure-env",(int)f_syntactic_closure_env);
+    defsubr("syntactic-closure-freevar",(int)f_syntactic_closure_freevar);
     defsubr("symbol->identifier",(int)f_symbol_to_identifier);
     defsubr("identifier->symbol",(int)f_identifier_to_symbol);
     defsubr("syntactic-closure?",(int)f_syntactic_closurep);
