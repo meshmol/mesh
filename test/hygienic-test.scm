@@ -69,7 +69,8 @@
 (define-syntax foo
   (syntax-rules (lit)
     ((_ (x . y)) (list x y))
-    ((_ lit x) (list x))))
+    ((_ lit x) (list x x))))
+
 
 (define-syntax my-if
   (syntax-rules (then else)

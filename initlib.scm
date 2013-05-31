@@ -13,7 +13,8 @@
     
 (define-library (normal compile)
   (export compile assemble compile-file map for-each and or let let* cond letrec do case
-          call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind))
+          call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
+          expand))
 
 (define-library (scheme inexact)
   (export
