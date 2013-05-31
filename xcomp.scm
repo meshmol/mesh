@@ -14,7 +14,7 @@
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
-        ((identifier-free? x) (comp-var x env val? more? in-lambda?))
+        ((syntactic-closure? x) (comp-var (syntactic-closure-expr x) (syntactic-closure-env x) val? more? in-lambda?))
         ((atom? x ) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
         ((bytevector? x) (comp-const x val? more? in-lambda?))
@@ -714,7 +714,7 @@
     (jiffies-per-second 0 0 #t #f)
     (eval 1 1 #t #f)
     (load 1 1 #t #t)
-    (error 2 infinity #t #t)
+    (error 1 infinity #t #t)
     (flush 0 1 #t #t)
     (set-trace 0 infinity #t #t)
     (set-untrace 0 infinity #t #t)
@@ -726,6 +726,9 @@
     (values 0 infinity #t #t)
     (sys-cont-room 1 1 #t #t)
     (make-syntactic-clousre 3 3 #t #t)
+    (syntactic-closure-expr 1 1 #t #f)
+    (syntactic-closure-env 1 1 #t #f)
+    (syntactic-closure-freevar 1 1 #t #f)
     (symbol->identifier 1 1 #t #f)
     (identifier->symbol 1 1 #t #f)
     (syntactic-closure? 1 1 #t #f)
@@ -915,17 +918,20 @@
 (define (fail? x)
   (eq? x 'fail))
 
-(define (subst-to-identifier x env)
+(define (subst-to-identifier x env lits)
   (cond ((null? x) '())
-        ((and (symbol? x)
-              (or (local-bound? x env) (global-bound? x) (eq? x 'else)))
+        ((and (symbol? x)(local-bound? x env))
+         (identifier-bind! (symbol->identifier x) x))
+        ((and (symbol? x)(global-bound? x))
+         (identifier-bind! (symbol->identifier x) x))
+        ((and (symbol? x)(memv x lits))
          (identifier-bind! (symbol->identifier x) x))
         ((symbol? x)
          (symbol->identifier x))
         ((atom? x) x)
         ((vector? x) x)
-        (else (cons (subst-to-identifier (car x) env)
-                    (subst-to-identifier (cdr x) env)))))
+        (else (cons (subst-to-identifier (car x) env lits)
+                    (subst-to-identifier (cdr x) env lits)))))
 
 (define (local-bound? x env)
   (cond ((null? env) #f)
@@ -1009,11 +1015,11 @@
 
 
 
-(define (expand-template x vars comp-env)
+(define (expand-template x vars comp-env lits)
   (subst-from-identifier
     (subst-let-vars
       (subst-pattern-vars
-        (subst-to-identifier x comp-env)
+        (subst-to-identifier x comp-env lits)
         vars))))
 
 
@@ -1021,7 +1027,7 @@
   (let* ((pat (caar x))
          (temp (cadar x))
          (vars (match pat y lits)))
-    (cond (vars (expand-template temp vars comp-env))
+    (cond (vars (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules fail " y))
           (else (expand (cdr x) y lits comp-env)))))
 

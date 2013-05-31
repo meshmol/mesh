@@ -64,3 +64,15 @@
   (newline)
   (settest)
   (display b))
+
+
+(define-syntax foo
+  (syntax-rules (lit)
+    ((_ (x . y)) (list x y))
+    ((_ lit x) (list x))))
+
+(define-syntax my-if
+  (syntax-rules (then else)
+    ((_ test then e1 else e2) (if test e1 e2))
+    ((_ test then e1) (if test e1 #f))
+    ((_ test else e1) (if test #f e1))))

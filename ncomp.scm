@@ -14,7 +14,7 @@
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
-        ((identifier-free? x) (comp-var x env val? more? in-lambda?))
+        ((syntactic-closure? x) (comp-var (syntactic-closure-expr x) (syntactic-closure-env x) val? more? in-lambda?))
         ((atom? x ) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
         ((bytevector? x) (comp-const x val? more? in-lambda?))
@@ -848,6 +848,7 @@
   (match1 x y lits '()))
 
 (define (match1 x y lits vars)
+  ;;(display x)(newline)(display y)(newline)
   (cond ((and (null? x) (null? y)) vars)
         ((ellipsis? x) (match1 (cddr x)
                                (list-take-right y (length (cddr x)))
@@ -856,8 +857,9 @@
         ((and (null? x) (not (null? y))) #f)
         ((and (identifier? x) (null? y)) (list (cons x y)))
         ((and (not (null? x)) (null? y)) #f)
-        ((and (atom? (car x)) (memq (car x) lits) (not (eq? (car x) (car y)))) #f)
-        ((atom? (car x)) (match1 (cdr x) (cdr y) lits (cons (cons (car x)(car y)) vars)))
+        ((and (symbol? x) (atom? y)) (cons (cons x y) vars))
+        ((and (symbol? (car x)) (memv (car x) lits) (not (eqv? (car x) (car y)))) #f)
+        ((symbol? (car x)) (match1 (cdr x) (cdr y) lits (cons (cons (car x)(car y)) vars)))
         ((and (vec-ellipsis? (car x))(vector? (car y))) 
          (match1 (cdr x) (cdr y) lits (cons (cons (vector-ref (car x) 0) (vector->list (car y))) vars)))
         ((and (ellipsises? x) (= (length (car x)) (length (transpose y))))
@@ -918,17 +920,20 @@
 (define (fail? x)
   (eq? x 'fail))
 
-(define (subst-to-identifier x env)
+(define (subst-to-identifier x env lits)
   (cond ((null? x) '())
-        ((and (symbol? x)
-              (or (local-bound? x env) (global-bound? x) (eq? x 'else)))
+        ((and (symbol? x)(local-bound? x env))
+         (identifier-bind! (symbol->identifier x) x))
+        ((and (symbol? x)(global-bound? x))
+         (identifier-bind! (symbol->identifier x) x))
+        ((and (symbol? x)(memv x lits))
          (identifier-bind! (symbol->identifier x) x))
         ((symbol? x)
          (symbol->identifier x))
         ((atom? x) x)
         ((vector? x) x)
-        (else (cons (subst-to-identifier (car x) env)
-                    (subst-to-identifier (cdr x) env)))))
+        (else (cons (subst-to-identifier (car x) env lits)
+                    (subst-to-identifier (cdr x) env lits)))))
 
 (define (local-bound? x env)
   (cond ((null? env) #f)
@@ -1012,11 +1017,11 @@
 
 
 
-(define (expand-template x vars comp-env)
+(define (expand-template x vars comp-env lits)
   (subst-from-identifier
     (subst-let-vars
       (subst-pattern-vars
-        (subst-to-identifier x comp-env)
+        (subst-to-identifier x comp-env lits)
         vars))))
 
 
@@ -1024,7 +1029,7 @@
   (let* ((pat (caar x))
          (temp (cadar x))
          (vars (match pat y lits)))
-    (cond (vars (expand-template temp vars comp-env))
+    (cond (vars (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules fail " y))
           (else (expand (cdr x) y lits comp-env)))))
 
