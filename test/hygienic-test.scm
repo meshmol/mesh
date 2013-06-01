@@ -67,7 +67,7 @@
 
 
 (define-syntax foo
-  (syntax-rules (lit)
+  (syntax-rules ()
     ((_ (x . y)) (list x y))
     ((_ lit x) (list x x))))
 
