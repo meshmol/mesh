@@ -87,7 +87,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.5.31 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.6.2 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -817,7 +817,7 @@ int vm1(void){
 	
     CASE_DEF:
         arg = ARG1;
-        if(closurep(TOP_STACK)){
+        if(closurep(TOP_STACK) || IS_HYGIENIC(TOP_STACK)){
         	clo = TOP_STACK;
             strcpy(str,GET_NAME(arg));
             SET_NAME(clo,str);
@@ -841,17 +841,11 @@ int vm1(void){
     	goto *JUMPTABLE[code[pc]];
         
     CASE_DEFH:
-        arg = ARG1; //symbol
-        new_env = ARG2; //comp-env
-        clo = make_hygienic();
+		clo = make_hygienic();
         SET_CAR(clo,pop_s());
         SET_CDR(clo,env); //vm-env
-        SET_AUX(clo,new_env);
-        SET_CAR(arg,clo);
-        strcpy(str,GET_NAME(arg));
-        SET_NAME(clo,str);
-        push_s(arg);
-        pc = pc + 3;
+        push_s(clo);
+        pc = pc + 1;
     	goto *JUMPTABLE[code[pc]];
     
     CASE_NEQP:
@@ -1904,7 +1898,7 @@ int vm2(void){
         start = clock();
         
         arg = ARG1;
-        if(closurep(TOP_STACK)){
+        if(closurep(TOP_STACK) || IS_HYGIENIC(TOP_STACK)){
         	clo = TOP_STACK;
             strcpy(str,GET_NAME(arg));
             SET_NAME(clo,str);
@@ -1944,17 +1938,11 @@ int vm2(void){
     	step();
         start = clock();
         
-        arg = ARG1; //symbol
-        new_env = ARG2; //comp-env
         clo = make_hygienic();
         SET_CAR(clo,pop_s());
         SET_CDR(clo,env); //vm-env
-        SET_AUX(clo,new_env);
-        SET_CAR(arg,clo);
-        strcpy(str,GET_NAME(arg));
-        SET_NAME(clo,str);
-        push_s(arg);
-        pc = pc + 3;
+        push_s(clo);
+        pc = pc + 1;
         
         end = clock();
         prof_dt[20].count++;
@@ -2637,14 +2625,7 @@ void list_to_code(int lis){
                     lis = cdr(lis);
                     code[addr] = car(lis);
                     break;
-            case 20:code[addr] = i;
-            		addr++;
-                    lis = cdr(lis);
-                    code[addr] = car(lis);
-                    addr++;
-                    lis = cdr(lis);
-                    code[addr] = get_int(car(lis));
-        			break;
+            case 20:
             case 21:
             case 22:
             case 23:
@@ -2788,14 +2769,7 @@ int list_to_code_obj(int lis){
             	lis = cdr(lis);
             	SET_VEC_ELT(code_obj,i,car(lis));
             	break;
-        case 20:SET_VEC_ELT(code_obj,i,x);
-        		i++;
-            	lis = cdr(lis);
-            	SET_VEC_ELT(code_obj,i,car(lis));
-            	i++;
-            	lis = cdr(lis);
-            	SET_VEC_ELT(code_obj,i,get_int(car(lis)));
-        		break;   
+        case 20: 
         case 21:
         case 22:
         case 23:
@@ -2985,12 +2959,7 @@ int disasm(int addr){
         		print(code[addr+1]);
                 printf("\n");
                 break;
-        case 20:printf("defh ");
-        		print(code[addr+1]);
-                printf(" ");
-                print(code[addr+2]);
-                printf("\n");
-                addr = addr + 2;
+        case 20:printf("defh\n");
                 break;
         case 21:printf("neqp\n");
         		break;
@@ -4500,21 +4469,23 @@ void printbig(int x){
 }
 
 void printlist1(int x){
-	if(IS_NIL(x))
-    	fprintf(output_port, ")");
-    else
-    if((!(pairp(cdr(x)))) && (! (nullp(cdr(x))))){
-    	print(car(x));
-        fprintf(output_port, " . ");
-        print(cdr(x));
-        fprintf(output_port, ")");
+	
+    while(!nullp(x)){
+    	if((!(pairp(cdr(x)))) && (! (nullp(cdr(x))))){
+    		print(car(x));
+        	fprintf(output_port, " . ");
+        	print(cdr(x));
+        	fprintf(output_port, ")");
+            return;
+    	}
+    	else {
+    		print(GET_CAR(x));    
+        	if(! (IS_NIL(GET_CDR(x))))
+        		fprintf(output_port, " ");
+       		x = GET_CDR(x);
+    	}
     }
-    else {
-    	print(GET_CAR(x));    
-        if(! (IS_NIL(GET_CDR(x))))
-        	fprintf(output_port, " ");
-       	printlist1(GET_CDR(x));
-    }
+    fprintf(output_port, ")");
 }
 
 void printlist(int x){
@@ -4744,8 +4715,7 @@ void markcell(int addr){
                             			break;
                             case 19:	x = x + 2;
                             			break;
-                        	case 20:	x = x + 3;
-                            			break;
+                        	case 20:
                             case 21:
                             case 22:
                             case 23:

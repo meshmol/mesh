@@ -2,17 +2,19 @@
 (define-library (normal system)
   (export
     addr addr-prt butlast current-module debug dump entity-addr flush gensym
-    global-bound? hygienic-name? identifier->symbol identifier-bind! identifier-bound
-    identifier-bound? identifier-free? identifier? inspect lambda/asm last
+    global-bound? hygienic? hygienic-name? identifier->symbol identifier-bind! identifier-bound
+    identifier-bound? identifier-free? identifier? inspect lambda/asm last macro?
     macro-name? macroexpand macroexpand-1 make-syntactic-closure pair-length
     primitive-name? profiler room step symbol->identifier syntactic-closure?
     sys-code sys-cont-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
-    sys-timer-get sys-timer-set system transfer undefined vm1 vm2 vm2-step))
+    sys-timer-get sys-timer-set system transfer undefined vm1 vm2 vm2-step
+    syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car))
     
     
 (define-library (normal compile)
-  (export compile assemble compile-file map for-each and or let let* cond letrec do case
-          call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind))
+  (export compile comp assemble compile-file map for-each and or let let* cond letrec do case
+          call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
+          expand seq gen))
 
 (define-library (scheme inexact)
   (export
@@ -38,7 +40,7 @@
     exact-integer-sqrt exact-integer? exact? expt floor flush-output-port for-each
     gbc gcd inexact inexact->exact inexact? input-port? integer? lcm length
     let let* letrec list list->string list->vector list-ref list-set! list-tail list?
-    macro? make-bytevector make-list make-string make-vector map max member memq memv
+    make-bytevector make-list make-string make-vector map max member memq memv
     min modulo negative? newline not null? number->string number? numerator odd?
     open-input-file open-output-file or output-port? pair? peek-char positive?
     procedure? quotient raise raise-continuable rational? read-char real? remainder

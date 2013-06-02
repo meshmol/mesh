@@ -8,7 +8,7 @@
 #define FREESIZE	50000
 #define SYMSIZE		64
 #define CHARSIZE	1
-#define BUFSIZE 	256
+#define BUFSIZE 	1024
 #define CODESIZE	80000000
 #define	STACKSIZE	200000
 #define ENVSIZE		80000000
@@ -699,6 +699,7 @@ int	f_vectorp(int n);
 int f_macrop(int n);
 int f_macro_namep(int n);
 int identifier_to_symbol(int x);
+int f_hygienicp(int n);
 int f_hygienic_namep(int n);
 int f_make_vector(int n);
 int f_vector_set(int n);
@@ -899,6 +900,7 @@ int f_bytevector_append(int n);
 int f_command_line(int n);
 int f_get_environment_variable(int n);
 int f_get_environment_variables(int n);
+int f_get_car(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

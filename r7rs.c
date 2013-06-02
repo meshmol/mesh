@@ -27,7 +27,9 @@ void init_r7rs(void){
     defsubr("dump",(int)f_dump);
     defsubr("addr-prt",(int)f_addr_prt);
     defsubr("room",(int)f_room);
+    defsubr("macro?",(int)f_macrop);
     defsubr("macro-name?",(int)f_macro_namep);
+    defsubr("hygienic?",(int)f_hygienicp);
     defsubr("hygienic-name?",(int)f_hygienic_namep);
     defsubr("gensym",(int)f_gensym);
     defsubr("flush",(int)f_flush);
@@ -54,6 +56,7 @@ void init_r7rs(void){
     defsubr("inspect",(int)f_inspect);
     defsubr("lambda/asm",(int)f_lambda_asm);
     defsubr("system",(int)f_system);
+    defsubr("get-car",(int)f_get_car);
     
 
 	current_module = 3; //(scheme base)
@@ -128,7 +131,6 @@ void init_r7rs(void){
     defsubr("char?",(int)f_characterp);
     defsubr("bignum?",(int)f_bignump);
     defsubr("vector?",(int)f_vectorp);
-    defsubr("macro?",(int)f_macrop);
     defsubr("zero?",(int)f_zerop);
     defsubr("+",(int)f_plus);
     defsubr("-",(int)f_minus);
@@ -226,7 +228,6 @@ void init_r7rs(void){
     defsubr("bytevector-copy",(int)f_bytevector_copy);
     defsubr("bytevector-copy!",(int)f_bytevector_copy2);
     defsubr("bytevector-append",(int)f_bytevector_append);
-	
 	
     current_module = 4; //(scheme inexact)
     defsubr("sin",(int)f_sin);

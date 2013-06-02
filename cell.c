@@ -587,7 +587,7 @@ int make_ident(char *name){
     addr = freshcell();
     SET_TAG(addr,IDNT);
     SET_NAME(addr,name);
-    SET_AUX(addr,NIL);
+    SET_AUX(addr,undef);
     return(addr);
 }
 

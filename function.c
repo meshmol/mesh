@@ -845,6 +845,16 @@ int identifier_to_symbol(int x){
     return(make_sym(GET_NAME(x)));
 }
 
+int f_hygienicp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(IS_HYGIENIC(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
 int f_hygienic_namep(int n){
 	int arg;
     
@@ -3643,7 +3653,7 @@ int f_macroexpand1(int n){
 }
 
 int macroexpand1(int arg){
-	int clo,m,code,new_expr,comp_env,vm_env,savepc,savesp,saveenv;
+	int clo,m,code,new_expr,savepc,savesp,saveenv;
     
 	//伝統的マクロの場合
     if(macro_namep(car(arg))){
@@ -3677,15 +3687,11 @@ int macroexpand1(int arg){
     	savesp = sp;
         saveenv = env;
     	clo = GET_CAR(GET_CAR(car(arg)));
-        vm_env = GET_CDR(GET_CAR(car(arg)));
-		comp_env = GET_AUX(GET_CAR(car(arg)));
-       
+        
         push_s(arg);
-        push_s(comp_env);
-        push_s(vm_env);
         push_s(clo);
-        code = list3(make_int(13),make_int(3),make_int(33));
-		//((call 3)(pause)) 
+        code = list3(make_int(13),make_int(1),make_int(33));
+		//((call 1)(pause)) 
         list_to_code(code);
         pc = head;
         new_expr = vm1();
@@ -3821,17 +3827,22 @@ int f_vm2_step(int n){
 }
 
 int f_vm1(int n){
-	int arg,res;
+	int arg,res,savepc,savesp,saveenv;
     
     arg = pop_s();
     
-    head = 0;
-    tail = 0;
+	savepc = pc;
+    savesp = sp;
+    saveenv = env;
+    
     list_to_code(arg);
-    pc = 0;
-    sp = 0;
+    pc = head;
     stepflag = 0;
     res = vm1();
+    
+    pc = savepc;
+    sp = savesp;
+    env = saveenv;
     return(res);
 }
 
@@ -4370,7 +4381,7 @@ int f_identifier_freep(int n){
     
     arg = pop_s();
     
-    if(identifierp(arg) && GET_AUX(arg) == NIL)
+    if(identifierp(arg) && GET_AUX(arg) == undef)
     	return(BOOLT);
     else
     	return(BOOLF);
@@ -4596,6 +4607,14 @@ int f_get_environment_variables(int n){
 	
 }
 
+int f_get_car(int n){
+	int arg;
+    
+    arg = pop_s();
+    
+    return(GET_CAR(arg));
+}
+
 
 //subrを環境に登録する。
 void defsubr(char *name, int func){
@@ -4699,6 +4718,7 @@ void initsubr(void){
     defsubr("vector?",(int)f_vectorp);
     defsubr("macro?",(int)f_macrop);
 	defsubr("macro-name?",(int)f_macro_namep);
+    defsubr("hygienic?",(int)f_hygienicp);
     defsubr("hygienic-name?",(int)f_hygienic_namep);
     defsubr("zero?",(int)f_zerop);
     defsubr("+",(int)f_plus);
@@ -4886,6 +4906,7 @@ void initsubr(void){
     defsubr("command-line",(int)f_command_line);
     defsubr("get-environment-variable",(int)f_get_environment_variable);
 	defsubr("get-environment-variables",(int)f_get_environment_variables);
+    defsubr("get-car",(int)f_get_car);
     
 }
 

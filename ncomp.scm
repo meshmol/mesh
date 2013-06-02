@@ -4,9 +4,10 @@
 ;;tail?　末尾再帰最適化をするべきかどうか？
 ;;define-macroのときには#fにする。
 ;;--------------------------------- 
-
+(define hygienic '()) ;局所マクロ
 
 (define (compile x)
+  (set! hygienic '())
   (append (comp (transfer x) '() #t #t #f #f #t #f) (list (list 'halt))))
 
 
@@ -15,7 +16,7 @@
         ((boolean? x) (comp-const x val? more? in-lambda?))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
         ((syntactic-closure? x) (comp-var (syntactic-closure-expr x) (syntactic-closure-env x) val? more? in-lambda?))
-        ((atom? x ) (comp-const x val? more? in-lambda?))
+        ((atom? x) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
         ((bytevector? x) (comp-const x val? more? in-lambda?))
         ((macro-name? (car x))
@@ -58,12 +59,35 @@
         ((eqv? (car x) 'define-syntax)
          (args-type-check x 1 symbol? "require symbol ")
          (seq (comp (caddr x) env #t #t has-lambda? in-lambda? #f if?)
-              (gen 'defh (cadr x) env)))
+              (gen 'def (cadr x))))
         ((eqv? (car x) 'define-library)
          (args-count-check x 2 'infinity)
          (args-type-check x 1 list? "require list for library name")
          (seq (gen 'deflib (cadr x) (cddr x))
               (gen 'const (cadr x))))
+        ((eqv? (car x) 'let-syntax)
+         (for-each 
+           (lambda (y)
+             (display y) 
+             (set! hygienic 
+                   (cons (cons (car y)
+                               (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
+                                                   (gen 'pause)))))
+                         hygienic)))
+          (cadr x))
+         (comp-begin (cddr x) env val? more? has-lambda? in-lambda? tail? if?))
+        ((eqv? (car x) 'letrec-syntax)
+         (for-each 
+           (lambda (y)
+             (set! hygienic 
+                   (cons (cons (car y)
+                               (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
+                                                   (gen 'pause)))))
+                         hygienic)))
+           (cadr x))
+         (comp-begin (cddr x) env val? more? has-lambda? in-lambda? tail? if?))
+        ((assv (car x) hygienic) ;let-syntax/letrec-syntax body
+         (comp ((get-car (cdr (assv (car x) hygienic))) x) env val? more? has-lambda? in-lambda? tail? if?) )
         ((eqv? (car x) 'export)
          (args-count-check x 1 'infinity)
          (seq (gen 'explib (cdr x))))
@@ -73,8 +97,9 @@
         ((eqv? (car x) 'math)
          (comp (infix->prefix (cdr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'syntax-rules)
-         (comp `(lambda (expr comp-env vm-env) (expand ',(cddr x) expr ',(cadr x) comp-env))
-               env val? more? has-lambda? in-lambda? tail? if?))
+         (seq (comp `(lambda (expr) (expand ',(cddr x) expr ',(cadr x) ',env))
+                    env val? more? has-lambda? in-lambda? tail? if?)
+              (gen 'defh)))
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
@@ -450,7 +475,7 @@
         ((eqv? (car x) 'prim) (list (op-code (car x)) (cadr x) (caddr x)))
         ((eqv? (car x) 'def) (list (op-code (car x)) (cadr x)))
         ((eqv? (car x) 'defm) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'defh) (list (op-code (car x)) (cadr x) (caddr x)))
+        ((eqv? (car x) 'defh) (list (op-code (car x))))
         ((eqv? (car x) 'neqp) (list (op-code (car x))))
         ((eqv? (car x) 'smlp) (list (op-code (car x))))
         ((eqv? (car x) 'esmlp) (list (op-code (car x))))
@@ -569,6 +594,7 @@
     (vector? 1 1 #t #f)
     (macro? 1 1 #t #f)
     (macro-name? 1 1 #t #f)
+    (hygienic? 1 1 #t #f)
     (hygienic-name? 1 1 #t #f)
     (zero? 1 1 #t #f)
     (+ 0 infinity #t #f)
@@ -759,6 +785,7 @@
     (command-line 0 0 #t #f)
     (get-environment-variable 1 1 #t #f)
     (get-environment-variables 0 0 #t #f)
+    (get-car 1 1 #t #f)
     ))
 
 ;;コンパイル
@@ -770,9 +797,9 @@
     (compile-file1 (read inp) inp outp)
     (close-input-port inp)
     (close-output-port outp)
-    (display "compiled!")(flush)))
+    #t))
 
-(define (compile-file1 sexp inp outp)
+(define (compile-file1 sexp inp outp) 
   (cond ((eof-object? sexp) #t)
         (else (write (assemble (compile sexp)) outp)
               (newline outp)
@@ -844,28 +871,27 @@
 ;;Hygienic macro
 
 
-(define (match x y lits)
-  (match1 x y lits '()))
+(define (match p f lits)
+  (match1 p f lits '()))
 
-(define (match1 x y lits vars)
-  (cond ((and (null? x) (null? y)) vars)
-        ((and (symbol? x) (atom? y)) (cons (cons x y) vars))
-        ((ellipsis? x) (match1 (cddr x)
-                               (list-take-right y (length (cddr x)))
+(define (match1 p f lits vars)
+  ;(display p)(newline)(display f)(newline)
+  (cond ((and (null? p) (null? f)) vars)
+        ((and (symbol? p) (memv p lits) (not(eqv? p f))) #f)
+        ((and (symbol? f) (memv f lits) (not(eqv? p f))) #f)
+        ((symbol? p) (cons (cons p f) vars))
+        ((ellipsis? p) (match1 (cddr p)
+                               (list-take-right f (length (cddr p)))
                                lits
-                               (cons (cons (car x) (list-take y (- (length y) (length (cddr x))))) vars)))
-        ((and (null? x) (not (null? y))) #f)
-        ((and (not (null? x)) (null? y)) #f)
-        ((and (pair? x) (atom? y)) #f)
-        ((and (symbol? (car x)) (memv (car x) lits) (not (eqv? (car x) (car y)))) #f)
-        ((symbol? (car x)) (match1 (cdr x) (cdr y) lits (cons (cons (car x)(car y)) vars)))
-        ((and (vec-ellipsis? (car x))(vector? (car y))) 
-         (match1 (cdr x) (cdr y) lits (cons (cons (vector-ref (car x) 0) (vector->list (car y))) vars)))
-        ((and (ellipsises? x) (= (length (car x)) (length (transpose y))))
-         (let ((r (transpose y))) (append (list (cons (caar x) (car r))
-                                                (cons (cadar x) (cadr r))) vars)))
-        (else (let ((r1 (match1 (car x) (car y) lits vars))
-                    (r2 (match1 (cdr x) (cdr y) lits vars)))
+                               (cons (cons (car p) (list-take f (- (length f) (length (cddr p))))) vars)))
+        ((and (vector? p) (vector? f)) 
+         (match1 (vector->list p) (vector->list f) lits vars))
+        ((and (null? p) (not(null? f))) #f)
+        ((and (not(null? p)) (null? f)) #f)
+        ((and (atom? p) (not(equal? p f))) #f)
+        (else
+         (let ((r1 (match1 (car p) (car f) lits vars))
+               (r2 (match1 (cdr p) (cdr f) lits vars)))
                 (if (and r1 r2)
                     (append r1 r2)
                     #f)))))
@@ -898,8 +924,7 @@
 ;;ベクタ省略子
 (define (vec-ellipsis? x)
   (and (vector? x)
-       (symbol? (vector-ref x 0))
-       (eq? (vector-ref x 1) '...)))
+       (eqv? (vector-ref x (- (vector-length x) 1)) '...)))
 
 
 (define (list-take ls n)
@@ -930,7 +955,8 @@
         ((symbol? x)
          (symbol->identifier x))
         ((atom? x) x)
-        ((vector? x) x)
+        ((vector? x)
+         (list->vector (subst-to-identifier (vector->list x) env lits)))
         (else (cons (subst-to-identifier (car x) env lits)
                     (subst-to-identifier (cdr x) env lits)))))
 
@@ -944,7 +970,8 @@
         ((and (identifier? x)(assv x pat))
          (identifier-bind! x (cdr (assv x pat))))
         ((atom? x) x)
-        ((vector? x) x)
+        ((vector? x)
+         (list->vector (subst-pattern-vars (vector->list x) pat)))
         (else (cons (subst-pattern-vars (car x) pat)
                     (subst-pattern-vars (cdr x) pat)))))
 
@@ -966,6 +993,7 @@
 (define (scan-let-vars x v-list)
   (cond ((null? x) (map (lambda (x) (cons x (gensym))) v-list))
         ((atom? x) '())
+        ((vector? x) '())
         ((and (lambda? x)(atom? (cadr x)))
          (scan-let-vars (cddr x) (cons (cadr x) v-list)))
         ((and (lambda? x)(list? (cadr x))(not (null? (cadr x))))
@@ -999,10 +1027,11 @@
 
 (define (subst-from-identifier x)
   (cond ((null? x) '())
-        ((identifier-free? x) x)
+        ((identifier-free? x) (identifier->symbol x))
         ((identifier? x) (identifier-bound x))
         ((atom? x) x)
-        ((vector? x) x)
+        ((vector? x)
+         (list->vector (subst-from-identifier (vector->list x))))
         ((and (= (length x) 2)(ellipsis? x))
          (identifier-bound (car x)))
         ;;(x ...)
@@ -1017,11 +1046,18 @@
 
 
 (define (expand-template x vars comp-env lits)
-  (subst-from-identifier
-    (subst-let-vars
-      (subst-pattern-vars
-        (subst-to-identifier x comp-env lits)
-        vars))))
+  (let ((a #f)(b #f)(c #f)(d #f))
+    (set! a (subst-to-identifier x comp-env lits))
+    ;(display a)(newline)
+    (set! b (subst-pattern-vars a vars))
+    ;(display b)(newline)
+    (set! c (subst-let-vars b))
+    ;(display c)(newline)
+    (set! d (subst-from-identifier c))
+    ;(display d)(newline)
+    d))
+    
+  
 
 
 (define (expand x y lits comp-env)
@@ -1029,7 +1065,7 @@
          (temp (cadar x))
          (vars (match pat y lits)))
     (cond (vars (expand-template temp vars comp-env lits))
-          ((null? (cdr x)) (error "syntax-rules fail " y))
+          ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
 
 
