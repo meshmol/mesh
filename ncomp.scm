@@ -15,7 +15,7 @@
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
-        ((syntactic-closure? x) (comp-var (syntactic-closure-expr x) (syntactic-closure-env x) val? more? in-lambda?))
+        ((syntactic-closure? x) (comp-var x env val? more? in-lambda?))
         ((atom? x) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
         ((bytevector? x) (comp-const x val? more? in-lambda?))
@@ -118,6 +118,8 @@
                (gen 'return)
                '()))
       '()))
+
+
 
 (define (comp-begin exps env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? exps) (comp-const '() val? more? in-lambda?))
@@ -300,10 +302,19 @@
 (define (gen opcode . args)
   (list (cons opcode args)))
 
+;;マクロ定義時環境はsyntactic-closureに保存されている。
+;;展開時には展開時環境との差分を調整して位置を計算している。
 (define (gen-var var env)
   (let ((p (in-env? var env)))
     (cond (p (gen 'lvar (car p) (cadr p)))
           ((identifier-free? var) (gen 'gvar (identifier->symbol var)))
+          ((syntactic-closure? var)
+           (let* ((var1 (syntactic-closure-expr var))
+                  (env1 (syntactic-closure-env var))
+                  (p1 (in-env? var1 env1)))
+             (if p1
+                 (gen 'lvar (+ (car p1) (- (length env) (length env1))) (cadr p1) )
+                 (gen 'gvar var1))))
           (else (gen 'gvar var)))))
 
 (define (gen-set var env)
@@ -750,7 +761,7 @@
     (lambda/asm 2 2 #t #f)
     (values 0 infinity #t #t)
     (sys-cont-room 1 1 #t #t)
-    (make-syntactic-clousre 3 3 #t #t)
+    (make-syntactic-closure 3 3 #t #t)
     (syntactic-closure-expr 1 1 #t #f)
     (syntactic-closure-env 1 1 #t #f)
     (syntactic-closure-freevar 1 1 #t #f)
@@ -946,7 +957,7 @@
 (define (subst-to-identifier x env lits)
   (cond ((null? x) '())
         ((and (symbol? x)(local-bound? x env))
-         (identifier-bind! (symbol->identifier x) x))
+         (make-syntactic-closure env '() x))
         ((and (symbol? x)(global-bound? x))
          (identifier-bind! (symbol->identifier x) x))
         ((and (symbol? x)(memv x lits))

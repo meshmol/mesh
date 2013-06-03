@@ -118,17 +118,13 @@
 (test* "(vector-pattern #(1 2 3))"
        '(1 2 3) (vector-pat2 #(1 2 3)))
 
-(define (bar)
-  (let ((a 3))
-    (letrec-syntax
-      ((foo (syntax-rules () ((_ x) (list a x)))))
-      (foo 2))))
-
-(letrec-syntax
-    ((foo (syntax-rules () ((_ x) (list x x)))))
-    (+ 2))
 
 
 ;;(let ((a 1)) (define-syntax b (syntax-rules () ((_) a))) (b))
 
-(let ((a 1)) (let-syntax ((b (syntax-rules () ((_) a)))) (b)))
+(define (foo)
+  (let ((a 1)(c 3)) 
+    (let-syntax ((b (syntax-rules () ((_) a))))
+      (let ((a 2)(d 4))
+        (let-syntax ((f (syntax-rules () ((_) d))))
+          (+ (b) (f)))))))
