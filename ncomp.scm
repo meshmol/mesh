@@ -68,10 +68,9 @@
         ((eqv? (car x) 'let-syntax)
          (for-each 
            (lambda (y)
-             (display y) 
              (set! hygienic 
                    (cons (cons (car y)
-                               (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
+                               (vm1 (assemble (seq (comp (cadr y) env #t #t #f #f #t #f)
                                                    (gen 'pause)))))
                          hygienic)))
           (cadr x))
@@ -81,7 +80,7 @@
            (lambda (y)
              (set! hygienic 
                    (cons (cons (car y)
-                               (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
+                               (vm1 (assemble (seq (comp (cadr y) env #t #t #f #f #t #f)
                                                    (gen 'pause)))))
                          hygienic)))
            (cadr x))
@@ -947,7 +946,7 @@
 (define (subst-to-identifier x env lits)
   (cond ((null? x) '())
         ((and (symbol? x)(local-bound? x env))
-         (make-syntactic-closure env '() x))
+         (identifier-bind! (symbol->identifier x) x))
         ((and (symbol? x)(global-bound? x))
          (identifier-bind! (symbol->identifier x) x))
         ((and (symbol? x)(memv x lits))
