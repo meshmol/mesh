@@ -126,5 +126,6 @@
   (let ((a 1)(c 3)) 
     (let-syntax ((b (syntax-rules () ((_) a))))
       (let ((a 2)(d 4))
-        (let-syntax ((f (syntax-rules () ((_) d))))
+        (let-syntax ((f (syntax-rules () ((_) a))))
           (+ (b) (f)))))))
+

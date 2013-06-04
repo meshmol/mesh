@@ -7,7 +7,7 @@
     macro-name? macroexpand macroexpand-1 make-syntactic-closure pair-length
     primitive-name? profiler room step symbol->identifier syntactic-closure?
     sys-code sys-cont-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
-    sys-timer-get sys-timer-set system transfer undefined vm1 vm2 vm2-step
+    sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car))
     
     

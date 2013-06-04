@@ -3297,7 +3297,7 @@ int f_load(int n){
         	pc = 0;
         	tail = 0;
         	env = make_env(0,0);
-        	eval(quasi_to_procedure(define_to_letrec(sexp)));   
+        	eval(sexp);   
     	}
     }
     fclose(input_port);
@@ -4145,15 +4145,6 @@ int f_current_module(int n){
 }
 
 
-int f_transfer(int n){
-	int arg;
-    
-    arg = pop_s();
-    return(quasi_to_procedure(define_to_letrec(arg))); 
-}
-
-
-
 int f_debug(int n){
 	int arg;
     
@@ -4868,7 +4859,6 @@ void initsubr(void){
     defsubr("flush",(int)f_flush);
     defsubr("sys-set-trace",(int)f_set_trace);
     defsubr("sys-set-untrace",(int)f_set_untrace);
-    defsubr("transfer",(int)f_transfer);
     defsubr("debug",(int)f_debug);
     defsubr("profiler",(int)f_prof);
     defsubr("current-module",(int)f_current_module);

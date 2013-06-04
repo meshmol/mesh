@@ -35,7 +35,6 @@ void init_r7rs(void){
     defsubr("flush",(int)f_flush);
     defsubr("sys-set-trace",(int)f_set_trace);
     defsubr("sys-set-untrace",(int)f_set_untrace);
-    defsubr("transfer",(int)f_transfer);
     defsubr("debug",(int)f_debug);
     defsubr("profiler",(int)f_prof);
     defsubr("current-module",(int)f_current_module);

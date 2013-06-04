@@ -8,14 +8,14 @@
 
 (define (compile x)
   (set! hygienic '())
-  (append (comp (transfer x) '() #t #t #f #f #t #f) (list (list 'halt))))
+  (append (comp (inner-transfer x) '() #t #t #f #f #t #f) (list (list 'halt))))
 
 
 (define (comp x env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
-        ((syntactic-closure? x) (comp-var (syntactic-closure-expr x) (syntactic-closure-env x) val? more? in-lambda?))
+        ((syntactic-closure? x) (comp-var x env val? more? in-lambda?))
         ((atom? x) (comp-const x val? more? in-lambda?))
         ((vector? x) (comp-const x val? more? in-lambda?))
         ((bytevector? x) (comp-const x val? more? in-lambda?))
@@ -26,6 +26,8 @@
         ((eqv? (car x) 'quote)
          (args-count-check x 1 1)
          (comp-const (cadr x) val? more? in-lambda?))
+        ((eqv? (car x) 'quasiquote)
+         (comp (macro-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'begin)
          (comp-begin (cdr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'set!)
@@ -66,22 +68,24 @@
          (seq (gen 'deflib (cadr x) (cddr x))
               (gen 'const (cadr x))))
         ((eqv? (car x) 'let-syntax)
-         (for-each (lambda (y) 
-            (set! hygienic 
-                  (cons (cons (car y)
-                              (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
-                                                  (gen 'pause)))))
-                        hygienic)))
+         (for-each 
+           (lambda (y)
+             (set! hygienic 
+                   (cons (cons (car y)
+                               (vm1 (assemble (seq (comp (cadr y) env #t #t #f #f #t #f)
+                                                   (gen 'pause)))))
+                         hygienic)))
           (cadr x))
          (comp-begin (cddr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'letrec-syntax)
-         (for-each (lambda (y) 
-            (set! hygienic 
-                  (cons (cons (car y)
-                              (vm1 (assemble (seq (comp (cadr y) env val? more? has-lambda? in-lambda? tail? if?)
-                                                  (gen 'pause)))))
-                        hygienic)))
-          (cadr x))
+         (for-each 
+           (lambda (y)
+             (set! hygienic 
+                   (cons (cons (car y)
+                               (vm1 (assemble (seq (comp (cadr y) env #t #t #f #f #t #f)
+                                                   (gen 'pause)))))
+                         hygienic)))
+           (cadr x))
          (comp-begin (cddr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((assv (car x) hygienic) ;let-syntax/letrec-syntax body
          (comp ((get-car (cdr (assv (car x) hygienic))) x) env val? more? has-lambda? in-lambda? tail? if?) )
@@ -100,6 +104,70 @@
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
+;;quasi-quote transfer
+(define (macro-transfer x)
+  (cond ((null? x) '())
+        ((atom? x)
+         (list 'quote x))
+        ((and (pair? x)(eqv? (car x) 'unquote))
+         (cadr x))
+        ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote))
+         (list 'cons (cadar x) (macro-transfer (cdr x))))
+        ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote-splicing))
+         (list 'append (cadar x) (macro-transfer (cdr x))))
+        (else
+          (list 'cons (macro-transfer (car x)) (macro-transfer (cdr x))))))
+
+
+;;inner-define -> letrec
+(define (inner-transfer x)
+  (if (define? x)
+      (let ((e (formal-define x)))
+        (list (car e) (cadr e) (inner-transfer1 (caddr e)))) 
+      (inner-transfer1 x)))
+
+(define (inner-transfer1 x) 
+  (cond ((null? x) '()) 
+        ((atom? x) x)
+        ((vector? x) x) 
+        ((and (pair? x)(not (list? x))) x)   
+        ((eqv? (car x) 'quote) x)  
+        ((eqv? (car x) 'lambda)
+         (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x)))))) 
+        ((and (eqv? (car x) 'let)(not (atom? (cadr x)))) 
+         (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x))))))  
+        ((eqv? (car x) 'letrec) (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x)))))) 
+        ((eqv? (car x) 'let*)   (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x))))))
+        (else (cons (car x)(map inner-transfer1 (cdr x))))))
+
+;;定義部と本体を分離してletrecに変換する。
+(define (inner-transfer2 x)
+  (let ((e (separate x)))
+    (if (null? (car e))
+        (cdr e)
+        (list (cons 'letrec (cons (reverse (car e)) (cdr e)))))))
+
+;;定義部と本体に分離。
+(define (separate x) 
+  (separate1 x '()))
+
+(define (separate1 x def)
+  (if (and (pair? x)(define? (car x))) 
+      (let ((e (formal-define (car x)))) 
+        (separate1 (cdr x)    
+                   (cons (list (cadr e) (inner-transfer1 (caddr e))) def)))
+      (cons def x)))
+
+;;定義文か？
+(define (define? x) 
+  (and (list? x) (eqv? (car x) 'define)))
+
+;;mitスタイルならlambdaへ変換。
+(define (formal-define x)  
+  (if (symbol? (cadr x))
+      x   
+      (list (car x) (caadr x) (cons 'lambda (cons (cdadr x) (cddr x))))))
+;;--------------------------
 
 (define (comp-const x val? more? in-lambda?)
   (if val? 
@@ -117,10 +185,12 @@
                '()))
       '()))
 
+
+
 (define (comp-begin exps env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? exps) (comp-const '() val? more? in-lambda?))
-        ((length=1? exps) (comp (transfer (car exps)) env val? #f has-lambda? in-lambda? tail? if?))
-        (else (seq (comp (transfer (car exps)) env #f #t has-lambda? in-lambda? tail? if?)
+        ((length=1? exps) (comp (inner-transfer (car exps)) env val? #f has-lambda? in-lambda? tail? if?))
+        (else (seq (comp (inner-transfer (car exps)) env #f #t has-lambda? in-lambda? tail? if?)
                    (comp-begin  (cdr exps) env val? more? has-lambda? in-lambda? tail? if?)))))
 
 
@@ -298,10 +368,19 @@
 (define (gen opcode . args)
   (list (cons opcode args)))
 
+;;マクロ定義時環境はsyntactic-closureに保存されている。
+;;展開時には展開時環境との差分を調整して位置を計算している。
 (define (gen-var var env)
   (let ((p (in-env? var env)))
     (cond (p (gen 'lvar (car p) (cadr p)))
           ((identifier-free? var) (gen 'gvar (identifier->symbol var)))
+          ((syntactic-closure? var)
+           (let* ((var1 (syntactic-closure-expr var))
+                  (env1 (syntactic-closure-env var))
+                  (p1 (in-env? var1 env1)))
+             (if p1
+                 (gen 'lvar (+ (car p1) (- (length env) (length env1))) (cadr p1) )
+                 (gen 'gvar var1))))
           (else (gen 'gvar var)))))
 
 (define (gen-set var env)
@@ -742,13 +821,12 @@
     (set-trace 0 infinity #t #t)
     (set-untrace 0 infinity #t #t)
     (current-module 0 0 #t #f)
-    (transfer 1 1 #t #f)
     (debug 1 1 #t #t)
     (profiler 1 1 #t #t)
     (lambda/asm 2 2 #t #f)
     (values 0 infinity #t #t)
     (sys-cont-room 1 1 #t #t)
-    (make-syntactic-clousre 3 3 #t #t)
+    (make-syntactic-closure 3 3 #t #t)
     (syntactic-closure-expr 1 1 #t #f)
     (syntactic-closure-env 1 1 #t #f)
     (syntactic-closure-freevar 1 1 #t #f)
@@ -800,6 +878,7 @@
   (cond ((eof-object? sexp) #t)
         (else (write (assemble (compile sexp)) outp)
               (newline outp)
+              (gbc)
               (compile-file1 (read inp) inp outp))))
 
 
