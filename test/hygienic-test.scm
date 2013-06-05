@@ -129,3 +129,23 @@
         (let-syntax ((f (syntax-rules () ((_) a))))
           (+ (b) (f)))))))
 
+(test* "" 'ok
+    (let ((... 2))
+      (let-syntax ((s (syntax-rules ()
+                        ((_ x ...) 'bad)
+                        ((_ . r) 'ok))))
+        (s a b c))))
+
+(test* "" '(5 4 1 2 3)
+    (let-syntax
+        ((foo (syntax-rules ()
+                ((foo args ... penultimate ultimate)
+                 (list ultimate penultimate args ...)))))
+      (foo 1 2 3 4 5)))
+
+
+(test* "" 'outer
+       (let ((x 'outer))
+         (let-syntax ((m (syntax-rules () ((m) x))))
+           (let ((x 'inner))
+             (m)))))

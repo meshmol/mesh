@@ -50,7 +50,7 @@
     string<=? string<? string=? string>=? string>? string? substring symbol->string
     symbol? truncate unless values vector vector->list vector-fill! vector-length
     vector-map vector-ref vector-set! vector? when with-exception-handler
-    write-char zero? read-line read-string)
+    write-char zero? read-line read-string guard define-values)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -135,7 +135,71 @@
       (let* ((s (exact (floor (sqrt k))))
              (r (- k (square s))))
         (values s r)))
-  
+    
+    (define-syntax guard
+      (syntax-rules ()
+        ((guard (var clause ...) e1 e2 ...)
+         ((call-with-current-continuation
+            (lambda (guard-k)
+              (with-exception-handler
+                (lambda (condition)
+                  ((call-with-current-continuation
+                     (lambda (handler-k)
+                       (guard-k
+                         (lambda ()
+                           (let ((var condition))      ; clauses may SET! var
+                             (guard-aux (handler-k (lambda ()
+                                                     (raise condition)))
+                                        clause ...))))))))
+                (lambda ()
+                  (call-with-values
+                    (lambda () e1 e2 ...)
+                    (lambda args
+                      (guard-k (lambda ()
+                                 (apply values args)))))))))))))
+    
+    (define-syntax guard-aux
+      (syntax-rules (else =>)
+        ((guard-aux reraise (else result1 result2 ...))
+         (begin result1 result2 ...))
+        ((guard-aux reraise (test => result))
+         (let ((temp test))
+           (if temp 
+               (result temp)
+               reraise)))
+        ((guard-aux reraise (test => result) clause1 clause2 ...)
+         (let ((temp test))
+           (if temp
+               (result temp)
+               (guard-aux reraise clause1 clause2 ...))))
+        ((guard-aux reraise (test))
+         test)
+        ((guard-aux reraise (test) clause1 clause2 ...)
+         (let ((temp test))
+           (if temp
+               temp
+               (guard-aux reraise clause1 clause2 ...))))
+        ((guard-aux reraise (test result1 result2 ...))
+         (if test
+             (begin result1 result2 ...)
+             reraise))
+        ((guard-aux reraise (test result1 result2 ...) clause1 clause2 ...)
+         (if test
+             (begin result1 result2 ...)
+             (guard-aux reraise clause1 clause2 ...)))))
+    
+    (define-syntax define-values 
+   (syntax-rules () 
+     ((define-values () exp) 
+      (call-with-values (lambda () exp) (lambda () 'unspecified))) 
+     ((define-values (var . vars) exp) 
+      (begin  
+        (define var (call-with-values (lambda () exp) list)) 
+        (define-values vars (apply values (cdr var))) 
+        (define var (car var)))) 
+     ((define-values var exp) 
+      (define var (call-with-values (lambda () exp) list))))) 
+
 ))
 
 
