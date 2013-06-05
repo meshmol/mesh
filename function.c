@@ -4913,4 +4913,5 @@ void initsyntax(void){
     defsyntax("export");
     defsyntax("import");
     defsyntax("syntax-rules");
+    defsyntax("syntax-error");
 }

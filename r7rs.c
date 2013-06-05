@@ -311,6 +311,7 @@ void init_r7rs(void){
     defsyntax("export");
     defsyntax("import");
     defsyntax("syntax-rules");
+    defsyntax("syntax-error");
     
     current_module = 2;
 }

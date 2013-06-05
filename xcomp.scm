@@ -101,6 +101,8 @@
          (seq (comp `(lambda (expr) (expand ',(cddr x) expr ',(cadr x) ',env))
                     env val? more? has-lambda? in-lambda? tail? if?)
               (gen 'defh)))
+        ((eqv? (car x) 'syntax-error)
+         (apply error (cdr x)))
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
