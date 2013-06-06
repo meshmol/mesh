@@ -21,6 +21,8 @@
         ((bytevector? x) (comp-const x val? more? in-lambda?))
         ((macro-name? (car x))
          (comp (macroexpand-1 x) env val? more? has-lambda? in-lambda? tail? if?))
+        ((assv (car x) hygienic) ;let-syntax/letrec-syntax body
+         (comp ((get-car (cdr (assv (car x) hygienic))) x) env val? more? has-lambda? in-lambda? tail? if?) )
         ((hygienic-name? (car x))
          (comp (macroexpand-1 x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'quote)
@@ -87,8 +89,6 @@
                          hygienic)))
            (cadr x))
          (comp-begin (cddr x) env val? more? has-lambda? in-lambda? tail? if?))
-        ((assv (car x) hygienic) ;let-syntax/letrec-syntax body
-         (comp ((get-car (cdr (assv (car x) hygienic))) x) env val? more? has-lambda? in-lambda? tail? if?) )
         ((eqv? (car x) 'export)
          (args-count-check x 1 'infinity)
          (seq (gen 'explib (cdr x))))
@@ -120,13 +120,14 @@
         (else
           (list 'cons (macro-transfer (car x)) (macro-transfer (cdr x))))))
 
-
 ;;inner-define -> letrec
 (define (inner-transfer x)
-  (if (define? x)
-      (let ((e (formal-define x)))
-        (list (car e) (cadr e) (inner-transfer1 (caddr e)))) 
-      (inner-transfer1 x)))
+  (cond ((define? x)
+         (let ((e (formal-define x)))
+           (list (car e) (cadr e) (inner-transfer1 (caddr e)))))
+        ((define-macro? x)
+         (formal-define x))
+        (else (inner-transfer1 x))))
 
 (define (inner-transfer1 x) 
   (cond ((null? x) '()) 
@@ -142,33 +143,53 @@
         ((eqv? (car x) 'let*)   (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x))))))
         (else (cons (car x)(map inner-transfer1 (cdr x))))))
 
-;;定義部と本体を分離してletrecに変換する。
+;;定義部と本体を分離してletrec/letrec-syntaxに変換する。
 (define (inner-transfer2 x)
-  (let ((e (separate x)))
-    (if (null? (car e))
-        (cdr e)
-        (list (cons 'letrec (cons (reverse (car e)) (cdr e)))))))
+  (let* ((e (separate x))
+         (def (car e))
+         (defsyn (cadr e))
+         (body (caddr e)))
+    (if (null? def)
+        (if (null? defsyn)
+            body
+            (list (cons 'letrec-syntax (cons (reverse defsyn) body))))
+        (if (null? defsyn)
+            (list (cons 'letrec (cons (reverse def) body)))
+            (list (cons 'letrec (cons (reverse def)
+                                      (list (cons 'letrec-syntax (cons (reverse defsyn) body))))))))))
 
 ;;定義部と本体に分離。
 (define (separate x) 
-  (separate1 x '()))
+  (separate1 x '() '()))
 
-(define (separate1 x def)
-  (if (and (pair? x)(define? (car x))) 
-      (let ((e (formal-define (car x)))) 
-        (separate1 (cdr x)    
-                   (cons (list (cadr e) (inner-transfer1 (caddr e))) def)))
-      (cons def x)))
+(define (separate1 x def defsyn)
+  (cond ((and (pair? x)(define? (car x))) 
+         (let ((e (formal-define (car x)))) 
+           (separate1 (cdr x)    
+                      (cons (list (cadr e) (inner-transfer1 (caddr e))) def)
+                      defsyn)))
+        ((and (pair? x)(define-syntax? (car x)))
+         (separate1 (cdr x)
+                    def
+                    (cons (list (cadr (car x)) (caddr (car x))) defsyn)))
+        (else (list def defsyn x))))
 
 ;;定義文か？
 (define (define? x) 
   (and (list? x) (eqv? (car x) 'define)))
+
+(define (define-macro? x)
+  (and (list? x) (eqv? (car x) 'define-macro)))
+
+(define (define-syntax? x)
+  (and (list? x) (eqv? (car x) 'define-syntax)))
 
 ;;mitスタイルならlambdaへ変換。
 (define (formal-define x)  
   (if (symbol? (cadr x))
       x   
       (list (car x) (caadr x) (cons 'lambda (cons (cdadr x) (cddr x))))))
+
 ;;--------------------------
 
 (define (comp-const x val? more? in-lambda?)
@@ -964,15 +985,16 @@
                                (cons (cons (car p) (list-take f (- (length f) (length (cddr p))))) vars)))
         ((and (vector? p) (vector? f)) 
          (match1 (vector->list p) (vector->list f) lits vars))
-        ((and (null? p) (not(null? f))) #f)
-        ((and (not(null? p)) (null? f)) #f)
-        ((and (atom? p) (not(equal? p f))) #f)
-        (else
+        ((equal? p f) vars)
+        ((and (pair? p)(pair? f))
          (let ((r1 (match1 (car p) (car f) lits vars))
                (r2 (match1 (cdr p) (cdr f) lits vars)))
                 (if (and r1 r2)
                     (append r1 r2)
-                    #f)))))
+                    #f)))
+        (else #f)))
+        
+        
 
 
 

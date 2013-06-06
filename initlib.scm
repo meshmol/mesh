@@ -189,16 +189,16 @@
              (guard-aux reraise clause1 clause2 ...)))))
     
     (define-syntax define-values 
-   (syntax-rules () 
-     ((define-values () exp) 
-      (call-with-values (lambda () exp) (lambda () 'unspecified))) 
-     ((define-values (var . vars) exp) 
-      (begin  
-        (define var (call-with-values (lambda () exp) list)) 
-        (define-values vars (apply values (cdr var))) 
-        (define var (car var)))) 
-     ((define-values var exp) 
-      (define var (call-with-values (lambda () exp) list))))) 
+      (syntax-rules () 
+        ((define-values () exp) 
+         (call-with-values (lambda () exp) (lambda () 'unspecified))) 
+        ((define-values (var . vars) exp) 
+         (begin  
+           (define var (call-with-values (lambda () exp) list)) 
+           (define-values vars (apply values (cdr var))) 
+           (define var (car var)))) 
+        ((define-values var exp) 
+         (define var (call-with-values (lambda () exp) list))))) 
 
 ))
 
@@ -295,7 +295,50 @@
     ))
 
 
-  
+(define-library (scheme case-lambda)
+  (export case-lambda)
+  (begin
+    
+    (define-syntax case-lambda
+      (syntax-rules ()
+        ((case-lambda
+           (?a1 ?e1 ...)
+           ?clause1 ...)
+         (lambda args
+           (let ((l (length args)))
+             (case-lambda "CLAUSE" args l
+                          (?a1 ?e1 ...)
+                          ?clause1 ...))))
+        ((case-lambda "CLAUSE" ?args ?l
+                      ((?a1 ...) ?e1 ...)
+                      ?clause1 ...)
+         (if (= ?l (length '(?a1 ...)))
+             (apply (lambda (?a1 ...) ?e1 ...) ?args)
+             (case-lambda "CLAUSE" ?args ?l
+                          ?clause1 ...)))
+        ((case-lambda "CLAUSE" ?args ?l
+                      ((?a1 . ?ar) ?e1 ...)
+                      ?clause1 ...)
+         (case-lambda "IMPROPER" ?args ?l 1 (?a1 . ?ar) (?ar ?e1 ...)
+                      ?clause1 ...))
+        ((case-lambda "CLAUSE" ?args ?l
+                      (?a1 ?e1 ...)
+                      ?clause1 ...)
+         (let ((?a1 ?args))
+           ?e1 ...))
+        ((case-lambda "CLAUSE" ?args ?l)
+         (error "Wrong number of arguments to CASE-LAMBDA."))
+        ((case-lambda "IMPROPER" ?args ?l ?k ?al ((?a1 . ?ar) ?e1 ...)
+                      ?clause1 ...)
+         (case-lambda "IMPROPER" ?args ?l (+ ?k 1) ?al (?ar ?e1 ...)
+                      ?clause1 ...))
+        ((case-lambda "IMPROPER" ?args ?l ?k ?al (?ar ?e1 ...)
+                      ?clause1 ...)
+         (if (>= ?l ?k)
+             (apply (lambda ?al ?e1 ...) ?args)
+             (case-lambda "CLAUSE" ?args ?l
+                          ?clause1 ...)))))
+    ))
 
 
 (define-library (scheme eval)
@@ -467,6 +510,7 @@
         (scheme eval)
         (scheme char)
         (scheme inexact)
+        (scheme case-lambda)
         (only (normal system) macroexpand macroexpand-1)
         (only (scheme process-context) exit))
 
