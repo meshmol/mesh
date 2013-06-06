@@ -1,14 +1,14 @@
 I'm trying to implement Scheme compiler in compliance with R7RS-Small.
 
-And also Normal will include 'Prolog'in future.
+And also Normal will include 'Prolog' in future.
 
 To install Normal-Scheme you need a MinGW gcc compiler.
 
 Normal-Scheme can run only on Window7 or later.
 
-just enter "make" 
+To compile just enter "make" 
 
-enter "norm" then REPL will start.
+at command prompt, enter "norm" then REPL will start.
 
 <files>
 main.c cell.c list.c compute.c function.c r7rs.c are for C.
