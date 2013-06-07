@@ -866,6 +866,8 @@ int f_identifier_bind(int n);
 int f_identifier_freep(int n);
 int f_identifier_boundp(int n);
 int f_identifier_bound(int n);
+int f_identifier_variable(int n);
+int f_identifier_variablep(int n);
 int f_global_boundp(int n);
 int f_exact_integerp(int n);
 int f_file_existsp(int n);

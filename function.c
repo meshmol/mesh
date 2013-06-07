@@ -4412,6 +4412,27 @@ int f_identifier_bound(int n){
     return(GET_AUX(arg));
 }
 
+int f_identifier_variable(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!identifierp(arg))
+    	exception("identifier-bind!", NOT_IDENTIFIER, arg);
+    
+    SET_CAR(arg,BOOLT);
+    return(arg);
+}
+
+int f_identifier_variablep(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(identifierp(arg) && (GET_CAR(arg) == BOOLT))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
 int f_inspect(int n){
 	int sexp,i;
     
@@ -4876,6 +4897,8 @@ void initsubr(void){
     defsubr("identifier-free?",(int)f_identifier_freep);
     defsubr("identifier-bound?",(int)f_identifier_boundp);
     defsubr("identifier-bound",(int)f_identifier_bound);
+    defsubr("identifier-variable!",(int)f_identifier_variable);
+    defsubr("identifier-variable?",(int)f_identifier_variablep);
     defsubr("global-bound?",(int)f_global_boundp);
     defsubr("inspect",(int)f_inspect);
     defsubr("exact-integer?",(int)f_exact_integerp);

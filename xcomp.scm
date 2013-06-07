@@ -861,6 +861,8 @@
     (identifier-free? 1 1 #t #f)
     (identifier-bound? 1 1 #t #f)
     (identifier-bound 1 1 #t #f)
+    (identifier-variable! 1 1 #t #t)
+    (identifier-variable? 1 1 #t #f)
     (global-bound? 1 1 #t #f)
     (inspect 0 0 #t #t)
     (exact-integer? 1 1 #t #f)
