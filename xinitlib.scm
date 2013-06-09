@@ -59,7 +59,7 @@
     
     (define-macro unless
       (lambda (pred . else)
-        `(if (not ,pred) (undefined) (begin ,@else))))
+        `(if ,pred (undefined) (begin ,@else))))
     
     (define *current-exception-handlers*
       (list (lambda (condition)
@@ -361,33 +361,46 @@
     char->integer integer->char char-upcase char-downcase))
 
 (define-library (scheme lazy)
-  (export delay force)
+  (export delay-force delay force make-promise)
   (import (scheme base))
   (begin
-    ;;; ;;’x‰„•]‰¿
-    ;;; ;;Kent Dybvig p98
-    (define-macro delay
-      (lambda (expr)
-        `(make-promise (lambda () ,expr))))
+    (define-syntax delay-force
+      (syntax-rules ()
+        ((delay-force expression)
+         (make-promise #f (lambda () expression)))))
     
-    (define make-promise
-      (lambda (p)
-        (let ((val #f) (set? #f))
-          (lambda ()
-            (if (not set?)
-                (let ((x (p)))
-                  (if (not set?)
-                      (begin (set! val x)
-                             (set! set? #t))
-                      '()))
-                '())
-            val))))
+    (define-syntax delay
+      (syntax-rules ()
+        ((delay expression)
+         (delay-force (make-promise #t expression)))))
     
-    (define force
-      (lambda (x)
-        (if (procedure? x)
-            (x)
-            x)))))
+    (define (make-promise done? proc)
+      (list (cons done? proc)))
+    
+    (define (force promise)
+      (if (promise-done? promise)
+          (promise-value promise)
+          (let ((promise* ((promise-value promise))))
+            (unless (promise-done? promise)
+              (promise-update! promise* promise))
+            (force promise))))
+    
+    
+    (define (promise-done? x)
+      (caar x))
+    
+    (define (promise-value x)
+      (cdar x))
+    
+    (define (promise-update! new old)
+      (set-car! (car old) (promise-done? new))
+      (set-cdr! (car old) (promise-value new))
+      (set-car! new (car old)))
+    
+    (define (promise? x)
+      (eqv? (cadr x) 'promise))
+))
+    
 
 
 (define-library (scheme process-context)

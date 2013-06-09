@@ -29,7 +29,7 @@
          (args-count-check x 1 1)
          (comp-const (cadr x) val? more? in-lambda?))
         ((eqv? (car x) 'quasiquote)
-         (comp (macro-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
+         (comp (quasi-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'begin)
          (comp-begin (cdr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'set!)
@@ -107,18 +107,18 @@
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
 ;;quasi-quote transfer
-(define (macro-transfer x)
+(define (quasi-transfer x)
   (cond ((null? x) '())
         ((atom? x)
          (list 'quote x))
         ((and (pair? x)(eqv? (car x) 'unquote))
          (cadr x))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote))
-         (list 'cons (cadar x) (macro-transfer (cdr x))))
+         (list 'cons (cadar x) (quasi-transfer (cdr x))))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote-splicing))
-         (list 'append (cadar x) (macro-transfer (cdr x))))
+         (list 'append (cadar x) (quasi-transfer (cdr x))))
         (else
-          (list 'cons (macro-transfer (car x)) (macro-transfer (cdr x))))))
+          (list 'cons (quasi-transfer (car x)) (quasi-transfer (cdr x))))))
 
 ;;inner-define -> letrec
 (define (inner-transfer x)
@@ -212,8 +212,8 @@
 
 (define (comp-begin exps env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? exps) (comp-const '() val? more? in-lambda?))
-        ((length=1? exps) (comp (inner-transfer (car exps)) env val? #f has-lambda? in-lambda? tail? if?))
-        (else (seq (comp (inner-transfer (car exps)) env #f #t has-lambda? in-lambda? tail? if?)
+        ((length=1? exps) (comp (inner-transfer (car exps)) env val? #f has-lambda? in-lambda? (and tail? #t) if?))
+        (else (seq (comp (inner-transfer (car exps)) env #f #t has-lambda? in-lambda? #f if?)
                    (comp-begin  (cdr exps) env val? more? has-lambda? in-lambda? tail? if?)))))
 
 
@@ -296,11 +296,11 @@
                   (else (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                              (gen 'prim f (length args))
                              (if (not val?) (gen 'pop) '())
-                             (if (and (not more?) in-lambda?) (gen 'return) '())))))
+                             (if (and (not more?) val? in-lambda?) (gen 'return) '())))))
           ((and (list? f) (eqv? (car f) 'lambda) (null? (cadr f)))
            (if (not (null? args)) (error "too many arguments: " args) '())
            (comp-begin (cddr f) env val? more? has-lambda? #f tail? if?))
-          ((and (not more?)(not has-lambda?) tail? if?)
+          ((and (not more?)(not has-lambda?) tail?)
            (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                 (comp f env #t #t has-lambda? in-lambda? tail? if?)
                 (gen 'callj (length args))))
@@ -315,7 +315,7 @@
                  (comp f env #t #t has-lambda? in-lambda? tail? if?)
                  (gen 'call (length args))
                  (if (not val?) (gen 'pop) '())
-                 (if (not more?) (gen 'return) '()))))))
+                 (if (and (not more?) val?) (gen 'return) '()))))))
 
 
 (define binomial-op
@@ -659,8 +659,8 @@
     (list-set! 3 3 #t #t)
     (append 2 2 #t #f)
     (append! 2 infinity #t #t)
-    (set-car! 2 2 #t #f)
-    (set-cdr! 2 2 #t #f)
+    (set-car! 2 2 #t #t)
+    (set-cdr! 2 2 #t #t)
     (list 0 infinity #t #f)
     (length 1 1 #t #f)
     (pair-length 1 1 #t #f)

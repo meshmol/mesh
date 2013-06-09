@@ -2,11 +2,22 @@
 
 (import (scheme lazy))
 
-(define (tarai x y z)
-  (if (<= (force x) (force y))
-      (force y)
-      (tarai (delay (tarai (- x 1) y z))
-             (delay (tarai (- y 1) z x))
-             (delay (tarai (- z 1) x y)))))
+(force (delay (+ 1 2)))
 
+(let ((p (delay (+ 1 2))))
+  (list (force p) (force p)))
 
+(define integers
+  (letrec ((next
+             (lambda (n)
+               (delay (cons n (next (+ n 1)))))))
+    (next 0)))
+
+(define head
+  (lambda (stream) (car (force stream))))
+
+(define tail
+  (lambda (stream) (cdr (force stream))))
+
+(head (tail (tail integers)))
+          
