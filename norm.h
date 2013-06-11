@@ -76,7 +76,7 @@ typedef enum flag 	{FRE,USE} flag;
 #define INF 	32
 #define NANN 	33
 #define U8VEC	34
-
+#define RECORD	35		
 
 
 /*
@@ -116,6 +116,7 @@ EMPSET  ãÛèWçá
 INF		ñ≥å¿
 NANN	not a number for Normal
 U8VEC	byte vector
+RECORD	recordå^
 */
 
 
@@ -590,6 +591,10 @@ int make_char(char *name);
 int make_port(FILE *port, int type);
 int make_vector(int n, int obj);
 int make_u8vector(int n, unsigned char obj);
+int make_record(int n, int obj);
+int record_length(int v);
+void record_set(int v, int n, int obj);
+int record_ref(int v, int n);
 void vector_set(int v, int n, int obj);
 void u8vector_set(int v, int n, unsigned char obj);
 int vector_ref(int v, int n);

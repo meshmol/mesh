@@ -4450,6 +4450,13 @@ void markcell(int addr){
             			markcell(x);
                     }
                     return;
+        case RECORD:
+        			n = record_length(addr);
+        			for(i=0; i<n; i++){
+          				x = GET_VEC_ELT(addr,i);
+            			markcell(x);
+                    }
+                    return;
         case MUL:	markcell(car(addr));
         			markcell(cdr(addr));
                     return;
@@ -4642,7 +4649,7 @@ void clrcell(int addr){
     }
 	
     
-    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM){
+    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM || tag == RECORD){
         free(memory[addr].val.car.dyna_vec);
     }
     

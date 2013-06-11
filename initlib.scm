@@ -33,10 +33,8 @@
     * + - / < <= = > >= abs and append append! apply assoc assq assv atom? bignum?
     boolean? bytevector bytevector-append bytevector-copy bytevector-copy!
     bytevector-length bytevector-u8-ref bytevector-u8-set! bytevector?
-    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
-    cadr call-with-current-continuation call-with-values call/cc car case cdaaar
-    cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar cddddr cdddr
-    cddr cdr ceiling char-ready? char? close-input-port close-output-port complex?
+    call-with-current-continuation call-with-values call/cc case  ceiling char-ready?
+    char? close-input-port close-output-port complex?
     cond cons current-input-port current-output-port denominator do
     dynamic-wind eof-object? eq? equal? eqv? error even? exact exact->inexact
     exact-integer-sqrt exact-integer? exact? expt floor flush-output-port for-each
@@ -53,7 +51,8 @@
     symbol? truncate unless values vector vector->list vector-fill! vector-length
     vector-map vector-ref vector-set! vector? when with-exception-handler
     write-char zero? read-line read-string guard define-values 
-    make-parameter parameterize)
+    make-parameter parameterize floor/ floor-quotient floor-remainder round/
+    round-quotient round-remainder truncate/ truncate-quotient truncate-remainder)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -138,6 +137,88 @@
       (let* ((s (exact (floor (sqrt k))))
              (r (- k (square s))))
         (values s r)))
+    
+    (define (floor/ n1 n2)
+      (when (zero? n2)
+        (error "in floor/ devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in floor/ not integer " n1 n2))
+      (let* ((q (floor (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        (values q r)))
+    
+    (define (floor-quotient n1 n2)
+      (when (zero? n2)
+        (error "in floor-quotient devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in floor-quotient not integer " n1 n2))
+      (let* ((q (floor (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        q))
+    
+    (define (floor-remainder n1 n2)
+      (when (zero? n2)
+        (error "in floor-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in floor-remainder not integer " n1 n2))
+      (let* ((q (floor (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
+    
+    (define (round/ n1 n2)
+      (when (zero? n2)
+        (error "in round/ devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in round/ not integer " n1 n2))
+      (let* ((q (round (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        (values q r)))
+    
+    (define (round-quotient n1 n2)
+      (when (zero? n2)
+        (error "in round-quotient devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in round-quotient not integer " n1 n2))
+      (let* ((q (round (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        q))
+    
+    (define (round-remainder n1 n2)
+      (when (zero? n2)
+        (error "in round-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in round-remainder not integer " n1 n2))
+      (let* ((q (round (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
+    
+    (define (truncate/ n1 n2)
+      (when (zero? n2)
+        (error "in truncate/ devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in truncate/ not integer " n1 n2))
+      (let* ((q (truncate (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        (values q r)))
+    
+    (define (truncate-quotient n1 n2)
+      (when (zero? n2)
+        (error "in truncate-quotient devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in truncate-quotient not integer " n1 n2))
+      (let* ((q (truncate (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        q))
+    
+    (define (truncate-remainder n1 n2)
+      (when (zero? n2)
+        (error "in truncate-remainder devide by zero " n1 n2))
+      (when (or (not (integer? n1)) (not (integer? n2)))
+        (error "in truncate-remainder not integer " n1 n2))
+      (let* ((q (truncate (/ n1 n2)))
+             (r (- n1 (* n2 q))))
+        r))
+    
     
     (define-syntax guard
       (syntax-rules ()
@@ -256,7 +337,7 @@
     
     (define dynamic-env-local-set!
       (lambda (new-env) (set! dynamic-env-local new-env)))
-
+    
     ))
 
 
@@ -264,92 +345,11 @@
   (export
     real-part imag-part magnitude angle make-rectangular make-polar))
 
-(define-library (scheme division)
-  (import (scheme base))
-  (export floor/ floor-quotient floor-remainder round/ round-quotient round-remainder 
-          truncate/ truncate-quotient truncate-remainder)
-  (begin
-    (define (floor/ n1 n2)
-      (when (zero? n2)
-        (error "in floor/ devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in floor/ not integer " n1 n2))
-      (let* ((q (floor (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        (values q r)))
-    
-    (define (floor-quotient n1 n2)
-      (when (zero? n2)
-        (error "in floor-quotient devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in floor-quotient not integer " n1 n2))
-      (let* ((q (floor (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        q))
-    
-    (define (floor-remainder n1 n2)
-      (when (zero? n2)
-        (error "in floor-remainder devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in floor-remainder not integer " n1 n2))
-      (let* ((q (floor (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        r))
-    
-    (define (round/ n1 n2)
-      (when (zero? n2)
-        (error "in round/ devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in round/ not integer " n1 n2))
-      (let* ((q (round (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        (values q r)))
-    
-    (define (round-quotient n1 n2)
-      (when (zero? n2)
-        (error "in round-quotient devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in round-quotient not integer " n1 n2))
-      (let* ((q (round (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        q))
-    
-    (define (round-remainder n1 n2)
-      (when (zero? n2)
-        (error "in round-remainder devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in round-remainder not integer " n1 n2))
-      (let* ((q (round (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        r))
-    
-    (define (truncate/ n1 n2)
-      (when (zero? n2)
-        (error "in truncate/ devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in truncate/ not integer " n1 n2))
-      (let* ((q (truncate (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        (values q r)))
-    
-    (define (truncate-quotient n1 n2)
-      (when (zero? n2)
-        (error "in truncate-quotient devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in truncate-quotient not integer " n1 n2))
-      (let* ((q (truncate (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        q))
-    
-    (define (truncate-remainder n1 n2)
-      (when (zero? n2)
-        (error "in truncate-remainder devide by zero " n1 n2))
-      (when (or (not (integer? n1)) (not (integer? n2)))
-        (error "in truncate-remainder not integer " n1 n2))
-      (let* ((q (truncate (/ n1 n2)))
-             (r (- n1 (* n2 q))))
-        r))
-    ))
+(define-library (scheme cxr)
+  (export
+    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
+    cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
+    cddddr cdddr cddr cdr))
 
 
 (define-library (scheme case-lambda)
@@ -574,6 +574,7 @@
       (for-each display x))))
 
 (import (scheme base)
+        (scheme cxr)
         (scheme load)
         (scheme write)
         (scheme read)

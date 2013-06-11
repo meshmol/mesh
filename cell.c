@@ -67,7 +67,7 @@ void initmodule(void){
     module_table[3][0] = list2(make_sym("scheme"),make_sym("base"));
     module_table[4][0] = list2(make_sym("scheme"),make_sym("inexact"));
     module_table[5][0] = list2(make_sym("scheme"),make_sym("complex"));
-	module_table[6][0] = list2(make_sym("scheme"),make_sym("divistion"));
+	module_table[6][0] = list2(make_sym("scheme"),make_sym("cxr"));
     module_table[7][0] = list2(make_sym("scheme"),make_sym("lazy"));
     module_table[8][0] = list2(make_sym("scheme"),make_sym("case-lambda"));
     module_table[9][0] = list2(make_sym("scheme"),make_sym("eval"));
@@ -78,9 +78,8 @@ void initmodule(void){
     module_table[14][0] = list2(make_sym("scheme"),make_sym("read"));
     module_table[15][0] = list2(make_sym("scheme"),make_sym("write"));
     module_table[16][0] = list2(make_sym("scheme"),make_sym("char"));
-    module_table[17][0] = list3(make_sym("scheme"),make_sym("char"),make_sym("normalization"));
+    module_table[17][0] = list2(make_sym("scheme"),make_sym("r5rs"));
     module_table[18][0] = list2(make_sym("scheme"),make_sym("time"));
-    module_table[19][0] = list2(make_sym("scheme"),make_sym("r5rs"));
     
     module_table_end = 19;
 }
@@ -580,6 +579,38 @@ int u8vector(int lis){
     }
     return(res);
 }
+
+int make_record(int n, int obj){
+	int res,i, *rec;
+    
+    res = freshcell();
+	rec = (int *)malloc(sizeof(int)*n);
+    if(rec == NULL)
+    	exception("make_record", MALLOC_OVERF, NIL);
+    else
+    	SET_VEC(res,rec);
+    for(i=0; i<n; i++)
+    	SET_VEC_ELT(res,i,obj);
+    SET_TAG(res,RECORD);
+    SET_CDR(res,n);
+    return(res);
+}
+
+int record_length(int v){
+	
+    return(GET_CDR(v));
+}
+
+void record_set(int v, int n, int obj){
+	
+    SET_VEC_ELT(v,n,obj);
+}
+
+int record_ref(int v, int n){
+	
+    return(GET_VEC_ELT(v,n));
+}
+
 
 int make_ident(char *name){
 	int addr;

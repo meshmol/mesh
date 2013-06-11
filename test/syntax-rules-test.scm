@@ -159,7 +159,6 @@
 (test* "(let ((b 10)) (settest))" 1 b)
 
 
-;;ëäñÕÇ≥ÇÒÇ©ÇÁÇÃÉoÉOïÒçêÇÊÇË2åè
 (define-syntax hoge
   (syntax-rules()
     ((_ b ...)(list b ...))))
@@ -193,10 +192,7 @@
      (hoge-helper (num ...) (num ...) ()))))
   
 (test* "(hoge 1 2 3)" '(1 2 3) (hoge 1 2 3))
-;(display (hoge 1 2 3))
-;;; Simp> (hoge 1 2 3)
-;;; (1 2 3)
-;;; Ç±ÇÍÇ™àÍî‘Ç…ìÔÇµÇ©Ç¡ÇΩÅB
+
 
 (define-syntax dot-pattern
   (syntax-rules ()
@@ -227,27 +223,5 @@
 (define-nil nil)
  
 (test* "nil" '() nil)
-
-
-(define-syntax foo
-  (syntax-rules ()
-    ((_ (a ...) (b ...)) (let ((a b)...) (list a ...)))))
-
-(letrec-syntax
-  ((foo (syntax-rules ()
-          ((_ x) (list x x x))))
-   (bar (syntax-rules ()
-          ((_ x) (cons (foo x) '())))))
-  (bar 3))
-
-(for-each (lambda (y) 
-            (set! hygienic 
-                  (cons (car y)
-                        (vm1 (assemble (comp (cadr y)))))))
-          (cadr x))
-(comp-begin (cddr x))
-
-((assv (car x) hygienic)
- (comp ((get-car (cdr (assv (car x) hygienic)) x))))
 
 

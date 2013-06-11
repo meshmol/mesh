@@ -63,36 +63,7 @@ void init_r7rs(void){
     
 
 	current_module = 3; //(scheme base)
-    defsubr("car",(int)f_car);
-    defsubr("cdr",(int)f_cdr);
     defsubr("cons",(int)f_cons);
-    defsubr("caar",(int)f_caar);
-    defsubr("cdar",(int)f_cdar);
-    defsubr("cddr",(int)f_cddr);
-    defsubr("cadr",(int)f_cadr);
-    defsubr("caaar",(int)f_caaar);
-    defsubr("cdaar",(int)f_cdaar);
-    defsubr("cadar",(int)f_cadar);
-    defsubr("caadr",(int)f_caadr);
-    defsubr("cddar",(int)f_cddar);
-    defsubr("caddr",(int)f_caddr);
-    defsubr("cdadr",(int)f_cdadr);
-    defsubr("cdddr",(int)f_cdddr);
-    defsubr("caaaar",(int)f_caaaar);
-    defsubr("cdaaar",(int)f_cdaaar);
-    defsubr("cadaar",(int)f_cadaar);
-    defsubr("caadar",(int)f_caadar);
-    defsubr("caaadr",(int)f_caaadr);
-    defsubr("cddaar",(int)f_cddaar);
-    defsubr("caddar",(int)f_caddar);
-    defsubr("caaddr",(int)f_caaddr);
-    defsubr("cdaadr",(int)f_cdaadr);
-    defsubr("cdadar",(int)f_cdadar);
-    defsubr("cadddr",(int)f_cadddr);
-    defsubr("cdaddr",(int)f_cdaddr);
-    defsubr("cddadr",(int)f_cddadr);
-    defsubr("cdddar",(int)f_cdddar);
-    defsubr("cddddr",(int)f_cddddr);
     defsubr("assq",(int)f_assq);
     defsubr("assv",(int)f_assv);
     defsubr("assoc",(int)f_assoc);
@@ -253,6 +224,37 @@ void init_r7rs(void){
     defsubr("angle",(int)f_angle);
     defsubr("make-rectangular",(int)f_make_rectangular);
     defsubr("make-polar",(int)f_make_polar);
+    
+    current_module = 6; //(normal cxr)
+    defsubr("car",(int)f_car);
+    defsubr("cdr",(int)f_cdr);
+    defsubr("caar",(int)f_caar);
+    defsubr("cdar",(int)f_cdar);
+    defsubr("cddr",(int)f_cddr);
+    defsubr("cadr",(int)f_cadr);
+    defsubr("caaar",(int)f_caaar);
+    defsubr("cdaar",(int)f_cdaar);
+    defsubr("cadar",(int)f_cadar);
+    defsubr("caadr",(int)f_caadr);
+    defsubr("cddar",(int)f_cddar);
+    defsubr("caddr",(int)f_caddr);
+    defsubr("cdadr",(int)f_cdadr);
+    defsubr("cdddr",(int)f_cdddr);
+    defsubr("caaaar",(int)f_caaaar);
+    defsubr("cdaaar",(int)f_cdaaar);
+    defsubr("cadaar",(int)f_cadaar);
+    defsubr("caadar",(int)f_caadar);
+    defsubr("caaadr",(int)f_caaadr);
+    defsubr("cddaar",(int)f_cddaar);
+    defsubr("caddar",(int)f_caddar);
+    defsubr("caaddr",(int)f_caaddr);
+    defsubr("cdaadr",(int)f_cdaadr);
+    defsubr("cdadar",(int)f_cdadar);
+    defsubr("cadddr",(int)f_cadddr);
+    defsubr("cdaddr",(int)f_cdaddr);
+    defsubr("cddadr",(int)f_cddadr);
+    defsubr("cdddar",(int)f_cdddar);
+    defsubr("cddddr",(int)f_cddddr);
     
     current_module = 9;
     defsubr("eval",(int)f_eval);
