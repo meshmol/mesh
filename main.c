@@ -4200,6 +4200,9 @@ void print(int x){
         			break;
         case U8VEC:	print_u8vec(x);
         			break;
+        case RECORD:
+        			print_record(x);
+                    break;
         case MUL:  	n = GET_VEC_ELT(x,0);
         			for(i=1; i<n; i++){
                     	print(GET_VEC_ELT(x,i));
@@ -4316,6 +4319,21 @@ void print_u8vec(int x){
     }
     fprintf(output_port, ")");
     
+}
+
+void print_record(int x){
+	int len,i;
+    
+    fprintf(output_port, "#r(");
+    len = GET_CDR(x);
+    if(len != 0){
+    	for(i=0; i<len-1; i++){
+    		print(GET_VEC_ELT(x,i));
+        	fprintf(output_port, " ");
+    	}	
+    	print(GET_VEC_ELT(x,i));
+	}
+    fprintf(output_port, ")");
 }
                             
 //-------デバッグ用------------------  

@@ -399,6 +399,7 @@ void printlist1(int x);
 void printlist(int x);
 void printvec(int x);
 void print_u8vec(int x);
+void print_record(int x);
 void memorydump(int start, int end);
 void gbc(void);
 void markcell(int addr);
@@ -897,6 +898,7 @@ int f_command_line(int n);
 int f_get_environment_variable(int n);
 int f_get_environment_variables(int n);
 int f_get_car(int n);
+int f_make_record(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

@@ -61,6 +61,7 @@ void init_r7rs(void){
     defsubr("lambda/asm",(int)f_lambda_asm);
     defsubr("system",(int)f_system);
     defsubr("get-car",(int)f_get_car);
+    defsubr("make-record",(int)f_make_record);
     
 
 	current_module = 3; //(scheme base)

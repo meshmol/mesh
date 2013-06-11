@@ -896,7 +896,9 @@ int f_make_vector(int n){
     else{
     	arg1 = pop_s();
     	arg2 = undef;
-    }    
+    }
+     if(!IS_INTEGER(arg1) || negativep(arg1))
+    	exception("make-vector",NOT_EXACT, arg1);    
     
     return(make_vector(get_int(arg1),arg2));
 }
@@ -4673,6 +4675,22 @@ int f_get_car(int n){
     return(GET_CAR(arg));
 }
 
+int f_make_record(int n){
+	int arg1,arg2;
+    
+    if(n == 2){
+    	arg2 = pop_s();
+        arg1 = pop_s();
+    }
+    else{
+    	arg2 = undef;
+        arg1 = pop_s();
+    }
+    if(!IS_INTEGER(arg1) || negativep(arg1))
+    	exception("make-record",NOT_EXACT, arg1);  
+    return(make_record(get_int(arg1),arg2));	
+}
+
 
 //subrを環境に登録する。
 void defsubr(char *name, int func){
@@ -4969,6 +4987,7 @@ void initsubr(void){
     defsubr("get-environment-variable",(int)f_get_environment_variable);
 	defsubr("get-environment-variables",(int)f_get_environment_variables);
     defsubr("get-car",(int)f_get_car);
+    defsubr("make-record",(int)f_make_record);
     
 }
 
