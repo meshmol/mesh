@@ -1,7 +1,8 @@
 ;;数学関数のテスト
 (import (normal test)
         (scheme inexact)
-        (scheme complex))
+        (scheme complex)
+        (scheme time))
 
 (define (fib n)
   (if (< n 2)

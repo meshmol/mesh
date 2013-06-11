@@ -357,6 +357,8 @@ int f_assq(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("assq",NOT_LIST, arg2);
     res = assq(arg1,arg2);
     return(res);
 }
@@ -366,6 +368,8 @@ int f_assv(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("assv",NOT_LIST, arg2);
     res = assv(arg1,arg2);
     return(res);
 }
@@ -375,6 +379,8 @@ int f_assoc(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("assoc",NOT_LIST, arg2);
     res = assoc(arg1,arg2);
     return(res);
 }
@@ -385,6 +391,8 @@ int f_memq(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("memq",NOT_LIST, arg2);
     res = memq(arg1,arg2);
     return(res);
 }
@@ -394,6 +402,8 @@ int f_memv(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("memv",NOT_LIST, arg2);
     res = memv(arg1,arg2);
     return(res);
 }
@@ -403,6 +413,8 @@ int f_member(int n){
    	
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!listp(arg2))
+    	exception("member",NOT_LIST, arg2);
     res = member(arg1,arg2);
     return(res);
 }
@@ -413,6 +425,8 @@ int f_reverse(int n){
 	int arg;
     
     arg = pop_s();
+    if(!listp(arg))
+    	exception("reverse",NOT_LIST, arg);
     return(reverse(arg));
 }
 
@@ -421,6 +435,8 @@ int f_reverse2(int n){
 	int arg;
 	
     arg = pop_s();
+    if(!listp(arg))
+    	exception("reverse!",NOT_LIST, arg);
     return(reverse2(arg));
 }
 
@@ -429,6 +445,8 @@ int f_setcar(int n){
 	
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!pairp(arg1))
+    	exception("set-car!",NOT_PAIR, arg1);
 	return(setcar(arg1,arg2));
 }    
 
@@ -437,6 +455,8 @@ int f_setcdr(int n){
  	
     arg2 = pop_s();
     arg1 = pop_s();
+    if(!pairp(arg1))
+    	exception("set-cdr!",NOT_PAIR, arg1);
 	return(setcdr(arg1,arg2));
 }
 
@@ -4417,9 +4437,9 @@ int f_identifier_variable(int n){
     
     arg = pop_s();
     if(!identifierp(arg))
-    	exception("identifier-bind!", NOT_IDENTIFIER, arg);
+    	exception("identifier-variable!", NOT_IDENTIFIER, arg);
     
-    SET_CAR(arg,BOOLT);
+    SET_CAR(arg,1);
     return(arg);
 }
 
@@ -4427,7 +4447,28 @@ int f_identifier_variablep(int n){
 	int arg;
     
     arg = pop_s();
-    if(identifierp(arg) && (GET_CAR(arg) == BOOLT))
+    if(identifierp(arg) && (GET_CAR(arg) == 1))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+int f_identifier_ellipsis(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!identifierp(arg))
+    	exception("identifier-ellipsis!", NOT_IDENTIFIER, arg);
+    
+    SET_CAR(arg,2);
+    return(arg);
+}
+
+int f_identifier_ellipsisp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(identifierp(arg) && (GET_CAR(arg) == 2))
     	return(BOOLT);
     else
     	return(BOOLF);
@@ -4899,6 +4940,8 @@ void initsubr(void){
     defsubr("identifier-bound",(int)f_identifier_bound);
     defsubr("identifier-variable!",(int)f_identifier_variable);
     defsubr("identifier-variable?",(int)f_identifier_variablep);
+    defsubr("identifier-ellipsis!",(int)f_identifier_ellipsis);
+    defsubr("identifier-ellipsis?",(int)f_identifier_ellipsisp);
     defsubr("global-bound?",(int)f_global_boundp);
     defsubr("inspect",(int)f_inspect);
     defsubr("exact-integer?",(int)f_exact_integerp);

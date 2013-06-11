@@ -87,7 +87,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.6.9 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.6.11 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -4211,6 +4211,10 @@ void print(int x){
         case EOFO:	fprintf(output_port, "#<eof>"); break;
         case IDNT:	fprintf(output_port, "#<id %s,", GET_NAME(x));
         			print(GET_AUX(x));
+                    if(GET_CAR(x) == 1)
+                    	fprintf(output_port, ",variable");
+                    if(GET_CAR(x) == 2)
+                    	fprintf(output_port, ",ellipsis");
                     fprintf(output_port, ">"); break;
         case SYNCLO:
         			fprintf(output_port, "#<synclo "); print(GET_CAR(x)); 

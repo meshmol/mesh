@@ -231,7 +231,7 @@
 
 (define-syntax foo
   (syntax-rules ()
-    ((_ (a ...) (b ...)) (let ((a b)...)))))
+    ((_ (a ...) (b ...)) (let ((a b)...) (list a ...)))))
 
 (letrec-syntax
   ((foo (syntax-rules ()

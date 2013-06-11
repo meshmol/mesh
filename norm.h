@@ -868,6 +868,8 @@ int f_identifier_boundp(int n);
 int f_identifier_bound(int n);
 int f_identifier_variable(int n);
 int f_identifier_variablep(int n);
+int f_identifier_ellipsis(int n);
+int f_identifier_ellipsisp(int n);
 int f_global_boundp(int n);
 int f_exact_integerp(int n);
 int f_file_existsp(int n);

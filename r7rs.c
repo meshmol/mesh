@@ -53,6 +53,8 @@ void init_r7rs(void){
     defsubr("identifier-bound",(int)f_identifier_bound);
     defsubr("identifier-variable!",(int)f_identifier_variable);
     defsubr("identifier-variable?",(int)f_identifier_variablep);
+    defsubr("identifier-ellipsis!",(int)f_identifier_ellipsis);
+    defsubr("identifier-ellipsis?",(int)f_identifier_ellipsisp);
     defsubr("global-bound?",(int)f_global_boundp);
     defsubr("inspect",(int)f_inspect);
     defsubr("lambda/asm",(int)f_lambda_asm);

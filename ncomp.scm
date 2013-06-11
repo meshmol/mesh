@@ -29,7 +29,7 @@
          (args-count-check x 1 1)
          (comp-const (cadr x) val? more? in-lambda?))
         ((eqv? (car x) 'quasiquote)
-         (comp (quasi-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
+         (comp (macro-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'begin)
          (comp-begin (cdr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'set!)
@@ -107,18 +107,18 @@
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
 ;;quasi-quote transfer
-(define (quasi-transfer x)
+(define (macro-transfer x)
   (cond ((null? x) '())
         ((atom? x)
          (list 'quote x))
         ((and (pair? x)(eqv? (car x) 'unquote))
          (cadr x))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote))
-         (list 'cons (cadar x) (quasi-transfer (cdr x))))
+         (list 'cons (cadar x) (macro-transfer (cdr x))))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote-splicing))
-         (list 'append (cadar x) (quasi-transfer (cdr x))))
+         (list 'append (cadar x) (macro-transfer (cdr x))))
         (else
-          (list 'cons (quasi-transfer (car x)) (quasi-transfer (cdr x))))))
+          (list 'cons (macro-transfer (car x)) (macro-transfer (cdr x))))))
 
 ;;inner-define -> letrec
 (define (inner-transfer x)
@@ -861,6 +861,10 @@
     (identifier-free? 1 1 #t #f)
     (identifier-bound? 1 1 #t #f)
     (identifier-bound 1 1 #t #f)
+    (identifier-variable! 1 1 #t #t)
+    (identifier-variable? 1 1 #t #f)
+    (identifier-ellipsis! 1 1 #t #t)
+    (identifier-ellipsis? 1 1 #t #f)
     (global-bound? 1 1 #t #f)
     (inspect 0 0 #t #t)
     (exact-integer? 1 1 #t #f)
@@ -969,6 +973,79 @@
 
 ;;Hygienic macro
 
+(define (expand-subpat p n)
+  (if (not (has-ellipsis? p))
+      (error "template has no ellipsis" p)
+      (expand-subpat1 p '() n)))
+
+(define (expand-subpat1 p subp n)
+  (let ((val (subst-from-identifier p n)))
+    (if (not val)
+        (reverse subp)
+        (expand-subpat1 p (cons val subp) n)))) 
+
+
+(define (has-ellipsis? p)
+  (cond ((null? p) #f)
+        ((identifier-ellipsis? p) #t)
+        ((atom? p) #f)
+        ((vector? p) #f)
+        (else
+          (or (has-ellipsis? (car p))
+              (has-ellipsis? (cdr p))))))
+
+
+(define (combine x y)
+  (cond ((null? y) (map (lambda (z) (cons (identifier-ellipsis!
+                                            (if (symbol? (car z))
+                                                (symbol->identifier (car z))
+                                                (car z)))
+                                          (list (cdr z)))) x))
+        ((null? x) y)
+        (else (cons (cons (caar x)(cons (cdar x)(cdar y)))
+                    (combine (cdr x) (cdr y))))))
+
+
+(define (subst-from-identifier p n)
+  (cond ((null? p) '())
+        ((and (identifier-variable? p) (> n 0))
+         (error "syntax-rules illegal template" p))
+        ((and (identifier-ellipsis? p) (null? (identifier-bound p)) (> n 0))
+         'fail)
+        ((and (identifier-ellipsis? p) (> n 0))
+         (let ((val (identifier-bound p)))
+           (identifier-bind! p (cdr val))
+           (car val)))
+        ((identifier-free? p) (identifier->symbol p))
+        ((identifier? p) (identifier-bound p))
+        ((atom? p) p)
+        ((vector? p)
+         (list->vector (subst-from-identifier (vector->list p) n)))
+        ;;(p ...)
+        ((and (= (length p) 2)(ellipsis? (list-take p 2)))
+         (identifier-bound (car p)))
+        ;;(p ... n)
+        ((and (> (length p) 2)(ellipsis? (list-take p 2)))
+         (append (identifier-bound (car p))
+                 (subst-from-identifier (cddr p) n)))
+        ((ellipsises? p) (expand-subpat (car p) (+ n 1)))
+        ((and (eqv? (car p) '...)(eqv? (cadr p) '...)(= (length p) 2))
+         (cadr p))
+        ((eqv? (car p) '...) (cdr p))
+        (else (let ((r1 (subst-from-identifier (car p) n))
+                    (r2 (subst-from-identifier (cdr p) n)))
+                (if (and (not (fail? r1)) (not (fail? r2)))
+                    (cons r1 r2)
+                    #f)))))
+
+
+(define (match-subpat p f lits vars)
+  (if (null? f)
+      vars
+      (let ((val (match1 p (car f) lits '())))
+        (if (not val)
+            #f
+            (match-subpat p (cdr f) lits (combine val vars))))))
 
 (define (match p f lits)
   (match1 p f lits '()))
@@ -978,11 +1055,13 @@
   (cond ((and (null? p) (null? f)) vars)
         ((and (symbol? p) (memv p lits) (not(eqv? p f))) #f)
         ((and (symbol? f) (memv f lits) (not(eqv? p f))) #f)
-        ((symbol? p) (cons (cons p f) vars))
+        ((symbol? p) (cons (cons (identifier-variable! (symbol->identifier p)) f) vars))
         ((ellipsis? p) (match1 (cddr p)
                                (list-take-right f (length (cddr p)))
                                lits
-                               (cons (cons (car p) (list-take f (- (length f) (length (cddr p))))) vars)))
+                               (cons (cons (identifier-ellipsis!(symbol->identifier (car p))) 
+                                           (list-take f (- (length f) (length (cddr p))))) vars)))
+        ((ellipsises? p) (match-subpat (car p) f lits '()))
         ((and (vector? p) (vector? f)) 
          (match1 (vector->list p) (vector->list f) lits vars))
         ((equal? p f) vars)
@@ -995,9 +1074,6 @@
         (else #f)))
         
         
-
-
-
 ;;—á((1 2)(3 4)(5 6)) -> ((1 3 5)(2 4 6)) 
 (define (transpose ls) 
   (define (iter m n) 
@@ -1016,7 +1092,7 @@
 
 ;;•¡‡È—ªŽq
 (define (ellipsises? x)
-  (and (list x)
+  (and (list? x)
        (>= (length x) 2)
        (list? (car x))
        (eqv? (cadr x) '...)))
@@ -1042,33 +1118,16 @@
 
 
 (define (fail? x)
-  (eq? x 'fail))
+  (eqv? x 'fail))
 
-(define (subst-to-identifier x env lits)
-  (cond ((null? x) '())
-        ((and (symbol? x)(local-bound? x env))
-         (make-syntactic-closure env '() x))
-        ((and (symbol? x)(global-bound? x))
-         (identifier-bind! (symbol->identifier x) x))
-        ((and (symbol? x)(memv x lits))
-         (identifier-bind! (symbol->identifier x) x))
-        ((symbol? x)
-         (symbol->identifier x))
-        ((atom? x) x)
-        ((vector? x)
-         (list->vector (subst-to-identifier (vector->list x) env lits)))
-        (else (cons (subst-to-identifier (car x) env lits)
-                    (subst-to-identifier (cdr x) env lits)))))
-
-(define (local-bound? x env)
-  (cond ((null? env) #f)
-        ((member x (car env)) #t)
-        (else (local-bound? x (cdr env)))))
 
 (define (subst-pattern-vars x pat)
   (cond ((null? x) '())
         ((and (identifier? x)(assv x pat))
-         (identifier-bind! x (cdr (assv x pat))))
+         (let ((val (assv x pat)))
+           (if (identifier-variable? (car val))
+               (identifier-variable! (identifier-bind! x (cdr val)))
+               (identifier-ellipsis! (identifier-bind! x (cdr val))))))
         ((atom? x) x)
         ((vector? x)
          (list->vector (subst-pattern-vars (vector->list x) pat)))
@@ -1082,8 +1141,8 @@
 
 (define (subst-let-vars1 x a-list)
   (cond ((null? x) '())
-        ((and (identifier? x)(identifier-free? x)(assv x a-list))
-         (identifier-bind! x (cdr (assv x a-list))))
+        ((and (symbol? x)(assv x a-list))
+         (cdr (assv x a-list)))
         ((atom? x) x)
         ((vector? x) x)
         (else (cons (subst-let-vars1 (car x) a-list)
@@ -1125,23 +1184,6 @@
   (and (list? x) (>= (length x) 3) (eqv? (car x) 'let*)))
 
 
-(define (subst-from-identifier x)
-  (cond ((null? x) '())
-        ((identifier-free? x) (identifier->symbol x))
-        ((identifier? x) (identifier-bound x))
-        ((atom? x) x)
-        ((vector? x)
-         (list->vector (subst-from-identifier (vector->list x))))
-        ((and (= (length x) 2)(ellipsis? x))
-         (identifier-bound (car x)))
-        ;;(x ...)
-        ((and (> (length x) 2)(ellipsis? (list-take x 2)))
-         (append (identifier-bound (car x))
-                 (subst-from-identifier (cddr x))))
-        ;;ex(x ... n)
-        (else (cons (subst-from-identifier (car x))
-                    (subst-from-identifier (cdr x))))))
-
 
 
 
@@ -1153,11 +1195,32 @@
     ;(display b)(newline)
     (set! c (subst-let-vars b))
     ;(display c)(newline)
-    (set! d (subst-from-identifier c))
+    (set! d (subst-from-identifier c 0))
     ;(display d)(newline)
     d))
     
-  
+
+
+(define (subst-to-identifier x env lits)
+  (cond ((null? x) '())
+        ((and (symbol? x)(local-bound? x env))
+         (make-syntactic-closure env '() x))
+        ((and (symbol? x)(global-bound? x))
+         (identifier-bind! (symbol->identifier x) x))
+        ((and (symbol? x)(memv x lits))
+         (identifier-bind! (symbol->identifier x) x))
+        ((symbol? x)
+         (symbol->identifier x))
+        ((atom? x) x)
+        ((vector? x)
+         (list->vector (subst-to-identifier (vector->list x) env lits)))
+        (else (cons (subst-to-identifier (car x) env lits)
+                    (subst-to-identifier (cdr x) env lits)))))
+
+(define (local-bound? x env)
+  (cond ((null? env) #f)
+        ((member x (car env)) #t)
+        (else (local-bound? x (cdr env)))))
 
 
 (define (expand x y lits comp-env)
@@ -1167,6 +1230,8 @@
     (cond (vars (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
+
+
 
 
 ;;Normal macros

@@ -1,3 +1,6 @@
+;;
+;;parameter test
+
 
 (define radix
   (make-parameter
@@ -8,3 +11,6 @@
           (error "invalid radix")))))
 
 (define (f n) (number->string n (radix)))
+
+(parameterize ((radix 2)) (f 12))
+

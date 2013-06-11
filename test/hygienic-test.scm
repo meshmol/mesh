@@ -26,9 +26,9 @@
     ((_) #t)
     ((_ e) e)
     ((_ e1 e2 ...)
-     (if e1
-	 (my-and e2 ...)
-	 #f))))
+     (if e1 
+         (my-and e2 ...  )
+         #f))))
 
 (define-syntax arithmetic-if
   (syntax-rules ()

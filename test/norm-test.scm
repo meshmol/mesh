@@ -77,12 +77,12 @@
 (test* "(call/cc procedure?)" #t (call/cc procedure?))
 (test* "(apply + (list 3 4))" 7 (apply + (list 3 4)))
 
-(define compose
-  (lambda (f g)
-    (lambda args
-      (f (apply g args)))))
+;;; (define compose
+;;;   (lambda (f g)
+;;;     (lambda args
+;;;       (f (apply g args)))))
 
-(test* "((compose sqrt *) 12 75)" 30 ((compose sqrt *) 12 75))
+;(test* "((compose sqrt *) 12 75)" 30 ((compose sqrt *) 12 75))
 (test* "(map cadr '((a b) (d e) (g h)))" '(b e h) (map cadr '((a b) (d e) (g h))))
 (test* "(map (lambda (n) (expt n n)) '(1 2 3 4 5))" '(1 4 27 256 3125) (map (lambda (n) (expt n n)) '(1 2 3 4 5)))
 (test* "(map + '(1 2 3) '(4 5 6))" '(5 7 9) (map + '(1 2 3) '(4 5 6)))
