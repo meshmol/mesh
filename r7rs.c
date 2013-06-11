@@ -27,6 +27,7 @@ void init_r7rs(void){
     defsubr("dump",(int)f_dump);
     defsubr("addr-prt",(int)f_addr_prt);
     defsubr("room",(int)f_room);
+    defsubr("freecell",(int)f_freecell);
     defsubr("macro?",(int)f_macrop);
     defsubr("macro-name?",(int)f_macro_namep);
     defsubr("hygienic?",(int)f_hygienicp);

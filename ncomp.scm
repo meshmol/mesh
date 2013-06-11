@@ -829,6 +829,7 @@
     (addr-prt 1 1 #t #t)
     (gbc 0 1 #t #t)
     (room 0 0 #t #f)
+    (freecell 0 0 #t #f)
     (vmcode 1 1 #t #f)
     (env 1 1 #t #f)
     (timer-set 0 0 #t #t)

@@ -3975,6 +3975,11 @@ int f_room(int n){
     return(undef);
 }
 
+int f_freecell(int n){
+	
+    return(make_int(cell_free));
+}
+
 int f_vmcode(int n){
 	int arg,code,i,res;
     
@@ -4908,6 +4913,7 @@ void initsubr(void){
     defsubr("addr-prt",(int)f_addr_prt);
     defsubr("gbc",(int)f_gbc);
     defsubr("room",(int)f_room);
+    defsubr("freecell",(int)f_freecell);
     defsubr("sys-code",(int)f_vmcode);
     defsubr("sys-env",(int)f_env);
     defsubr("sys-timer-set",(int)f_timer_set);

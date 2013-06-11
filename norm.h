@@ -836,6 +836,7 @@ int f_addr_prt(int n);
 int f_entity_addr(int n);
 int f_gbc(int n);
 int f_room(int n);
+int f_freecell(int n);
 int f_vmcode(int n);
 int f_timer_set(int n);
 int f_timer_get(int n);
