@@ -159,3 +159,8 @@
          (set! b tmp)))))
   (swap! x y)
   (list x y))
+
+
+(define-syntax bar
+  (syntax-rules ()
+    ((_ x) (lambda (x) x))))

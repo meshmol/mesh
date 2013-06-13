@@ -16,7 +16,8 @@
 (define-library (normal compile)
   (export compile comp assemble compile-file map for-each and or let let* cond letrec do case
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
-          expand seq gen))
+          macrotrace lambda if set! quote))
+
 
 (define-library (scheme inexact)
   (export
@@ -62,37 +63,6 @@
       (lambda (pred . else)
         `(if ,pred (undefined) (begin ,@else))))
     
-    (define *current-exception-handlers*
-      (list (lambda (condition)
-              (error "unhandled exception" condition))))
-    
-    (define (with-exception-handler handler thunk)
-      (with-exception-handlers (cons handler *current-exception-handlers*)
-                               thunk))
-    
-    (define (with-exception-handlers new-handlers thunk)
-      (let ((previous-handlers *current-exception-handlers*))
-        (dynamic-wind
-          (lambda ()
-            (set! *current-exception-handlers* new-handlers))
-          thunk
-          (lambda ()
-            (set! *current-exception-handlers* previous-handlers)))))
-    
-    (define (raise obj)
-      (let ((handlers *current-exception-handlers*))
-        (with-exception-handlers (cdr handlers)
-                                 (lambda ()
-                                   ((car handlers) obj)
-                                   (error "handler returned"
-                                          (car handlers)
-                                          obj)))))
-    
-    (define (raise-continuable obj)
-      (let ((handlers *current-exception-handlers*))
-        (with-exception-handlers (cdr handlers)
-                                 (lambda ()
-                                   ((car handlers) obj)))))
     
     (define (string-map f . args)
       (list->string 
@@ -219,6 +189,40 @@
              (r (- n1 (* n2 q))))
         r))
     
+    #|
+    srfi-34 Copyright (C) Richard Kelsey, Michael Sperber (2002). All Rights Reserved
+    |#
+    (define *current-exception-handlers*
+      (list (lambda (condition)
+              (error "unhandled exception" condition))))
+    
+    (define (with-exception-handler handler thunk)
+      (with-exception-handlers (cons handler *current-exception-handlers*)
+                               thunk))
+    
+    (define (with-exception-handlers new-handlers thunk)
+      (let ((previous-handlers *current-exception-handlers*))
+        (dynamic-wind
+          (lambda ()
+            (set! *current-exception-handlers* new-handlers))
+          thunk
+          (lambda ()
+            (set! *current-exception-handlers* previous-handlers)))))
+    
+    (define (raise obj)
+      (let ((handlers *current-exception-handlers*))
+        (with-exception-handlers (cdr handlers)
+                                 (lambda ()
+                                   ((car handlers) obj)
+                                   (error "handler returned"
+                                          (car handlers)
+                                          obj)))))
+    
+    (define (raise-continuable obj)
+      (let ((handlers *current-exception-handlers*))
+        (with-exception-handlers (cdr handlers)
+                                 (lambda ()
+                                   ((car handlers) obj)))))
     
     (define-syntax guard
       (syntax-rules ()
@@ -284,6 +288,9 @@
         ((define-values var exp) 
          (define var (call-with-values (lambda () exp) list))))) 
     
+    #|
+    srfi-39 Copyright (C) Marc Feeley 2002. All Rights Reserved.
+    |#
     (define make-parameter
       (lambda (init . conv)
         (let ((converter
@@ -351,8 +358,13 @@
     cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
     cddddr cdddr cddr cdr))
 
-
+#|
+srfi-16
+Copyright (C) Lars T Hansen (1999). All Rights Reserved.
+|#
 (define-library (scheme case-lambda)
+  (import (scheme base)
+          (normal compile))
   (export case-lambda)
   (begin
     
@@ -416,9 +428,15 @@
     char-alphabetic? char-numeric? char-whitespace? char-upper-case? char-lower-case?
     char->integer integer->char char-upcase char-downcase))
 
+
+#|
+from R7RS-Small draft9 p70
+|#
 (define-library (scheme lazy)
   (export delay-force delay force make-promise)
-  (import (scheme base))
+  (import (scheme base)
+          (scheme cxr)
+          (normal compile))
   (begin
     (define-syntax delay-force
       (syntax-rules ()
@@ -583,6 +601,7 @@
         (scheme inexact)
         (scheme case-lambda)
         (only (normal system) macroexpand macroexpand-1)
+        (only (normal compile) macrotrace)
         (only (scheme process-context) exit))
 
 

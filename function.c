@@ -4420,6 +4420,7 @@ int f_global_boundp(int n){
 	int arg;
     
     arg = pop_s();
+    
     if(!symbolp(arg))
     	exception("global-bound?", NOT_SYMBOL, arg);
     

@@ -981,7 +981,7 @@
       (expand-subpat1 p '() n)))
 
 (define (expand-subpat1 p subp n)
-  (let ((val (subst-from-identifier p n)))
+  (let ((val (subst-from-identifer1 p n)))
     (if (not val)
         (reverse subp)
         (expand-subpat1 p (cons val subp) n)))) 
@@ -1008,7 +1008,14 @@
                     (combine (cdr x) (cdr y))))))
 
 
-(define (subst-from-identifier p n)
+(define freevar '())
+
+(define (subst-from-identifier p)
+  (set! freevar '())
+  (subst-from-identifer1 p 0))
+
+
+(define (subst-from-identifer1 p n)
   (cond ((null? p) '())
         ((and (identifier-variable? p) (> n 0))
          (error "syntax-rules illegal template" p))
@@ -1018,24 +1025,27 @@
          (let ((val (identifier-bound p)))
            (identifier-bind! p (cdr val))
            (car val)))
-        ((identifier-free? p) (identifier->symbol p))
+        ((and (identifier-free? p)(memv p freevar))
+         (identifier-bound (car (memv p freevar))))
+        ((identifier-free? p) 
+         (identifier-bind! p (gensym)) (set! freevar (cons p freevar)) (identifier-bound p))
         ((identifier? p) (identifier-bound p))
         ((atom? p) p)
         ((vector? p)
-         (list->vector (subst-from-identifier (vector->list p) n)))
+         (list->vector (subst-from-identifer1 (vector->list p) n)))
         ;;(p ...)
         ((and (= (length p) 2)(ellipsis? (list-take p 2)))
          (identifier-bound (car p)))
         ;;(p ... n)
         ((and (> (length p) 2)(ellipsis? (list-take p 2)))
          (append (identifier-bound (car p))
-                 (subst-from-identifier (cddr p) n)))
+                 (subst-from-identifer1 (cddr p) n)))
         ((ellipsises? p) (expand-subpat (car p) (+ n 1)))
         ((and (eqv? (car p) '...)(eqv? (cadr p) '...)(= (length p) 2))
          (cadr p))
         ((eqv? (car p) '...) (cdr p))
-        (else (let ((r1 (subst-from-identifier (car p) n))
-                    (r2 (subst-from-identifier (cdr p) n)))
+        (else (let ((r1 (subst-from-identifer1 (car p) n))
+                    (r2 (subst-from-identifer1 (cdr p) n)))
                 (if (and (not (fail? r1)) (not (fail? r2)))
                     (cons r1 r2)
                     #f)))))
@@ -1058,11 +1068,12 @@
         ((and (symbol? p) (memv p lits) (not(eqv? p f))) #f)
         ((and (symbol? f) (memv f lits) (not(eqv? p f))) #f)
         ((symbol? p) (cons (cons (identifier-variable! (symbol->identifier p)) f) vars))
-        ((ellipsis? p) (match1 (cddr p)
-                               (list-take-right f (length (cddr p)))
-                               lits
-                               (cons (cons (identifier-ellipsis!(symbol->identifier (car p))) 
-                                           (list-take f (- (length f) (length (cddr p))))) vars)))
+        ((and (ellipsis? p)(list? f))
+         (match1 (cddr p)
+                 (list-take-right f (length (cddr p)))
+                 lits
+                 (cons (cons (identifier-ellipsis!(symbol->identifier (car p))) 
+                             (list-take f (- (length f) (length (cddr p))))) vars)))
         ((ellipsises? p) (match-subpat (car p) f lits '()))
         ((and (vector? p) (vector? f)) 
          (match1 (vector->list p) (vector->list f) lits vars))
@@ -1192,12 +1203,14 @@
 (define (expand-template x vars comp-env lits)
   (let ((a #f)(b #f)(c #f)(d #f))
     (set! a (subst-to-identifier x comp-env lits))
-    ;(display a)(newline)
+    ;;(display a)(newline)
     (set! b (subst-pattern-vars a vars))
     ;(display b)(newline)
     (set! c (subst-let-vars b))
     ;(display c)(newline)
-    (set! d (subst-from-identifier c 0))
+    (set! d (subst-from-identifier c))
+    (when *macrotrace*
+      (newline)(display "[expand ]")(display d))
     ;(display d)(newline)
     d))
     
@@ -1229,12 +1242,21 @@
   (let* ((pat (caar x))
          (temp (cadar x))
          (vars (match pat y lits)))
-    (cond (vars (expand-template temp vars comp-env lits))
+    (cond (vars 
+            (when *macrotrace*
+              (newline)(display "[pattern]")(display pat)
+              (newline)(display "[form   ]")(display y))
+            (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
 
 
+(define *macrotrace* #f)
 
+(define (macrotrace x)
+  (cond ((eq? x #t) (set! *macrotrace* #t))
+        ((eq? x #f) (set! *macrotrace* #f))))
+      
 
 ;;Normal macros
 ;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
