@@ -9,7 +9,7 @@
     sys-code sys-cont-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
     sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step freecell 
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car
-    identifier-variable! identifier-variable? make-record
+    identifier-variable! identifier-variable? make-record record? record-set! record-ref
     identifier-ellipsis! identifier-ellipsis?))
     
     

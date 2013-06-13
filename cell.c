@@ -591,7 +591,7 @@ int make_record(int n, int obj){
     	SET_VEC(res,rec);
     for(i=0; i<n; i++)
     	SET_VEC_ELT(res,i,obj);
-    SET_TAG(res,RECORD);
+    SET_TAG(res,REC);
     SET_CDR(res,n);
     return(res);
 }

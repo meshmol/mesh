@@ -4692,6 +4692,49 @@ int f_make_record(int n){
     return(make_record(get_int(arg1),arg2));	
 }
 
+int f_recordp(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(IS_RECORD(arg))
+    	return(BOOLT);
+    else
+    	return(BOOLF);
+}
+
+int f_record_set(int n){
+	int arg1,arg2,arg3;
+    
+    
+    arg3 = pop_s();
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!IS_RECORD(arg1))
+    	exception("record-set!",NOT_RECORD, arg1);
+    if(GET_AUX(arg1) == 1)
+    	exception("record-set",IMMUTABLE_OBJ, arg1);
+    if(!IS_INTEGER(arg2) || negativep(arg2))
+    	exception("record-set!",NOT_EXACT, arg2);
+    
+    record_set(arg1,get_int(arg2),arg3);
+    return(undef);
+}
+
+int f_record_ref(int n){
+	int arg1,arg2;
+    
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!IS_RECORD(arg1))
+    	exception("record-ref", NOT_RECORD, arg1);
+	if(!IS_INTEGER(arg2) || negativep(arg2))
+    	exception("record-ref",NOT_EXACT, arg2);
+    if(get_int(arg2) >= record_length(arg1))
+    	exception("record-ref", OUT_OF_RANGE,arg2);
+    
+    return(record_ref(arg1,get_int(arg2)));
+}
+
 
 //subrを環境に登録する。
 void defsubr(char *name, int func){
@@ -4989,6 +5032,9 @@ void initsubr(void){
 	defsubr("get-environment-variables",(int)f_get_environment_variables);
     defsubr("get-car",(int)f_get_car);
     defsubr("make-record",(int)f_make_record);
+    defsubr("record?",(int)f_recordp);
+    defsubr("record-set!",(int)f_record_set);
+    defsubr("record-ref",(int)f_record_ref);
     
 }
 

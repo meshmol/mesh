@@ -350,6 +350,9 @@ void exception(char *fn, int code, int arg){
         case NOT_SYNTACTIC:		printf("Exception in %s: ", fn);
         						print(arg); printf(" is not a syntactic closure\n");
                                 break;
+        case NOT_RECORD:		printf("Exception in %s: ", fn);
+        						print(arg); printf(" is not a record\n");
+                                break;
         case INCORRECT_ARG_CNT:	printf("Exception: incorrect argument count in call (%s)\n", fn);
         						break;
         case ILLEGAL_ARGUMENT:	printf("Exception in %s: ", fn);
@@ -4200,7 +4203,7 @@ void print(int x){
         			break;
         case U8VEC:	print_u8vec(x);
         			break;
-        case RECORD:
+        case REC:
         			print_record(x);
                     break;
         case MUL:  	n = GET_VEC_ELT(x,0);
@@ -4468,7 +4471,7 @@ void markcell(int addr){
             			markcell(x);
                     }
                     return;
-        case RECORD:
+        case REC:
         			n = record_length(addr);
         			for(i=0; i<n; i++){
           				x = GET_VEC_ELT(addr,i);
@@ -4667,7 +4670,7 @@ void clrcell(int addr){
     }
 	
     
-    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM || tag == RECORD){
+    if(tag == CODE || tag == STACK || tag == VEC || tag == MEM || tag == REC){
         free(memory[addr].val.car.dyna_vec);
     }
     

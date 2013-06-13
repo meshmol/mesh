@@ -76,7 +76,7 @@ typedef enum flag 	{FRE,USE} flag;
 #define INF 	32
 #define NANN 	33
 #define U8VEC	34
-#define RECORD	35		
+#define REC		35		
 
 
 /*
@@ -116,7 +116,7 @@ EMPSET  ‹óW‡
 INF		–³ŒÀ
 NANN	not a number for Normal
 U8VEC	byte vector
-RECORD	recordŒ^
+REC     recordŒ^
 */
 
 
@@ -228,6 +228,7 @@ typedef struct septoken septoken;
 #define NOT_BYTE_VECTOR		45
 #define IMMUTABLE_OBJ		46
 #define OUT_OF_RANGE		47
+#define NOT_RECORD			48
 
 #define EOL		'\n'
 #define RET		'\r'
@@ -303,6 +304,7 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define IS_PORT(addr)		memory[addr].tag == PRT
 #define IS_INF(addr)		(addr == PINF || addr == MINF)
 #define IS_NAN(addr)		(addr == PNAN || addr == MNAN)
+#define IS_RECORD(addr)		memory[addr].tag == REC
 #define HAS_NAME(addr,x)	strcmp(memory[addr].name,x) == 0
 #define SAME_NAME(addr1,addr2) strcmp(memory[addr1].name, memory[addr2].name) == 0
 #define GREATER_NAME(addr1,addr2) strcmp(memory[addr1].name, memory[addr2].name) > 0
@@ -899,6 +901,9 @@ int f_get_environment_variable(int n);
 int f_get_environment_variables(int n);
 int f_get_car(int n);
 int f_make_record(int n);
+int f_recordp(int n);
+int f_record_set(int n);
+int f_record_ref(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

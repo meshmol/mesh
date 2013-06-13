@@ -890,6 +890,9 @@
     (get-environment-variables 0 0 #t #f)
     (get-car 1 1 #t #f)
     (make-record 1 2 #t #f)
+    (record? 1 1 #t #f)
+    (record-set! 3 3 #t #t)
+    (record-ref 2 2 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹
