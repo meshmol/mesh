@@ -16,7 +16,7 @@
 (define-library (normal compile)
   (export compile comp assemble compile-file map for-each and or let let* cond letrec do case
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
-          macrotrace lambda if set! quote))
+          macrotrace lambda if set! quote begin define define-syntax))
 
 
 (define-library (scheme inexact)
@@ -53,7 +53,8 @@
     vector-map vector-ref vector-set! vector? when with-exception-handler
     write-char zero? read-line read-string guard define-values 
     make-parameter parameterize floor/ floor-quotient floor-remainder round/
-    round-quotient round-remainder truncate/ truncate-quotient truncate-remainder)
+    round-quotient round-remainder truncate/ truncate-quotient truncate-remainder
+    let-values let*-values)
   (begin
     (define-macro when
       (lambda (pred . true)
@@ -344,6 +345,46 @@
     
     (define dynamic-env-local-set!
       (lambda (new-env) (set! dynamic-env-local new-env)))
+    
+    #|
+    Copyright (C) Lars T Hansen (1999). All Rights Reserved.
+    |#
+
+    (define-syntax let-values
+      (syntax-rules ()
+        ((let-values (?binding ...) ?body0 ?body1 ...)
+         (let-values "bind" (?binding ...) () (begin ?body0 ?body1 ...)))
+        
+        ((let-values "bind" () ?tmps ?body)
+         (let ?tmps ?body))
+        
+        ((let-values "bind" ((?b0 ?e0) ?binding ...) ?tmps ?body)
+         (let-values "mktmp" ?b0 ?e0 () (?binding ...) ?tmps ?body))
+        
+        ((let-values "mktmp" () ?e0 ?args ?bindings ?tmps ?body)
+         (call-with-values 
+           (lambda () ?e0)
+           (lambda ?args
+             (let-values "bind" ?bindings ?tmps ?body))))
+        
+        ((let-values "mktmp" (?a . ?b) ?e0 (?arg ...) ?bindings (?tmp ...) ?body)
+         (let-values "mktmp" ?b ?e0 (?arg ... x) ?bindings (?tmp ... (?a x)) ?body))
+        ;;templateÇÃxÇÕé©óRïœêîÇ≈Ç†ÇËgensymÇ≈äÑÇËìñÇƒÇ»Ç¢Ç∆Ç§Ç‹Ç≠Ç¢Ç©Ç»Ç¢ÅB
+        
+        ((let-values "mktmp" ?a ?e0 (?arg ...) ?bindings (?tmp ...) ?body)
+         (call-with-values
+           (lambda () ?e0)
+           (lambda (?arg ... . x)
+             (let-values "bind" ?bindings (?tmp ... (?a x)) ?body))))))
+    
+    (define-syntax let*-values
+      (syntax-rules ()
+        ((let*-values () ?body0 ?body1 ...)
+         (begin ?body0 ?body1 ...))
+        
+        ((let*-values (?binding0 ?binding1 ...) ?body0 ?body1 ...)
+         (let-values (?binding0)
+                     (let*-values (?binding1 ...) ?body0 ?body1 ...)))))
     
     ))
 
