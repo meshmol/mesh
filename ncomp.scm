@@ -29,7 +29,7 @@
          (args-count-check x 1 1)
          (comp-const (cadr x) val? more? in-lambda?))
         ((eqv? (car x) 'quasiquote)
-         (comp (macro-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
+         (comp (quasi-transfer (cadr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'begin)
          (comp-begin (cdr x) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'set!)
@@ -107,18 +107,18 @@
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
 ;;quasi-quote transfer
-(define (macro-transfer x)
+(define (quasi-transfer x)
   (cond ((null? x) '())
         ((atom? x)
          (list 'quote x))
         ((and (pair? x)(eqv? (car x) 'unquote))
          (cadr x))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote))
-         (list 'cons (cadar x) (macro-transfer (cdr x))))
+         (list 'cons (cadar x) (quasi-transfer (cdr x))))
         ((and (pair? x)(pair? (car x))(eqv? (caar x) 'unquote-splicing))
-         (list 'append (cadar x) (macro-transfer (cdr x))))
+         (list 'append (cadar x) (quasi-transfer (cdr x))))
         (else
-          (list 'cons (macro-transfer (car x)) (macro-transfer (cdr x))))))
+          (list 'cons (quasi-transfer (car x)) (quasi-transfer (cdr x))))))
 
 ;;inner-define -> letrec
 (define (inner-transfer x)
@@ -983,9 +983,11 @@
       (error "template has no ellipsis" p)
       (expand-subpat1 p '() n)))
 
+(define n 0)
+
 (define (expand-subpat1 p subp n)
-  (let ((val (subst-from-identifer1 p n)))
-    (if (not val)
+  (let ((val (subst-from-identifier1 p n)))
+    (if (not val) 
         (reverse subp)
         (expand-subpat1 p (cons val subp) n)))) 
 
@@ -1007,7 +1009,12 @@
                                                 (car z)))
                                           (list (cdr z)))) x))
         ((null? x) y)
-        (else (cons (cons (caar x)(cons (cdar x)(cdar y)))
+        (else (cons (cons 
+                      (identifier-ellipsis!
+                        (if (symbol? (caar x))
+                            (symbol->identifier (caar x))
+                            (caar x)))
+                      (cons (cdar x)(cdar y)))
                     (combine (cdr x) (cdr y))))))
 
 
@@ -1015,13 +1022,13 @@
 
 (define (subst-from-identifier p)
   (set! freevar '())
-  (subst-from-identifer1 p 0))
+  (subst-from-identifier1 p 0))
 
 
-(define (subst-from-identifer1 p n)
+(define (subst-from-identifier1 p n)
   (cond ((null? p) '())
         ((and (identifier-variable? p) (> n 0))
-         (error "syntax-rules illegal template" p))
+         (identifier-bound p))
         ((and (identifier-ellipsis? p) (null? (identifier-bound p)) (> n 0))
          'fail)
         ((and (identifier-ellipsis? p) (> n 0))
@@ -1035,23 +1042,24 @@
         ((identifier? p) (identifier-bound p))
         ((atom? p) p)
         ((vector? p)
-         (list->vector (subst-from-identifer1 (vector->list p) n)))
+         (list->vector (subst-from-identifier1 (vector->list p) n)))
         ;;(p ...)
-        ((and (= (length p) 2)(ellipsis? (list-take p 2)))
+        ((and (list? p)(= (length p) 2)(ellipsis? (list-take p 2)))
          (identifier-bound (car p)))
         ;;(p ... n)
-        ((and (> (length p) 2)(ellipsis? (list-take p 2)))
+        ((and (list? p)(> (length p) 2)(ellipsis? (list-take p 2)))
          (append (identifier-bound (car p))
-                 (subst-from-identifer1 (cddr p) n)))
+                 (subst-from-identifier1 (cddr p) n)))
         ((ellipsises? p) (expand-subpat (car p) (+ n 1)))
         ((and (eqv? (car p) '...)(eqv? (cadr p) '...)(= (length p) 2))
          (cadr p))
         ((eqv? (car p) '...) (cdr p))
-        (else (let ((r1 (subst-from-identifer1 (car p) n))
-                    (r2 (subst-from-identifer1 (cdr p) n)))
-                (if (and (not (fail? r1)) (not (fail? r2)))
-                    (cons r1 r2)
-                    #f)))))
+        (else (let ((r1 (subst-from-identifier1 (car p) n))
+                    (r2 (subst-from-identifier1 (cdr p) n)))
+                (cond ((or (fail? r1) (fail? r2)) #f)
+                      ((and (car p) (not r1)) #f) ;;for improper list 
+                      ((and (cdr p) (not r2)) #f) ;;atomの#fではないものをsubstして#fが返るならばそれは停止条件。
+                      (else (cons r1 r2)))))))
 
 
 (define (match-subpat p f lits vars)
@@ -1110,7 +1118,7 @@
 (define (ellipsises? x)
   (and (list? x)
        (>= (length x) 2)
-       (list? (car x))
+       (pair? (car x))
        (eqv? (cadr x) '...)))
 
 ;;ベクタ省略子
