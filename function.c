@@ -2184,8 +2184,7 @@ int f_div(int n){
         
     while(n > 1){
     	arg1 = pop_s();
-        n--;
-        print(arg1);	
+        n--;	
         if(!numberp(arg1))
     		exception("/", NOT_NUMBER, arg1);
         if(integerp(arg1) && zerop(arg1))

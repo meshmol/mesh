@@ -144,11 +144,19 @@ int complexp(int x){
 }
 
 int positive_zerop(int x){
-	
-	if(!negative_zerop(x))
+	double m,n;
+    
+    if(!IS_FLOAT(x))
+    	return(0);
+    if(!zerop(x))
+    	return(0);
+    m = GET_FLT(x);
+    n = 1 / m;
+    if(n > 0)
     	return(1);
     else
     	return(0);
+	
 }
 
 int negative_zerop(int x){
@@ -1052,7 +1060,7 @@ int divide(int arg1, int arg2){
                             x2 = (double)s;
                             return(make_flt(x1/x2));}
                 case FLTN: {if(positivep(arg1) && positive_zerop(arg2))
-                            	return(PINF); //+inf.0
+                                return(PINF); //+inf.0
                 			if(negativep(arg1) && positive_zerop(arg2))
                             	return(MINF); //-inf.0
                             if(positivep(arg1) && negative_zerop(arg2))
