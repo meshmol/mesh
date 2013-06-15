@@ -24,11 +24,17 @@
     sin cos tan asin acos atan log exp sqrt
     infinity? finity? nan?))
 
+(define-library (scheme cxr)
+  (export
+    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
+    cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
+    cddddr cdddr cddr cdr))
 
 (define-library (scheme base)
   (import (normal system)
           (normal compile)
           (only (scheme inexact) sqrt)
+          (scheme cxr)
           (scheme char))
   (export
     * + - / < <= = > >= abs and append append! apply assoc assq assv atom? bignum?
@@ -502,11 +508,7 @@
   (export
     real-part imag-part magnitude angle make-rectangular make-polar))
 
-(define-library (scheme cxr)
-  (export
-    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
-    cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
-    cddddr cdddr cddr cdr))
+
 
 #|
 srfi-16
