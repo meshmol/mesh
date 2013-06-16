@@ -14,7 +14,7 @@
     
     
 (define-library (normal compile)
-  (export compile comp assemble compile-file map for-each and or let let* cond letrec do case
+  (export compile comp assemble compile-file map for-each and or let let* letrec do case cond
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
           macrotrace lambda if set! quote begin define define-syntax))
 
@@ -24,11 +24,17 @@
     sin cos tan asin acos atan log exp sqrt
     infinity? finity? nan?))
 
+(define-library (scheme cxr)
+  (export
+    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
+    cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
+    cddddr cdddr cddr cdr))
 
 (define-library (scheme base)
   (import (normal system)
           (normal compile)
           (only (scheme inexact) sqrt)
+          (scheme cxr)
           (scheme char))
   (export
     * + - / < <= = > >= abs and append append! apply assoc assq assv atom? bignum?
@@ -56,6 +62,27 @@
     round-quotient round-remainder truncate/ truncate-quotient truncate-remainder
     let-values let*-values define-record-type)
   (begin
+    #|
+    (define-syntax cond
+      (syntax-rules (else =>)
+        ((cond (else result ...))
+         (begin result ...))
+        ((cond (test => result))
+         (let ((temp test))
+           (if temp (result temp))))
+        ((cond (test => result) clause ...)
+         (let ((temp test))
+           (if temp
+               (result temp)
+               (cond clause ...))))
+        ((cond (test result ...))
+         (if test (begin result ...)))
+        ((cond (test result ...)
+               clause ...)
+         (if test
+             (begin result ...)
+             (cond clause ...)))))
+    |#
     (define-macro when
       (lambda (pred . true)
         `(if ,pred (begin ,@true))))
@@ -369,7 +396,7 @@
         
         ((let-values "mktmp" (?a . ?b) ?e0 (?arg ...) ?bindings (?tmp ...) ?body)
          (let-values "mktmp" ?b ?e0 (?arg ... x) ?bindings (?tmp ... (?a x)) ?body))
-        ;;templateÇÃxÇÕé©óRïœêîÇ≈Ç†ÇËgensymÇ≈äÑÇËìñÇƒÇ»Ç¢Ç∆Ç§Ç‹Ç≠Ç¢Ç©Ç»Ç¢ÅB
+        
         
         ((let-values "mktmp" ?a ?e0 (?arg ...) ?bindings (?tmp ...) ?body)
          (call-with-values
@@ -502,11 +529,7 @@
   (export
     real-part imag-part magnitude angle make-rectangular make-polar))
 
-(define-library (scheme cxr)
-  (export
-    caaaar caaadr caaar caadar caaddr caadr caar cadaar cadar caddar cadddr caddr
-    cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar
-    cddddr cdddr cddr cdr))
+
 
 #|
 srfi-16

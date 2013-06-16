@@ -357,7 +357,7 @@ int f_assq(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
-    if(!listp(arg2))
+    if(!pairp(arg2) && !nullp(arg2))
     	exception("assq",NOT_LIST, arg2);
     res = assq(arg1,arg2);
     return(res);
@@ -368,7 +368,7 @@ int f_assv(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
-    if(!listp(arg2))
+    if(!pairp(arg2) && !nullp(arg2))
     	exception("assv",NOT_LIST, arg2);
     res = assv(arg1,arg2);
     return(res);
@@ -379,7 +379,7 @@ int f_assoc(int n){
     
     arg2 = pop_s();
     arg1 = pop_s();
-    if(!listp(arg2))
+    if(!pairp(arg2) && !nullp(arg2))
     	exception("assoc",NOT_LIST, arg2);
     res = assoc(arg1,arg2);
     return(res);

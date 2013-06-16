@@ -582,12 +582,12 @@ int macrop(int x){
 
 int setcar(int x, int y){
 	SET_CAR(x,y);
-    return(x);
+    return(undef);
 }
 
 int setcdr(int x, int y){
 	SET_CDR(x,y);
-    return(x);
+    return(undef);
 }
 
 int append(int x, int y){
