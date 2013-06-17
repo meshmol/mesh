@@ -62,27 +62,33 @@
     round-quotient round-remainder truncate/ truncate-quotient truncate-remainder
     let-values let*-values define-record-type)
   (begin
-    #|
     (define-syntax cond
       (syntax-rules (else =>)
-        ((cond (else result ...))
-         (begin result ...))
+        ((cond (else result1 result2 ...))
+         (begin result1 result2 ...))
         ((cond (test => result))
          (let ((temp test))
            (if temp (result temp))))
-        ((cond (test => result) clause ...)
+        ((cond (test => result) clause1 clause2 ...)
          (let ((temp test))
            (if temp
                (result temp)
-               (cond clause ...))))
-        ((cond (test result ...))
-         (if test (begin result ...)))
-        ((cond (test result ...)
-               clause ...)
+               (cond clause1 clause2 ...))))
+        ((cond (test)) test)
+        ((cond (test) clause1 clause2 ...)
+         (let ((temp test))
+           (if temp
+               temp
+               (cond clause1 clause2 ...))))
+        ((cond (test result1 result2 ...))
+         (if test (begin result1 result2 ...)))
+        ((cond (test result1 result2 ...)
+               clause1 clause2 ...)
          (if test
-             (begin result ...)
-             (cond clause ...)))))
-    |#
+             (begin result1 result2 ...)
+             (cond clause1 clause2 ...)))))
+
+    
     (define-macro when
       (lambda (pred . true)
         `(if ,pred (begin ,@true))))

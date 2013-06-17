@@ -14,7 +14,7 @@
     
     
 (define-library (normal compile)
-  (export compile comp assemble compile-file map for-each and or let let* letrec do case
+  (export compile comp assemble compile-file map for-each and or let let* letrec do case cond
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
           macrotrace lambda if set! quote begin define define-syntax))
 
@@ -64,23 +64,30 @@
   (begin
     (define-syntax cond
       (syntax-rules (else =>)
-        ((cond (else result ...))
-         (begin result ...))
+        ((cond (else result1 result2 ...))
+         (begin result1 result2 ...))
         ((cond (test => result))
          (let ((temp test))
            (if temp (result temp))))
-        ((cond (test => result) clause ...)
+        ((cond (test => result) clause1 clause2 ...)
          (let ((temp test))
            (if temp
                (result temp)
-               (cond clause ...))))
-        ((cond (test result ...))
-         (if test (begin result ...)))
-        ((cond (test result ...)
-               clause ...)
+               (cond clause1 clause2 ...))))
+        ((cond (test)) test)
+        ((cond (test) clause1 clause2 ...)
+         (let ((temp test))
+           (if temp
+               temp
+               (cond clause1 clause2 ...))))
+        ((cond (test result1 result2 ...))
+         (if test (begin result1 result2 ...)))
+        ((cond (test result1 result2 ...)
+               clause1 clause2 ...)
          (if test
-             (begin result ...)
-             (cond clause ...)))))
+             (begin result1 result2 ...)
+             (cond clause1 clause2 ...)))))
+
     
     (define-macro when
       (lambda (pred . true)

@@ -3744,7 +3744,7 @@ int macroexpand(int x){
 	else if(bytevectorp(x))
     	return(x);
     else if(eqp(car(x),quote))
-    	return(cadr(x));
+    	return(x);
     else if(macro_namep(car(x)))
     	return(macroexpand(macroexpand1(x)));
     else if(hygienic_namep(car(x)))
