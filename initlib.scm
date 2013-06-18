@@ -62,6 +62,7 @@
     round-quotient round-remainder truncate/ truncate-quotient truncate-remainder
     let-values let*-values define-record-type)
   (begin
+    
     (define-syntax cond
       (syntax-rules (else =>)
         ((cond (else result1 result2 ...))

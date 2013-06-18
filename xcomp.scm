@@ -807,8 +807,8 @@
     (output-port? 1 1 #t #f)
     (current-input-port 0 0 #t #f)
     (current-output-port 0 0 #t #f)
-    (read-char 1 1 #t #f)
-    (peek-char 1 1 #t #f)
+    (read-char 0 1 #t #f)
+    (peek-char 0 1 #t #f)
     (read-line 0 0 #t #f)
     (read-string 1 1 #t #f)
     (char-ready? 1 1 #t #f)
@@ -1054,15 +1054,18 @@
         ((and (eqv? (car p) '...)(eqv? (cadr p) '...)(= (length p) 2))
          (cadr p))
         ((eqv? (car p) '...) (cdr p))
-        ((and (eqv? (car p) 'quote)(identifier? (cadr p)))
+        ((and (eqv? (car p) 'quote)
+              (identifier? (cadr p))
+              (not (identifier-variable? (cadr p)))
+              (not (identifier-ellipsis? (cadr p))))
          (cons (identifier-bound (car p))
                (cons (identifier->symbol (cadr p))
                      (subst-from-identifier1 (cddr p) n))))
         (else (let ((r1 (subst-from-identifier1 (car p) n))
                     (r2 (subst-from-identifier1 (cdr p) n)))
                 (cond ((or (fail? r1) (fail? r2)) #f)
-                      ((and (car p) (not r1)) #f) ;;for improper list 
-                      ((and (cdr p) (not r2)) #f) ;;atom‚Ì#f‚Å‚Í‚È‚¢‚à‚Ì‚ğsubst‚µ‚Ä#f‚ª•Ô‚é‚È‚ç‚Î‚»‚ê‚Í’â~ğŒB
+                      ((and (car p)(not (identifier-variable? (car p)))(not r1)) #f) ;;for improper list 
+                      ((and (cdr p)(not (identifier-variable? (cdr p)))(not r2)) #f) ;;atom‚Ì#f‚Å‚Í‚È‚¢‚à‚Ì‚ğsubst‚µ‚Ä#f‚ª•Ô‚é‚È‚ç‚Î‚»‚ê‚Í’â~ğŒB
                       (else (cons r1 r2)))))))
 
 
@@ -1218,14 +1221,14 @@
 (define (expand-template x vars comp-env lits)
   (let ((a #f)(b #f)(c #f)(d #f))
     (set! a (subst-to-identifier x comp-env lits))
-    ;;(display a)(newline)
+    ;(display a)(newline)
     (set! b (subst-pattern-vars a vars))
     ;(display b)(newline)
     (set! c (subst-let-vars b))
     ;(display c)(newline)
     (set! d (subst-from-identifier c))
     (when *macrotrace*
-      (newline)(display "[expand ]")(display d))
+      (newline)(display "[expand ]")(display d)(newline))
     ;(display d)(newline)
     d))
     
