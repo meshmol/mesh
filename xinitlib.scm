@@ -88,14 +88,32 @@
              (begin result1 result2 ...)
              (cond clause1 clause2 ...)))))
 
+    (define-syntax and
+      (syntax-rules ()
+        ((and) #t)
+        ((and test) test)
+        ((and test1 test2 ...)
+         (if test1 (and test2 ...) #f))))
     
-    (define-macro when
-      (lambda (pred . true)
-        `(if ,pred (begin ,@true))))
+    (define-syntax or
+      (syntax-rules ()
+        ((or) #f)
+        ((or test) test)
+        ((or test1 test2 ...)
+         (let ((x test1))
+           (if x x (or test2 ...))))))
     
-    (define-macro unless
-      (lambda (pred . else)
-        `(if ,pred (undefined) (begin ,@else))))
+    (define-syntax when
+      (syntax-rules ()
+        ((when test result1 result2 ...)
+         (if test
+             (begin result1 result2 ...)))))
+    
+    (define-syntax unless
+      (syntax-rules ()
+        ((unless test result1 result2 ...)
+         (if (not test)
+             (begin result1 result2 ...)))))
     
     
     (define (string-map f . args)
