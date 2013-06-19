@@ -300,7 +300,7 @@
           ((and (list? f) (eqv? (car f) 'lambda) (null? (cadr f)))
            (if (not (null? args)) (error "too many arguments: " args) '())
            (comp-begin (cddr f) env val? more? has-lambda? #f tail? if?))
-          ((and (not more?)(not has-lambda?) tail?)
+          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)))
            (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                 (comp f env #t #t has-lambda? in-lambda? tail? if?)
                 (gen 'callj (length args))))
@@ -1227,8 +1227,8 @@
     (set! c (subst-let-vars b))
     ;(display c)(newline)
     (set! d (subst-from-identifier c))
-    ;(when *macrotrace*
-    ;  (newline)(display "[expand ]")(display d)(newline))
+    (if *macrotrace*
+        (begin (newline)(display "[expand ]")(display d)(newline)))
     ;(display d)(newline)
     d))
     
@@ -1261,9 +1261,10 @@
          (temp (cadar x))
          (vars (match pat y lits)))
     (cond (vars 
-            ;(when *macrotrace*
-            ;  (newline)(display "[pattern]")(display pat)
-            ;  (newline)(display "[form   ]")(display y))
+            (if *macrotrace*
+                (begin
+                  (newline)(display "[pattern]")(display pat)
+                  (newline)(display "[form   ]")(display y)))
             (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
