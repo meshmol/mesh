@@ -105,7 +105,7 @@
       (ed-eval (caddr c) a)))
 
 (define (evlis m a)
-  (cond ((null? m) ())
+  (cond ((null? m) '())
         (else (cons (ed-eval (car m) a)
                     (evlis (cdr m) a)))))
 

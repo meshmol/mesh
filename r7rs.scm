@@ -1,28 +1,33 @@
+(define (string-map f . args)
+  (let ((c (apply min (map string-length args))))
+    (string-map1 f c args)))
+    
+    (define (string-map1 f n args)
+      (if (= n 0)
+          '()
+          (string-nth (- n 1) args)))
+    
+    
+    (define (string-nth n args)
+      (if (null? args)
+          '()
+          (cons (string-ref (car args) n)
+                (string-nth n (cdr args)))))
 
 
-(define-syntax and
-  (syntax-rules ()
-    ((and) #t)
-    ((and test) test)
-    ((and test1 test2 ...)
-     (if test1 (and test2 ...) #f))))
+(define (map f ls . more)
+  (if (null? more)
+      (let map1 ((ls ls))
+        (if (null? ls)
+            '()
+            (cons (f (car ls))
+                  (map1 (cdr ls)))))
+      (let map-more ((ls ls) (more more))
+        (if (null? ls)
+            '()
+            (cons (apply f (car ls) (map car more))
+                  (map-more (cdr ls)
+                            (map cdr more)))))))
 
-(define-syntax or
-  (syntax-rules ()
-    ((or) #f)
-    ((or test) test)
-    ((or test1 test2 ...)
-     (let ((x test1))
-       (if x x (or test2 ...))))))
+    
 
-(define-syntax when
-  (syntax-rules ()
-    ((when test result1 result2 ...)
-     (if test
-         (begin result1 result2 ...)))))
-
-(define-syntax unless
-  (syntax-rules ()
-    ((unless test result1 result2 ...)
-     (if (not test)
-         (begin result1 result2 ...)))))

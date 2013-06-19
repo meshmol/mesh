@@ -1276,11 +1276,11 @@
         ((eq? x #f) (set! *macrotrace* #f))))
       
 
-;;Normal macros
-;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
-;;condなどの制御構造はマクロで与えられる。
-;;M.Hiroiさんのmicro Schemeのものを使わせていただいています。
-;;Normalの起動時に読み込まれコンパイルされる。
+;;; ;;Normal macros
+;;; ;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
+;;; ;;condなどの制御構造はマクロで与えられる。
+;;; ;;M.Hiroiさんのmicro Schemeのものを使わせていただいています。
+;;; ;;Normalの起動時に読み込まれコンパイルされる。
 
 (define map 
   (lambda (f ls . more)
@@ -1401,3 +1401,4 @@
         ((null? ls))
         (apply f (car ls) (map car more)))
     (undefined)))
+

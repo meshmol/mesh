@@ -1227,8 +1227,8 @@
     (set! c (subst-let-vars b))
     ;(display c)(newline)
     (set! d (subst-from-identifier c))
-    (when *macrotrace*
-      (newline)(display "[expand ]")(display d)(newline))
+    ;(when *macrotrace*
+    ;  (newline)(display "[expand ]")(display d)(newline))
     ;(display d)(newline)
     d))
     
@@ -1261,9 +1261,9 @@
          (temp (cadar x))
          (vars (match pat y lits)))
     (cond (vars 
-            (when *macrotrace*
-              (newline)(display "[pattern]")(display pat)
-              (newline)(display "[form   ]")(display y))
+            ;(when *macrotrace*
+            ;  (newline)(display "[pattern]")(display pat)
+            ;  (newline)(display "[form   ]")(display y))
             (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
