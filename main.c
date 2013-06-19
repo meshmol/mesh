@@ -87,7 +87,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.6.18 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.6.20 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -4331,7 +4331,10 @@ void print_record(int x){
     len = GET_CDR(x);
     if(len != 0){
     	for(i=0; i<len-1; i++){
-    		print(GET_VEC_ELT(x,i));
+        	if(!IS_RECORD(GET_VEC_ELT(x,i)))
+    			print(GET_VEC_ELT(x,i));
+            else
+            	fprintf(output_port, "#r#");
         	fprintf(output_port, " ");
     	}	
     	print(GET_VEC_ELT(x,i));

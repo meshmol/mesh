@@ -300,7 +300,7 @@
           ((and (list? f) (eqv? (car f) 'lambda) (null? (cadr f)))
            (if (not (null? args)) (error "too many arguments: " args) '())
            (comp-begin (cddr f) env val? more? has-lambda? #f tail? if?))
-          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)))
+          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)) (symbol? f))
            (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                 (comp f env #t #t has-lambda? in-lambda? tail? if?)
                 (gen 'callj (length args))))
