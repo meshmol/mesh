@@ -10,7 +10,7 @@
     sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step freecell 
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car
     identifier-variable! identifier-variable? make-record record? record-set! record-ref
-    identifier-ellipsis! identifier-ellipsis?))
+    identifier-ellipsis! identifier-ellipsis? sleep))
     
     
 (define-library (normal compile)
@@ -62,6 +62,7 @@
     round-quotient round-remainder truncate/ truncate-quotient truncate-remainder
     let-values let*-values define-record-type)
   (begin
+    
     (define-syntax cond
       (syntax-rules (else =>)
         ((cond (else result1 result2 ...))
@@ -94,6 +95,7 @@
         ((and test) test)
         ((and test1 test2 ...)
          (if test1 (and test2 ...) #f))))
+
     
     (define-syntax or
       (syntax-rules ()
@@ -108,6 +110,22 @@
         ((when test result1 result2 ...)
          (if test
              (begin result1 result2 ...)))))
+    
+    
+    (define-syntax or
+      (syntax-rules ()
+        ((or) #f)
+        ((or test) test)
+        ((or test1 test2 ...)
+         (let ((x test1))
+           (if x x (or test2 ...))))))
+    
+    (define-syntax when
+      (syntax-rules ()
+        ((when test result1 result2 ...)
+         (if test
+             (begin result1 result2 ...)))))
+    
     
     (define-syntax unless
       (syntax-rules ()

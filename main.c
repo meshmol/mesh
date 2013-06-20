@@ -83,7 +83,7 @@ int main( int argc, char *argv[] ){
     	command_line[i] = argv[i];
         
     char szPath[128],szDrive[4],szDir[128],szFileName[32],szExt[4];
-    char initfile[128],compfile[128],normfile[128],kidsfile[128];
+    char initfile[128],compfile[128],kidsfile[128];
     char *p;
 	
 
@@ -102,7 +102,6 @@ int main( int argc, char *argv[] ){
 	memset(szExt,0,sizeof(szExt));
     memset(initfile,0,sizeof(initfile));
     memset(compfile,0,sizeof(compfile));
-    memset(normfile,0,sizeof(normfile));
     memset(kidsfile,0,sizeof(kidsfile));
     GetModuleFileName(NULL, szPath, sizeof(szPath));
 	_splitpath(szPath, szDrive, szDir, szFileName, szExt);
@@ -128,7 +127,6 @@ int main( int argc, char *argv[] ){
                 }
            }
        }
-    _makepath(normfile,szDrive, szDir, "normmacs", "o");
     _makepath(kidsfile,szDrive, szDir, "kids", "scm"); 
     
     
@@ -144,8 +142,6 @@ int main( int argc, char *argv[] ){
         back_trace_end = 0;
         push_s(make_str(compfile));
         f_load(1);
-		//push_s(make_str(normfile));
-        //f_load(1);
 		//ç≈í·å¿ïKóvÇ»compile,assemble,compile-fileÇ(normal user)Ç…exportÇ∑ÇÈÅB
         export_id = list3(make_sym("compile"),make_sym("assemble"),make_sym("compile-file"));
         current_module = 0;
@@ -156,8 +152,8 @@ int main( int argc, char *argv[] ){
         }
         push_s(make_str(initfile));
         f_load(1);
-        //push_s(make_str(kidsfile));
-        //f_load(1);
+        push_s(make_str(kidsfile));
+        f_load(1);
         initflag = 0;
     }    
     

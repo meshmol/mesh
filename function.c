@@ -4734,6 +4734,16 @@ int f_record_ref(int n){
     return(record_ref(arg1,get_int(arg2)));
 }
 
+int f_sleep(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!IS_INTEGER(arg) || negativep(arg))
+    	exception("sleep",NOT_EXACT, arg);
+    
+    Sleep(get_int(arg));
+    return(undef);
+}
 
 //subrを環境に登録する。
 void defsubr(char *name, int func){
@@ -5034,6 +5044,7 @@ void initsubr(void){
     defsubr("record?",(int)f_recordp);
     defsubr("record-set!",(int)f_record_set);
     defsubr("record-ref",(int)f_record_ref);
+    defsubr("sleep",(int)f_sleep);
     
 }
 

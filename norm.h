@@ -904,6 +904,7 @@ int f_make_record(int n);
 int f_recordp(int n);
 int f_record_set(int n);
 int f_record_ref(int n);
+int f_sleep(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

@@ -5,8 +5,18 @@
 (define-library (normal kids)
   (import (normal system)
           (scheme base)
+          (scheme char)
           (scheme write))
-  (export fd bk lt rt cls)
+  (export midi-open midi-close midi-msg note-on note-off all-note-off all-sound-off
+          reset-all-controller pitch-bend logand pitch-bend-sensitivity voice volume
+          tempo channel note make-regular-pitch note1 ceiling->exact bend-n chord
+          check-arpeggio every max-list min-list chord1 chord2 check-pitch pitch-name
+          char->symbol char-append pitch-nth pitch? pitch->number number->pitch check-number
+          check-integer check-symbol close move set-pos set-x set-y home forward fd back bk
+          north pset dot fill circle set-zoom quadrant left lt right rt cls fore pen-up
+          pu pen-down pd show-turtle st hide-turtle ht letter pen-color red blue aqua
+          black cream dkgray fuchsia gray yellow purple maroon white skyblue green
+          navy silver pen-width from-top from-left)
   (begin
     
     (define *volume* 127)
@@ -473,22 +483,22 @@
     
     (define (pen-color c)
       (check-symbol c)
-      (cond ((eq? c 'blue) (display "@PenBlue;"))
-            ((eq? c 'aqua) (display "@PenAqua;"))
-            ((eq? c 'red) (display "@PenRed;"))
-            ((eq? c 'black) (display "@PenBlack;"))
-            ((eq? c 'cream) (display "@PenCream;"))
-            ((eq? c 'dkgray) (display "@PenDkGray;"))
-            ((eq? c 'fuchsia) (display "@PenFuchsia;"))
-            ((eq? c 'gray) (display "@PenGray;"))
-            ((eq? c 'yellow) (display "@PenYellow;"))
-            ((eq? c 'purple) (display "@PenPurple;"))
-            ((eq? c 'maroon) (display "@PenMaroon;"))
-            ((eq? c 'white) (display "@PenWhite;"))
-            ((eq? c 'skyblue) (display "@PenSkyBlue;"))
-            ((eq? c 'green) (display "@PenMoneyGreen;"))
-            ((eq? c 'navy) (display "@PenNavy;"))
-            ((eq? c 'silver) (display "@PenSilver;"))
+      (cond ((eqv? c 'blue) (display "@PenBlue;"))
+            ((eqv? c 'aqua) (display "@PenAqua;"))
+            ((eqv? c 'red) (display "@PenRed;"))
+            ((eqv? c 'black) (display "@PenBlack;"))
+            ((eqv? c 'cream) (display "@PenCream;"))
+            ((eqv? c 'dkgray) (display "@PenDkGray;"))
+            ((eqv? c 'fuchsia) (display "@PenFuchsia;"))
+            ((eqv? c 'gray) (display "@PenGray;"))
+            ((eqv? c 'yellow) (display "@PenYellow;"))
+            ((eqv? c 'purple) (display "@PenPurple;"))
+            ((eqv? c 'maroon) (display "@PenMaroon;"))
+            ((eqv? c 'white) (display "@PenWhite;"))
+            ((eqv? c 'skyblue) (display "@PenSkyBlue;"))
+            ((eqv? c 'green) (display "@PenMoneyGreen;"))
+            ((eqv? c 'navy) (display "@PenNavy;"))
+            ((eqv? c 'silver) (display "@PenSilver;"))
             (else (error "undefined color: " c))))
     
     (define (red)

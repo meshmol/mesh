@@ -10,7 +10,7 @@
     sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step freecell 
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car
     identifier-variable! identifier-variable? make-record record? record-set! record-ref
-    identifier-ellipsis! identifier-ellipsis?))
+    identifier-ellipsis! identifier-ellipsis? sleep))
     
     
 (define-library (normal compile)
@@ -95,7 +95,7 @@
         ((and test) test)
         ((and test1 test2 ...)
          (if test1 (and test2 ...) #f))))
-<<<<<<< HEAD
+
     
     (define-syntax or
       (syntax-rules ()
@@ -111,7 +111,6 @@
          (if test
              (begin result1 result2 ...)))))
     
-=======
     
     (define-syntax or
       (syntax-rules ()
@@ -127,7 +126,7 @@
          (if test
              (begin result1 result2 ...)))))
     
->>>>>>> eb95580e2192d1610d6820202446e01d08e8c0be
+    
     (define-syntax unless
       (syntax-rules ()
         ((unless test result1 result2 ...)
