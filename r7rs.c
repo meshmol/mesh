@@ -66,6 +66,8 @@ void init_r7rs(void){
     defsubr("record-set!",(int)f_record_set);
     defsubr("record-ref",(int)f_record_ref);
     defsubr("sleep",(int)f_sleep);
+    defsubr("putprop",(int)f_putprop);
+    defsubr("getprop",(int)f_getprop);
 
 	current_module = 3; //(scheme base)
     defsubr("cons",(int)f_cons);

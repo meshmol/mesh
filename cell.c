@@ -381,8 +381,8 @@ int make_sym1(char *name){
     SET_TAG(addr,SYM);
     SET_NAME(addr,name);
     SET_CAR(addr,undef);
-    SET_CDR(addr,0);
-    SET_AUX(addr,-1);
+    SET_CDR(addr,0); //0==no_trace 1==trace
+    SET_AUX(addr,NIL); //prop list
     return(addr);
 }
 

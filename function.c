@@ -4745,6 +4745,28 @@ int f_sleep(int n){
     return(undef);
 }
 
+int f_putprop(int n){
+	int arg1,arg2;
+    
+    arg2 = pop_s();
+    arg1 = pop_s();
+    if(!symbolp(arg1))
+    	exception("putprop", NOT_SYMBOL, arg1);
+    
+    SET_AUX(arg1,arg2);
+    return(undef);
+}
+
+int f_getprop(int n){
+	int arg;
+    
+    arg = pop_s();
+    if(!symbolp(arg))
+    	exception("getprop", NOT_SYMBOL, arg);
+    
+    return(GET_AUX(arg));
+}
+
 //subrを環境に登録する。
 void defsubr(char *name, int func){
 	int sym,val;
@@ -5045,7 +5067,8 @@ void initsubr(void){
     defsubr("record-set!",(int)f_record_set);
     defsubr("record-ref",(int)f_record_ref);
     defsubr("sleep",(int)f_sleep);
-    
+    defsubr("putprop",(int)f_putprop);
+    defsubr("getprop",(int)f_getprop);
 }
 
 void initsyntax(void){

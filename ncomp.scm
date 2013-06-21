@@ -894,6 +894,8 @@
     (record-set! 3 3 #t #t)
     (record-ref 2 2 #t #f)
     (sleep 1 1 #t #t)
+    (putprop 2 2 #t #t)
+    (getprop 1 1 #t #f)
     ))
 
 ;;ƒRƒ“ƒpƒCƒ‹

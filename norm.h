@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
-
+  
 #define CELLSIZE 	20000000
 #define FREESIZE	50000
 #define SYMSIZE		64
@@ -905,6 +905,8 @@ int f_recordp(int n);
 int f_record_set(int n);
 int f_record_ref(int n);
 int f_sleep(int n);
+int f_putprop(int n);
+int f_getprop(int n);
 
 void defsubr(char *name, int func);
 void defsyntax(char *name);

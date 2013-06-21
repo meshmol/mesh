@@ -10,7 +10,7 @@
     sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step freecell 
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car
     identifier-variable! identifier-variable? make-record record? record-set! record-ref
-    identifier-ellipsis! identifier-ellipsis? sleep))
+    identifier-ellipsis! identifier-ellipsis? sleep putprop getprop))
     
     
 (define-library (normal compile)
