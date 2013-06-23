@@ -16,7 +16,7 @@
 (define-library (normal compile)
   (export compile comp assemble compile-file map for-each and or let let* letrec do case cond
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
-          macrotrace lambda if set! quote begin define define-syntax))
+          macrotrace lambda if set! quote begin define define-syntax predicate))
 
 
 (define-library (scheme inexact)

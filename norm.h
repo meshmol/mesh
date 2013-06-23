@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
-  
-#define CELLSIZE 	20000000
+
+#define CELLSIZE 	18000000
 #define FREESIZE	50000
 #define SYMSIZE		64
 #define CHARSIZE	1

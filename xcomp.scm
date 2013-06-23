@@ -5,6 +5,7 @@
 ;;define-macroのときには#fにする。
 ;;--------------------------------- 
 (define hygienic '()) ;局所マクロ
+(define predicate '()) ;Prolog述語名
 
 (define (compile x)
   (set! hygienic '())
@@ -103,6 +104,18 @@
               (gen 'defh)))
         ((eqv? (car x) 'syntax-error)
          (apply error (cdr x)))
+        ((eqv? (car x) 'assert)
+         (let ((name (caadr x)))
+           (if (not (memv name predicate))
+               (set! predicate (cons name predicate)))
+           (putprop name (cons (cdr x) (getprop name)))
+           (seq (gen 'const name))))
+        ((eqv? (car x) 'retract)
+         (let ((name (caadr x)))
+           (if (not (memv name predicate))
+               (error "in retract not a predicate" name))
+           (putprop name (clause-remove (cadr x)(getprop name)))
+           (seq (gen 'const (undefined)))))
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
@@ -674,9 +687,9 @@
     (list? 1 1 #t #f)
     (pair? 1 1 #t #f)
     (atom? 1 1 #t #f)
-    (eq? 1 infinity #t #f)
-    (eqv? 1 infinity #t #f)
-    (equal? 1 infinity #t #f)
+    (eq? 2 infinity #t #f)
+    (eqv? 2 infinity #t #f)
+    (equal? 2 infinity #t #f)
     (boolean? 1 1 #t #f)
     (procedure? 1 1 #t #f)
     (number? 1 1 #t #f)
@@ -1150,6 +1163,16 @@
       ls
       (list-drop (cdr ls) (- n 1))))
 
+(define (list-remove x ls)
+  (cond ((null? ls) '())
+        ((eqv? x (car ls)) (cdr ls))
+        (else
+          (cons (car ls) (list-remove x (cdr ls))))))
+
+(define (clause-remove x ls)
+  (cond ((null? ls) '())
+        ((equal? x (caar ls)) (cdr ls))
+        (else (cons (car ls) (clause-remove x (cdr ls))))))
 
 (define (fail? x)
   (eqv? x 'fail))
@@ -1230,7 +1253,7 @@
     (set! c (subst-let-vars b))
     ;(display c)(newline)
     (set! d (subst-from-identifier c))
-    (if *macrotrace*
+    (if mactrace
         (begin (newline)(display "[expand ]")(display d)(newline)))
     ;(display d)(newline)
     d))
@@ -1264,7 +1287,7 @@
          (temp (cadar x))
          (vars (match pat y lits)))
     (cond (vars 
-            (if *macrotrace*
+            (if mactrace
                 (begin
                   (newline)(display "[pattern]")(display pat)
                   (newline)(display "[form   ]")(display y)))
@@ -1273,11 +1296,11 @@
           (else (expand (cdr x) y lits comp-env)))))
 
 
-(define *macrotrace* #f)
+(define mactrace #f)
 
 (define (macrotrace x)
-  (cond ((eq? x #t) (set! *macrotrace* #t))
-        ((eq? x #f) (set! *macrotrace* #f))))
+  (cond ((eq? x #t) (set! mactrace #t))
+        ((eq? x #f) (set! mactrace #f))))
       
 
 ;;Normal macros

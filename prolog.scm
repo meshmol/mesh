@@ -1,25 +1,49 @@
 
-(define (unify x y bindings no-bindings)
-  (cond ((eq? bindings 'fail) 'fail)
-        ((eq? x y) bindings)
-        ((variable? x) (unify-variable x y bindings))
-        ((variable? y) (unify-variable y x bindings))
-        ((and (pair? x) (pair? y))
-         (unify (cdr x) (cdr y) bindings no-bindings)
-         (unify (car x) (car y) bindings no-bindings))
-        (else 'fail)))
+(define (deref x vars back)
+  (cond ((null? vars) x)
+        ((eqv? x (caar vars))
+         (if (variable? (cdar vars))
+             (deref (cdar vars) (reverse back) '())
+             (cdar vars)))
+        (else
+          (deref x (cdr vars) (cons (car vars) back)))))
 
-(define (unify-variable var x bindings no-bindings)
-  (cond ((get-binding var bindings)
-         (unify (lookup var bindings) x bindings no-bindings))
-        ((and (variable? x) (get-binding x bindings))
-         (unify var (lookup x bindings) bindings no-bindings))
-        (else (extend-bindings var x bindings))))
 
 (define (variable? x)
-  (if (not (symbol? x))
-      #f
-      (let ((x1 (string->list (symbol->string x))))
-        (if (eqv? (car x1) #\?)
-            #t
-            #f))))
+  (and (symbol? x)
+       (char=? (string-ref (symbol->string x) 0) #\_)))
+
+
+(define vars-assoc '((_x . 1)(_y . _x)))
+
+(define trail '())
+
+(define-syntax push!
+  (syntax-rules ()
+    ((_ x y)
+     (set! x (cons y x)))))
+
+(define (unify x y)
+  (cond ((eq? x y) #t)
+        ((variable? x) (unifyv x y))
+        ((variable? y) (unifyv y x))
+        ((and (pair? x) (pair? y))
+         (unify (cdr x) (cdr y))
+         (unify (car x) (car y)))
+        (else #f)))
+
+
+(define (unifyv x y)
+  (let ((r (deref x vars-assoc '())))
+    (cond ((variable? r)
+           (set! vars-assoc (cons (cons x y) vars-assoc)) #t)
+          ((variable? y)
+           (set! vars-assoc (cons (cons y x) vars-assoc)) #t)
+          (else
+            (equal? r y)))))
+
+(define (unifyc x y)
+  (if (variable? y)
+      (begin (set! vars-assoc (cons (cons y x) vars-assoc)) #t)
+      (equal? x y)))
+
