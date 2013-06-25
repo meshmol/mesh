@@ -5,7 +5,6 @@
 ;;define-macroのときには#fにする。
 ;;--------------------------------- 
 (define hygienic '()) ;局所マクロ
-(define predicate '()) ;Prolog述語名
 
 (define (compile x)
   (set! hygienic '())
@@ -15,8 +14,6 @@
 (define (comp x env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
-        ((and (symbol? x)(memv x predicate))
-         (comp-clauses x))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
         ((syntactic-closure? x) (comp-var x env val? more? in-lambda?))
         ((atom? x) (comp-const x val? more? in-lambda?))
@@ -50,7 +47,7 @@
         ((eqv? (car x) 'lambda)
          (if val?
              (let ((f (comp-lambda (cadr x) (cddr x) env tail? if?)))
-               (seq (gen 'fn (args-count (cadr x)) f)
+               (seq (gen 'fn (args-count (cadr x))f)
                     (if (not more?) (gen 'return) '())))
              #f))
         ((eqv? (car x) 'define)
@@ -106,18 +103,6 @@
               (gen 'defh)))
         ((eqv? (car x) 'syntax-error)
          (apply error (cdr x)))
-        ((eqv? (car x) 'assert)
-         (let ((name (caadr x)))
-           (if (not (memv name predicate))
-               (set! predicate (cons name predicate)))
-           (putprop name (cons (cdr x) (getprop name)))
-           (seq (gen 'const name))))
-        ((eqv? (car x) 'retract)
-         (let ((name (caadr x)))
-           (if (not (memv name predicate))
-               (error "in retract not a predicate" name))
-           (putprop name (clause-remove (cadr x)(getprop name)))
-           (seq (gen 'const (undefined)))))
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
@@ -315,7 +300,7 @@
           ((and (list? f) (eqv? (car f) 'lambda) (null? (cadr f)))
            (if (not (null? args)) (error "too many arguments: " args) '())
            (comp-begin (cddr f) env val? more? has-lambda? #f tail? if?))
-          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)) (symbol? f))
+          ((and (not more?)(not has-lambda?) tail?)
            (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                 (comp f env #t #t has-lambda? in-lambda? tail? if?)
                 (gen 'callj (length args))))
@@ -467,70 +452,6 @@
         ((eq? (car x) 'lambda) #t)
         (else (or (inner-lambda? (car x))
                   (inner-lambda? (cdr x))))))
-
-;;Prologのコンパイル
-(define (comp-clauses sym)
-  (let* ((x (reverse(getprop sym)))
-         (args-n (length (cdaar x))))
-    (seq (gen 'fn args-n (seq (gen 'args args-n) (comp-clauses1 x)))
-         (gen 'def sym))))
-
-(define (comp-clauses1 x)
-  (cond ((null? (cdr x)) (seq (gen 'try #f) (comp-a-clause (car x))))
-        (else (let ((label (gen-label)))
-                (seq (gen 'try label)
-                     (comp-a-clause (car x))
-                     (gen label)
-                     (comp-clauses1 (cdr x)))))))
-
-(define (comp-a-clause x)
-  (seq (comp-clause-head (car x))
-       (comp-clause-body (cdr x))))
-
-(define (comp-clause-body x)
-  (cond ((null? x) '())
-        ((null? (cdr x)) (seq (comp-pred (car x))
-                            (gen 'proceed)))
-        (else
-          (seq (comp-pred (car x))
-               (gen 'pop)
-               (comp-clause-body (cdr x))))))
-
-(define (variable? x)
-  (and (symbol? x)
-       (char=? (string-ref (symbol->string x) 0) #\_)))
-
-
-(define (comp-pred x)
-  (seq (comp-term (cdr x))
-       (gen 'gvar (car x))
-       (gen 'call (length (cdr x)))))
-
-(define (comp-term x)
-  (if (null? x)
-      '()
-      (if (variable? (car x))
-          (seq (gen 'deref (car x))
-               (comp-term (cdr x)))
-          (seq (gen 'const (car x))
-               (comp-term (cdr x))))))
-
-
-(define (comp-clause-head x)
-  (comp-clause-head1 0 (cdr x)))
-
-(define (comp-clause-head1 n x)
-  (cond ((null? x) '())
-        ((variable? (car x)) (seq (gen 'unifyv 0 n (car x))
-                                  (comp-clause-head1 (+ n 1) (cdr x))))
-        ((atom? (car x)) (seq (gen 'unifyc 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        ((null? (car x)) (seq (gen 'unifyc 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        ((pair? (car x)) (seq (gen 'unify 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        (else
-          (error "illegal predicate term" (car x)))))
 
 
 ;;内挿表現から前置表現へ変換する。
@@ -753,9 +674,9 @@
     (list? 1 1 #t #f)
     (pair? 1 1 #t #f)
     (atom? 1 1 #t #f)
-    (eq? 2 infinity #t #f)
-    (eqv? 2 infinity #t #f)
-    (equal? 2 infinity #t #f)
+    (eq? 1 infinity #t #f)
+    (eqv? 1 infinity #t #f)
+    (equal? 1 infinity #t #f)
     (boolean? 1 1 #t #f)
     (procedure? 1 1 #t #f)
     (number? 1 1 #t #f)
@@ -972,9 +893,6 @@
     (record? 1 1 #t #f)
     (record-set! 3 3 #t #t)
     (record-ref 2 2 #t #f)
-    (sleep 1 1 #t #t)
-    (putprop 2 2 #t #t)
-    (getprop 1 1 #t #f)
     ))
 
 ;;コンパイル
@@ -1229,16 +1147,6 @@
       ls
       (list-drop (cdr ls) (- n 1))))
 
-(define (list-remove x ls)
-  (cond ((null? ls) '())
-        ((eqv? x (car ls)) (cdr ls))
-        (else
-          (cons (car ls) (list-remove x (cdr ls))))))
-
-(define (clause-remove x ls)
-  (cond ((null? ls) '())
-        ((equal? x (caar ls)) (cdr ls))
-        (else (cons (car ls) (clause-remove x (cdr ls))))))
 
 (define (fail? x)
   (eqv? x 'fail))
@@ -1319,8 +1227,8 @@
     (set! c (subst-let-vars b))
     ;(display c)(newline)
     (set! d (subst-from-identifier c))
-    (if mactrace
-        (begin (newline)(display "[expand ]")(display d)(newline)))
+    ;(when *macrotrace*
+    ;  (newline)(display "[expand ]")(display d)(newline))
     ;(display d)(newline)
     d))
     
@@ -1353,27 +1261,26 @@
          (temp (cadar x))
          (vars (match pat y lits)))
     (cond (vars 
-            (if mactrace
-                (begin
-                  (newline)(display "[pattern]")(display pat)
-                  (newline)(display "[form   ]")(display y)))
+            ;(when *macrotrace*
+            ;  (newline)(display "[pattern]")(display pat)
+            ;  (newline)(display "[form   ]")(display y))
             (expand-template temp vars comp-env lits))
           ((null? (cdr x)) (error "syntax-rules match fail " y))
           (else (expand (cdr x) y lits comp-env)))))
 
 
-(define mactrace #f)
+(define *macrotrace* #f)
 
 (define (macrotrace x)
-  (cond ((eq? x #t) (set! mactrace #t))
-        ((eq? x #f) (set! mactrace #f))))
+  (cond ((eq? x #t) (set! *macrotrace* #t))
+        ((eq? x #f) (set! *macrotrace* #f))))
       
 
-;;Normal macros
-;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
-;;condなどの制御構造はマクロで与えられる。
-;;M.Hiroiさんのmicro Schemeのものを使わせていただいています。
-;;Normalの起動時に読み込まれコンパイルされる。
+;;; ;;Normal macros
+;;; ;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
+;;; ;;condなどの制御構造はマクロで与えられる。
+;;; ;;M.Hiroiさんのmicro Schemeのものを使わせていただいています。
+;;; ;;Normalの起動時に読み込まれコンパイルされる。
 
 (define map 
   (lambda (f ls . more)
@@ -1494,3 +1401,4 @@
         ((null? ls))
         (apply f (car ls) (map car more)))
     (undefined)))
+

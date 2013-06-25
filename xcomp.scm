@@ -15,6 +15,8 @@
 (define (comp x env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
+        ((and (symbol? x)(memv x predicate))
+         (comp-clauses x))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
         ((syntactic-closure? x) (comp-var x env val? more? in-lambda?))
         ((atom? x) (comp-const x val? more? in-lambda?))
@@ -48,7 +50,7 @@
         ((eqv? (car x) 'lambda)
          (if val?
              (let ((f (comp-lambda (cadr x) (cddr x) env tail? if?)))
-               (seq (gen 'fn (args-count (cadr x))f)
+               (seq (gen 'fn (args-count (cadr x)) f)
                     (if (not more?) (gen 'return) '())))
              #f))
         ((eqv? (car x) 'define)
@@ -465,6 +467,70 @@
         ((eq? (car x) 'lambda) #t)
         (else (or (inner-lambda? (car x))
                   (inner-lambda? (cdr x))))))
+
+;;Prologのコンパイル
+(define (comp-clauses sym)
+  (let* ((x (reverse(getprop sym)))
+         (args-n (length (cdaar x))))
+    (seq (gen 'fn args-n (seq (gen 'args args-n) (comp-clauses1 x)))
+         (gen 'def sym))))
+
+(define (comp-clauses1 x)
+  (cond ((null? (cdr x)) (seq (gen 'try #f) (comp-a-clause (car x))))
+        (else (let ((label (gen-label)))
+                (seq (gen 'try label)
+                     (comp-a-clause (car x))
+                     (gen label)
+                     (comp-clauses1 (cdr x)))))))
+
+(define (comp-a-clause x)
+  (seq (comp-clause-head (car x))
+       (comp-clause-body (cdr x))))
+
+(define (comp-clause-body x)
+  (cond ((null? x) '())
+        ((null? (cdr x)) (seq (comp-pred (car x))
+                            (gen 'proceed)))
+        (else
+          (seq (comp-pred (car x))
+               (gen 'pop)
+               (comp-clause-body (cdr x))))))
+
+(define (variable? x)
+  (and (symbol? x)
+       (char=? (string-ref (symbol->string x) 0) #\_)))
+
+
+(define (comp-pred x)
+  (seq (comp-term (cdr x))
+       (gen 'gvar (car x))
+       (gen 'call (length (cdr x)))))
+
+(define (comp-term x)
+  (if (null? x)
+      '()
+      (if (variable? (car x))
+          (seq (gen 'deref (car x))
+               (comp-term (cdr x)))
+          (seq (gen 'const (car x))
+               (comp-term (cdr x))))))
+
+
+(define (comp-clause-head x)
+  (comp-clause-head1 0 (cdr x)))
+
+(define (comp-clause-head1 n x)
+  (cond ((null? x) '())
+        ((variable? (car x)) (seq (gen 'unifyv 0 n (car x))
+                                  (comp-clause-head1 (+ n 1) (cdr x))))
+        ((atom? (car x)) (seq (gen 'unifyc 0 n (car x))
+                              (comp-clause-head1 (+ n 1) (cdr x))))
+        ((null? (car x)) (seq (gen 'unifyc 0 n (car x))
+                              (comp-clause-head1 (+ n 1) (cdr x))))
+        ((pair? (car x)) (seq (gen 'unify 0 n (car x))
+                              (comp-clause-head1 (+ n 1) (cdr x))))
+        (else
+          (error "illegal predicate term" (car x)))))
 
 
 ;;内挿表現から前置表現へ変換する。
