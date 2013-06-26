@@ -14,6 +14,8 @@
 #define ENVSIZE		80000000
 #define ENVSIZE2	ENVSIZE / 10
 #define CLOSIZE		10000000
+#define LOCSTKSIZE	10000
+#define TRAILSIZE	10000
 #define NIL			0
 #define BOOLT		1
 #define BOOLF		2
@@ -152,6 +154,13 @@ struct prof{
 };
 typedef struct prof prof;
 
+//Prolog—plocal_stack
+struct locstk{
+	int elt1;
+    int elt2;
+};
+typedef struct locstk locstk;
+
 
 typedef enum toktype 	{LPAREN,RPAREN,LBRAKET,RBRAKET,QUOTE,QUASIQUOTE,UNQUOTE,SPLICING,VECTOR,
 						DOT,INTEGER,FLOAT_N,RATIONAL,BIGNUM,BINARY,OCTAL,DECNUM,HEXNUM,EXPTNUM,
@@ -229,6 +238,8 @@ typedef struct septoken septoken;
 #define IMMUTABLE_OBJ		46
 #define OUT_OF_RANGE		47
 #define NOT_RECORD			48
+#define LOCSTK_OVERF		49
+#define TRAIL_OVERF			50
 
 #define EOL		'\n'
 #define RET		'\r'
@@ -340,7 +351,7 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define SECOND_STACK			stack[sp-2]
 #define THIRD_STACK				stack[sp-3]
 
-#define OPCODE 41
+#define OPCODE 58
 #define VM_ERR_CHK				if(code[pc] < 1 || code[pc] >= OPCODE) exception("vm2", ILLEGAL_VMCODE, NIL)
 
 //main.c
@@ -354,6 +365,11 @@ int read(void);
 int readlist(void);
 void push_s(int x);
 int pop_s(void);
+void push_t(int x);
+int pop_t(void);
+void push_l(int x, int y);
+int get_l1(int x);
+int get_l2(int x);
 void insert_stack(int env, int pc, int n);
 int find_code_pointer(int addr);
 void step(void);

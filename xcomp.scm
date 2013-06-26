@@ -488,7 +488,7 @@
        (comp-clause-body (cdr x))))
 
 (define (comp-clause-body x)
-  (cond ((null? x) '())
+  (cond ((null? x) (gen 'proceed))
         ((null? (cdr x)) (seq (comp-pred (car x))
                             (gen 'proceed)))
         (else

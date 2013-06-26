@@ -59,6 +59,10 @@ int back_trace_end = 0;
 int cont_count = 0;
 int command_line_count;
 char *command_line[10];
+locstk local_stack[LOCSTKSIZE];
+int	trail_stack[TRAILSIZE];
+int lsp; //local stack pointer
+int tsp; //trail stack pointer
 
 
 //------vm2起動時のデータ保存用------
@@ -370,6 +374,10 @@ void exception(char *fn, int code, int arg){
         case STACK_OVERF:		printf("Exception: stack overflow\n");
         						break;
         case CODE_OVERF:		printf("Exception: code overflow\n");
+        						break;
+        case LOCSTK_OVERF:		printf("Exception: local stack overflow\n");
+        						break;
+        case TRAIL_OVERF:		printf("Exception: trail stack overflow\n");
         						break;
 		case NOT_MODULE:		printf("Exception in %s: not exist module ", fn);
         						print(arg);
@@ -2517,6 +2525,33 @@ int pop_s(void){
 	return(stack[sp]);
 }
 
+void push_t(int x){
+	trail_stack[tsp] = x;
+    tsp++;
+    if(tsp > TRAILSIZE)
+    	exception("",TRAIL_OVERF,NIL);
+}
+
+int pop_t(void){
+	tsp--;
+    return(trail_stack[tsp]);
+}
+
+void push_l(int x, int y){
+	local_stack[lsp].elt1 = x;
+    local_stack[lsp].elt2 = y;
+    lsp++;
+    if(tsp > TRAILSIZE)
+    	exception("",TRAIL_OVERF,NIL);
+}
+
+int get_l1(int x){
+	return(local_stack[x].elt1);
+}
+
+int get_l2(int x){
+	return(local_stack[x].elt2);
+}
 
 void insert_stack(int env, int pc, int n){
 	int i,j;
