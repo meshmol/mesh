@@ -1,6 +1,6 @@
 
-;;; (assert (append () _l _l))
-;;; (assert (append (_x1 . _l1) _l2 (_x . _l3)) (append _l1 _l2 _l3))
+(assert (append () _l _l))
+(assert (append (_x1 . _l1) _l2 (_x . _l3)) (append _l1 _l2 _l3))
 
 
 (import (normal compile)

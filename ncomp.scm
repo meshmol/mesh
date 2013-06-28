@@ -480,7 +480,7 @@
         (else (let ((label (gen-label)))
                 (seq (gen 'try label)
                      (comp-a-clause (car x))
-                     (gen label)
+                     (list label)
                      (comp-clauses1 (cdr x)))))))
 
 (define (comp-a-clause x)
@@ -673,7 +673,18 @@
         ((eqv? (car x) 'adapt) (list (op-code (car x))))
         ((eqv? (car x) 'deflib) (list (op-code (car x)) (cadr x) (caddr x)))
         ((eqv? (car x) 'explib) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'implib) (list (op-code (car x)) (cadr x)))))
+        ((eqv? (car x) 'implib) (list (op-code (car x)) (cadr x)))
+        ((eqv? (car x) 'deref) (list (op-code (car x)) (cadr x)))
+        ((eqv? (car x) 'unify) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
+        ((eqv? (car x) 'unifyc) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
+        ((eqv? (car x) 'unifyv) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
+        ((eqv? (car x) 'try) (list (op-code (car x)) 
+                                   (if (not (cadr x))
+                                       (cadr x)
+                                       (- (cdr (assq (cadr x) labels)) pc))))
+        ((eqv? (car x) 'fail) (list (op-code (car x))))
+        ((eqv? (car x) 'callp) (list (op-code (car x)) (cadr x)))
+        ((eqv? (car x) 'proceed) (list (op-code (car x))))))
 
 (define (op-count x) 
   (length x))
@@ -691,7 +702,10 @@
         'return 'args 'call 'callj 'fn 'save 'prim 'def 'defm 'defh
         'neqp 'smlp 'esmlp 'grtp 'egrtp 'zerop 
         'add1 'sub1 'add2 'sub2 'gref 'catch 'pause 'car 'cdr 'cons 'adapt
-        'deflib 'explib 'implib))
+        'deflib 'explib 'implib 
+        'reserve1 'reserve2 'reserve3 'reserve4 'reserve5
+        'reserve6 'reserve7 'reserve8 'reserve9 'reserve10
+        'deref 'unify 'unifyc 'unifyv 'try 'fail 'callp 'proceed))
 
 ;;(symbol-name args-min args-max always side-effect)
 (define *primitive*
