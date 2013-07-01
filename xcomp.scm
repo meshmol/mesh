@@ -942,7 +942,8 @@
     (profiler 1 1 #t #t)
     (lambda/asm 2 2 #t #f)
     (values 0 infinity #t #t)
-    (sys-cont-room 1 1 #t #t)
+    (sys-cont-room 1 1 #t #f)
+    (sys-macro-room 1 1 #t #f)
     (make-syntactic-closure 3 3 #t #t)
     (syntactic-closure-expr 1 1 #t #f)
     (syntactic-closure-env 1 1 #t #f)
@@ -1076,7 +1077,7 @@
 
 (define (expand-subpat p n)
   (if (not (has-ellipsis? p))
-      (error "template has no ellipsis" p)
+      '()
       (expand-subpat1 p '() n)))
 
 (define n 0)
@@ -1097,7 +1098,7 @@
           (or (has-ellipsis? (car p))
               (has-ellipsis? (cdr p))))))
 
-
+;;x=((a . a2)(b . b2)) y=((a . a1)(b . b1)) -> ((<id a> a1 a2)(<id b> b1 b2))
 (define (combine x y)
   (cond ((null? y) (map (lambda (z) (cons (identifier-ellipsis!
                                             (if (symbol? (car z))
@@ -1110,7 +1111,7 @@
                         (if (symbol? (caar x))
                             (symbol->identifier (caar x))
                             (caar x)))
-                      (cons (cdar x)(cdar y)))
+                      (append (cdar y)(list (cdar x))))
                     (combine (cdr x) (cdr y))))))
 
 
@@ -1188,7 +1189,8 @@
                  lits
                  (cons (cons (identifier-ellipsis!(symbol->identifier (car p))) 
                              (list-take f (- (length f) (length (cddr p))))) vars)))
-        ((sub-pattern? p) (match-subpat (car p) f lits '()))
+        ((and (sub-pattern? p)(list? f))
+         (match-subpat (car p) f lits '()))
         ((and (vector? p) (vector? f)) 
          (match1 (vector->list p) (vector->list f) lits vars))
         ((equal? p f) vars)

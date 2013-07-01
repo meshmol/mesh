@@ -93,7 +93,7 @@ int main( int argc, char *argv[] ){
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.6.25 (written by Kenichi.Sasagawa)\n");
+    printf("Scheme compiler Normal Ver 2013.7.1 (written by Kenichi.Sasagawa)\n");
     initcell();
     initsubr();
     initsyntax();
@@ -4640,6 +4640,8 @@ void markcell(int addr){
                     markcell(car(GET_AUX(addr)));
         			return;
     	case MAC:	markcell(GET_CAR(addr));
+    				return;
+        case HYG:	markcell(GET_CAR(addr));
     				return;	
     	case VEC:	n = vector_length(addr);
         			for(i=0; i<n; i++){
@@ -4653,6 +4655,14 @@ void markcell(int addr){
           				x = GET_VEC_ELT(addr,i);
             			markcell(x);
                     }
+                    return;
+        case SYNT:	markcell(car(addr));
+        			markcell(cdr(addr));
+                    markcell(GET_AUX(addr));
+                    return;
+        case IDNT:	markcell(car(addr));
+        			markcell(cdr(addr));
+                    markcell(GET_AUX(addr));
                     return;
         case MUL:	markcell(car(addr));
         			markcell(cdr(addr));
@@ -4765,16 +4775,21 @@ void gbcmark(void){
     
     dyna_env_p2 = 0;
     
-    SET_FLAG_USE(0);  //NILをuse状態にする。
-    SET_FLAG_USE(1);  //#t
-    SET_FLAG_USE(2);  //#f
-    SET_FLAG_USE(15); //0
-    SET_FLAG_USE(16); //1
-    SET_FLAG_USE(17); //2
-    SET_FLAG_USE(18); //-1
-    SET_FLAG_USE(19); //3
-    SET_FLAG_USE(20); //#\L
-    SET_FLAG_USE(21); //"L"
+    SET_FLAG_USE(NIL);  //NILをuse状態にする。
+    SET_FLAG_USE(BOOLT);  //#t
+    SET_FLAG_USE(BOOLF);  //#f
+    SET_FLAG_USE(PINF);   //+inf.0
+    SET_FLAG_USE(MINF);   //-inf.0
+    SET_FLAG_USE(PNAN);   //+nan.0
+    SET_FLAG_USE(MNAN);   //-nan.0
+    SET_FLAG_USE(undef);
+    SET_FLAG_USE(end_of_file);
+    SET_FLAG_USE(quote);
+    SET_FLAG_USE(quasiquote);
+    SET_FLAG_USE(unquote);
+    SET_FLAG_USE(unquote_splicing);
+    SET_FLAG_USE(empty_set);
+    
     
     //現状の環境をマーク
     markcell(env);

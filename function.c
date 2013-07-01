@@ -4291,6 +4291,18 @@ int f_sys_cont_room(int n){
     return(undef);
 }
 
+int f_sys_macro_room(int n){
+	int arg,clo,clo_code,i,size;
+    
+    arg = pop_s();
+    clo = GET_CAR(arg);
+    clo_code = GET_CAR(clo);
+    size = GET_CDR(clo_code);
+    for(i=0; i<size; i++)
+    	printf("%d " , GET_VEC_ELT(clo_code,i));
+    return(undef);
+}
+
 int f_make_syntactic_closure(int lvar){
 	int env,fv,expr,res;
     
@@ -5025,6 +5037,7 @@ void initsubr(void){
     defsubr("current-module",(int)f_current_module);
     defsubr("values",(int)f_values);
 	defsubr("sys-cont-room",(int)f_sys_cont_room);
+    defsubr("sys-macro-room",(int)f_sys_macro_room);
     defsubr("make-syntactic-closure",(int)f_make_syntactic_closure);
     defsubr("syntactic-closure-expr",(int)f_syntactic_closure_expr);
     defsubr("syntactic-closure-env",(int)f_syntactic_closure_env);

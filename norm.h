@@ -879,6 +879,7 @@ int f_prof(int n);
 int f_current_module(int n);
 int f_values(int n);
 int f_sys_cont_room(int n);
+int f_sys_macro_room(int n);
 int f_make_syntactic_closure(int n);
 int f_syntactic_closure_expr(int n);
 int f_syntactic_closure_env(int n);

@@ -105,7 +105,7 @@
 (test* "(sqrt -1)" 0.0+1.0i (sqrt -1))
 
 
-;;; 
+
 (define (deterministic-prime? n)
   (define (iter x y n)
     (cond ((> x y) #t)
@@ -127,8 +127,6 @@
           (else (iter (cdr ls) (car ls) 1 (cons (list p n) mult)))))
   (let ((ls (prime-factors2 n)))
     (iter (cdr ls) (car ls) 1 '())))
-
-
 
 
 (define (prime-factors2 n)

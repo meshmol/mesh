@@ -5,3 +5,8 @@
     ((b e) (do ((r '() (cons e r))
                 (e (- e 1) (- e 1)))
                ((< e b) r)))))
+
+(define foo
+  (case-lambda
+    ((x) x)
+    ((x y) (* x y))))

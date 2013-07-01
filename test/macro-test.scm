@@ -1,10 +1,10 @@
 ;;マクロテスト
 
 (define (fact-let n)
-  (let loop((n1 n) (p n))
+  (let tag ((n1 n) (p n))
     (if (= n1 1)                    
         p
-        (loop (- n1 1) (* p (- n1 1))))))     
+        (tag (- n1 1) (* p (- n1 1))))))     
 
 (define (fact-letrec n)
   (letrec ((iter (lambda (n1 p)

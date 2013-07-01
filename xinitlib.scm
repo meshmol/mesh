@@ -6,7 +6,7 @@
     identifier-bound? identifier-free? identifier? inspect lambda/asm last macro?
     macro-name? macroexpand macroexpand-1 make-syntactic-closure pair-length
     primitive-name? profiler room step symbol->identifier syntactic-closure?
-    sys-code sys-cont-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
+    sys-code sys-cont-room sys-macro-room sys-env sys-set-trace sys-set-untrace sys-timer-gbc
     sys-timer-get sys-timer-set system undefined vm1 vm2 vm2-step freecell 
     syntactic-closure-expr syntactic-closure-env syntactic-closure-freevar get-car
     identifier-variable! identifier-variable? make-record record? record-set! record-ref
@@ -88,6 +88,16 @@
          (if test
              (begin result1 result2 ...)
              (cond clause1 clause2 ...)))))
+    
+    (define-syntax let
+      (syntax-rules ()
+        ((let ((name val) ...) body1 body2 ...)
+         ((lambda (name ...) body1 body2 ...)
+          val ...))
+        ((let tag ((name val) ...) body1 body2 ...)
+         (letrec ((tag (lambda (name ...)
+                         body1 body2 ...)))
+           (tag val ...)))))
 
     (define-syntax and
       (syntax-rules ()
@@ -96,21 +106,6 @@
         ((and test1 test2 ...)
          (if test1 (and test2 ...) #f))))
 
-    
-    (define-syntax or
-      (syntax-rules ()
-        ((or) #f)
-        ((or test) test)
-        ((or test1 test2 ...)
-         (let ((x test1))
-           (if x x (or test2 ...))))))
-    
-    (define-syntax when
-      (syntax-rules ()
-        ((when test result1 result2 ...)
-         (if test
-             (begin result1 result2 ...)))))
-    
     
     (define-syntax or
       (syntax-rules ()
