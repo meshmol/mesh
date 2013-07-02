@@ -2868,26 +2868,64 @@ int f_atan(int n){
 
 
 int f_log(int n){
-	int arg;
-    double x,x1,y,y1;
-	double complex z,z1;
+	int arg,base;
+    double x,y,x1,y1,x2,y2;
+	double complex z,z1,z2;
     
-    arg = pop_s();
-    if(!numberp(arg))
-    	exception("log", NOT_NUMBER, arg);
+    if(n == 1){
+    	arg = pop_s();
+    	if(!numberp(arg))
+    		exception("log", NOT_NUMBER, arg);
     
-    if(realp(arg) && GET_FLT(exact_to_inexact(arg)) > 0)
-    	return(make_flt(log(GET_FLT(exact_to_inexact(arg)))));
+    	if(realp(arg) && GET_FLT(exact_to_inexact(arg)) > 0)
+    		return(make_flt(log(GET_FLT(exact_to_inexact(arg)))));
+    	else{
+			if(realp(arg))
+        		arg = realtocomp(arg);
+    		x = GET_REAL_FLT(arg);
+        	y = GET_IMAG_FLT(arg);
+        	z = x+y*I;
+        	z1 = clog(z);
+        	x1 = creal(z1);
+        	y1 = cimag(z1);
+        	return(make_comp(x1,y1));
+    	}
+    }
     else{
-		if(realp(arg))
-        	arg = realtocomp(arg);
-    	x = GET_REAL_FLT(arg);
-        y = GET_IMAG_FLT(arg);
-        z = x+y*I;
-        z1 = clog(z);
-        x1 = creal(z1);
-        y1 = cimag(z1);
-        return(make_comp(x1,y1));
+		base = pop_s();
+    	arg = pop_s();
+        if(!numberp(arg))
+    		exception("log", NOT_NUMBER, arg);
+        if(!numberp(base))
+    		exception("log", NOT_NUMBER, base);
+            
+        if(realp(arg) && GET_FLT(exact_to_inexact(arg)) > 0){
+    		y = log(GET_FLT(exact_to_inexact(arg))) / log(GET_FLT(exact_to_inexact(base)));
+            return(make_flt(y));
+        }
+    	else{
+			if(realp(arg))
+        		arg = realtocomp(arg);
+    		x = GET_REAL_FLT(arg);
+        	y = GET_IMAG_FLT(arg);
+        	z = x+y*I;
+        	z1 = clog(z);
+        	x1 = creal(z1);
+        	y1 = cimag(z1);
+            
+            if(realp(base))
+        		base = realtocomp(base);
+    		x = GET_REAL_FLT(base);
+        	y = GET_IMAG_FLT(base);
+        	z2 = x+y*I;
+        	z2 = clog(z2);
+        	x2 = creal(z2);
+        	y2 = cimag(z2);
+            
+            x = (x1*x2+y1*y2)/(x2*x2+y2*y2);
+            y = (x2*y1-x1*y2)/(x2*x2+y2*y2);
+            return(make_comp(x,y));
+    	}
     }
     return(undef);
 }

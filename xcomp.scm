@@ -804,7 +804,7 @@
     (asin 1 1 #t #f)
     (acos 1 1 #t #f)
     (atan 1 2 #t #f)
-    (log 1 1 #t #f)
+    (log 1 2 #t #f)
     (exp 1 1 #t #f)
     (sqrt 1 1 #t #f)
     (expt 2 2 #t #f)
