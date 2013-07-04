@@ -750,7 +750,7 @@
     (list-tail 1 1 #t #f)
     (list-ref 2 2 #t #f)
     (list-set! 3 3 #t #t)
-    (append 2 2 #t #f)
+    (append 2 infinity #t #f)
     (append! 2 infinity #t #t)
     (set-car! 2 2 #t #t)
     (set-cdr! 2 2 #t #t)
