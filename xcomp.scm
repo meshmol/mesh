@@ -1140,9 +1140,16 @@
         ((atom? p) p)
         ((vector? p)
          (list->vector (subst-from-identifier1 (vector->list p) n)))
+        ;;(p ...) p==#<undef>
+        ((and (list? p)(= (length p) 2)(ellipsis? (list-take p 2))(identifier-free? (car p)))
+         '())
         ;;(p ...)
         ((and (list? p)(= (length p) 2)(ellipsis? (list-take p 2)))
          (identifier-bound (car p)))
+        ;;(p ... n) p==#<undef>
+        ((and (list? p)(> (length p) 2)(ellipsis? (list-take p 2))(identifier-free? (car p)))
+         (append '()
+                 (subst-from-identifier1 (cddr p) n)))
         ;;(p ... n)
         ((and (list? p)(> (length p) 2)(ellipsis? (list-take p 2)))
          (append (identifier-bound (car p))
