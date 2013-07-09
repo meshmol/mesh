@@ -1522,14 +1522,20 @@ int big_int_mult(int arg1, int arg2){
 
 //クヌース　第4巻　88ページ参照
 int	big_quotient(int arg1, int arg2){
+	int result;
+    
 	if(big_positivep(arg1) && big_positivep(arg2))
     	return(big_quotient1(arg1,arg2));    
-    if(big_positivep(arg1) && big_negativep(arg2))
-    	return(big_rev(big_quotient(arg1,big_rev(arg2))));
-    if(big_negativep(arg1) && big_positivep(arg2))
-    	return(big_rev(big_quotient(big_rev(arg1),arg2)));
+    if(big_positivep(arg1) && big_negativep(arg2)){
+    	result = big_quotient1(arg1,big_rev(arg2));
+    	return(mult(result,make_int(-1)));
+    }
+    if(big_negativep(arg1) && big_positivep(arg2)){
+    	result = big_quotient1(big_rev(arg1),arg2);
+        return(mult(result,make_int(-1)));
+    }
     if(big_negativep(arg1) && big_negativep(arg2))
-    	return(big_quotient(big_rev(arg1),big_rev(arg2)));
+    	return(big_quotient1(big_rev(arg1),big_rev(arg2)));
     return(undef);
 }
 
