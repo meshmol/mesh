@@ -2876,6 +2876,9 @@ int f_log(int n){
     	arg = pop_s();
     	if(!numberp(arg))
     		exception("log", NOT_NUMBER, arg);
+        
+        if(zerop(arg))
+        	return(MINF);
     
     	if(realp(arg) && GET_FLT(exact_to_inexact(arg)) > 0)
     		return(make_flt(log(GET_FLT(exact_to_inexact(arg)))));
@@ -2898,6 +2901,9 @@ int f_log(int n){
     		exception("log", NOT_NUMBER, arg);
         if(!numberp(base))
     		exception("log", NOT_NUMBER, base);
+        
+        if(zerop(arg))
+        	return(MINF);
             
         if(realp(arg) && GET_FLT(exact_to_inexact(arg)) > 0){
     		y = log(GET_FLT(exact_to_inexact(arg))) / log(GET_FLT(exact_to_inexact(base)));

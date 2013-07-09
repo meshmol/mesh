@@ -1687,11 +1687,19 @@ int big_eqp(int arg1, int arg2){
 int big_greaterp(int arg1, int arg2){
 	int l1,l2,a1,a2;
     
+    if(big_positivep(arg1) && big_negativep(arg2))
+    	return(1);
+    if(big_negativep(arg1) && big_positivep(arg2))
+    	return(0);
+    
     l1 = length(arg1);
     l2 = length(arg2);
     
 
-	if(l1 > l2)
+	if(big_positivep(arg1) && big_positivep(arg2) && l1 > l2)
+    	return(1);
+    else
+    if(big_negativep(arg1) && big_negativep(arg2) && l1 < l2)
     	return(1);
     else
     if(l1 == l2){
@@ -1714,11 +1722,19 @@ int big_greaterp(int arg1, int arg2){
 int big_smallerp(int arg1, int arg2){
 	int l1,l2,a1,a2;
     
+    if(big_negativep(arg1) && big_positivep(arg2))
+    	return(1);
+    if(big_positivep(arg1) && big_negativep(arg2))
+    	return(0);
+    
     l1 = length(arg1);
     l2 = length(arg2);
     
 
-	if(l1 < l2)
+	if(big_positivep(arg1) && big_positivep(arg2) && l1 < l2)
+    	return(1);
+    else
+    if(big_negativep(arg1) && big_negativep(arg2) && l1 > l2)
     	return(1);
     else
     if(l1 == l2){
