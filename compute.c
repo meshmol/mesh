@@ -1382,6 +1382,8 @@ int big_minus(int arg1, int arg2){
     
     res = undef;
     
+    if(big_eqp(arg1,arg2))
+    	return(make_int(0));
     if(big_positivep(arg1) && big_negativep(arg2))
     	return(big_plus(arg1,big_rev(arg2)));
     if(big_negativep(arg1) && big_positivep(arg2))
@@ -1560,15 +1562,15 @@ int	big_quotient1(int arg1, int arg2){
         u = (long long int)get_int(last(arg1)) * BIGNUM_BASE +
             	(long long int)get_int(last(butlast(arg1)));
         v = (long long int)get_int(last(arg2));
-        //q = min(u/v,BIGNUM_BASE-1)
+        
         q = u / v;
         if(q > BIGNUM_BASE-1)
         	q = BIGNUM_BASE-1;
         
-        ds = mult(arg2,make_int((int)q));
+        ds = mult(arg2,make_int((int)q)); 
         s = length(arg1) - length(ds);
-        ds = big_sift(ds,s);
-        p = big_sift(arg2,s); 
+        ds = big_sift(ds,s); 
+        p = big_sift(arg2,s);
         arg1 = minus(arg1,ds);
         
         
