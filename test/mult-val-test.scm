@@ -1,5 +1,5 @@
 ;;多値のテスト;; M.Hiroi さんのHPにある例題を使わせていただきました。
-(import (normal test))
+(import (mesh test))
 
 (define (partition pred ls)
   (if (null? ls)    

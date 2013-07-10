@@ -2,7 +2,7 @@
 
 ;;‡“¡‚³‚ñ‚Ì‰ğàƒR[ƒh‚æ‚è,ˆê•”‰ü•Ò
 
-(import (normal test))
+(import (mesh test))
 
 (define (find-leaf obj tree)
   (call/cc

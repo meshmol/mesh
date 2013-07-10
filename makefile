@@ -1,5 +1,5 @@
 ﻿norm : main.o cell.o list.o compute.o function.o r7rs.o
-	gcc -O4 -Wall main.o cell.o list.o compute.o function.o r7rs.o  -o norm
+	gcc -O4 -Wall main.o cell.o list.o compute.o function.o r7rs.o  -o mesh
 
 main.o : main.c norm.h
 	gcc -O4 -Wall -c main.c

@@ -89,11 +89,11 @@ int main( int argc, char *argv[] ){
     	command_line[i] = argv[i];
         
     char szPath[128],szDrive[4],szDir[128],szFileName[32],szExt[4];
-    char initfile[128],compfile[128],kidsfile[128],libfile[128];
+    char initfile[128],compfile[128],libfile[128];
     char *p;
 	
 
-    printf("Scheme compiler Normal Ver 2013.7.9 (written by Kenichi.Sasagawa)\n");
+    printf("Meiji-Scheme Ver 1.0 \n");
     initcell();
     initsubr();
     initsyntax();
@@ -108,7 +108,6 @@ int main( int argc, char *argv[] ){
 	memset(szExt,0,sizeof(szExt));
     memset(initfile,0,sizeof(initfile));
     memset(compfile,0,sizeof(compfile));
-    memset(kidsfile,0,sizeof(kidsfile));
     memset(libfile,0,sizeof(libfile));
     GetModuleFileName(NULL, szPath, sizeof(szPath));
 	_splitpath(szPath, szDrive, szDir, szFileName, szExt);
@@ -134,7 +133,7 @@ int main( int argc, char *argv[] ){
                 }
            }
        }
-    _makepath(kidsfile,szDrive, szDir, "kids", "scm"); 
+
     _makepath(libfile,szDrive, szDir, "libfile", "scm"); 
     
     int ret = setjmp(toplevel);
@@ -159,8 +158,6 @@ int main( int argc, char *argv[] ){
         }
         push_s(make_str(initfile));
         f_load(1);
-        push_s(make_str(kidsfile));
-        f_load(1);
         push_s(make_str(libfile));
         f_load(1);
         initflag = 0;
@@ -176,7 +173,7 @@ int main( int argc, char *argv[] ){
             contflag = 0;
         
             if(!debugflag)
-            	printf("norm> ");
+            	printf("mesh> ");
             else
             	printf("debug> ");
             fflush(stdout);

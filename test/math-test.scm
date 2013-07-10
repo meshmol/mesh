@@ -1,5 +1,5 @@
 ;;数学関数のテスト
-(import (normal test)
+(import (mesh test)
         (scheme inexact)
         (scheme complex)
         (scheme time))

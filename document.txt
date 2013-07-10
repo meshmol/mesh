@@ -1,0 +1,375 @@
+Meiji-Scheme
+
+[環境]
+セル数の関係上Windows7以降が望ましい。MinGW　GCCでコンパイル。
+
+[起動]
+mesh で起動。 
+
+起動オプション 
+-1 ncomp.oコンパイラで起動。（デフォルト）
+-2　xcomp.oコンパイラで起動。（改良時用） 
+-S　S式で表現された機械語を与える形式で起動。
+ 
+ファイル mesh.exe 処理系本体 ncomp.scm ncomp.o コンパイラ本体 xcomp.scm xcomp.o 改良時の予備 initlib.scm initilib.o ライブラリの初期化
+ 
+ 
+ 
+[VM仕様]
+ 
+ニモニック　機械語　　　　　　機能
+    NOP       0           何もしない。　
+    HALT      1           実行を停止する。キャッシュした情報を解除する。
+    CONST x   2 x         スタックに定数ｘプッシュする。
+    LVAR m n  3 m n       局所変数の値をプッシュする。局所変数の位置はm,nで与えられる。
+    GVAR      4           スタックにあるシンボルの大域変数の値をプッシュする。
+    LSET m n  5 m n       スタックの最上部を局所変数に格納する。
+    GSET x    6 x         スタックの最上部を大域変数xに格納する。
+    POP       7           スタックからポップする。　　
+    JUMP x    8 x         ジャンプする。ジャンプ先は相対アドレスで与えられる。
+    TJUMP x   9 x         スタックの最上部が非#fの場合にジャンプしスタックはポップする。
+    FJUMP x   10 x        スタックの最上部が#fの場合にジャンプしスタックはポップする。
+    RETURN    11          スタックから戻り番地と環境を得て復帰する。
+    ARGS n    12 n        ｎ個の環境を用意してスタックから移動させる。
+    CALL n    13 n        戻りアドレス、環境を格納してスタックに積んだ関数の最初へジャンプする。
+    CALLJ n   14 n        スタックに積んだ関数の最初へジャンプする。戻りアドレスなどは格納しない。末尾再帰最適化で使う。
+    FN n lis  15 n lis    n引数のクロージャーを生成してスタックに積む。クロージャーの実行コードはlisにリストとして格納されている。
+    SAVE x    16 x        戻りアドレスをスタック積む。（現在、使用されていない。）
+    PRIM x n  17 x n      組込関数を実行する。ｘは組込関数シンボルまたはその実体のアドレス、ｎは引数の個数。
+    DEF  x    18 x        スタックに積んだクロージャをシンボルｘに束縛する。
+    DEFM x    19 x        スタックに積んだ変換子クロージャを伝統的マクロとしてシンボルｘに束縛する。
+    DEFH      20          スタックに積んだ変換子クロージャを健全マクロオブジェクトにし定義時VM環境を保持してスタックに積む。
+    NEQP      21          スタックに積んだ２つの数値が等価なら#tをそうでなければ#fをスタックにプッシュする。以下同様に2項の数値比較、数値演算。速度を稼ぐために専用命令にしている。
+    SMLP      22         (< x y) 
+    ESMLP     23         (<= x y) 
+    GRTP      24         (> x y) 
+    EGRTP     25         (>= x y)
+    ZEROP     26         (= x 0)
+    ADD1      27         スタックに積んだ数に１を加算する。
+    SUB1      28         スタックに積んだ数から１を減算する。
+    ADD2      29         スタックに積んだ数に２を加算する。
+    SUB2      30         スタックに積んだ数から２を減算する。
+    GREF x　　 31 x      closure呼び出しのGVAR命令の直後に置換される。手続き呼び出しのアクセスを短時間ですますため。
+    CATCH     32         継続を捕捉し継続オブジェクトにしてスタックに積む。
+    PAUSE     33        一時停止。
+    CAR       34        car
+    CDR       35        cdr 
+    CONS      36        cons
+    ADAPT     37        多値を分解してスタックに積む。多値の個数を5ステップ先のアドレスに記憶。
+    DEFLIB name body   38   R7RSライブラリシステムのために予約
+    EXPLIB forms   39　　　　 同上
+    IMPLIB forms   40　　　　 同上
+    RESERVE        41~50    将来のScheme機能拡張のために予約
+   
+DEFLIB nameリストのライブラリを登録（すでにあればカレントを移動）しカレントをnameに移動したうえでbodyをremake-listする。さらにコンパイル、アセンブルしてVMで実行する。
+
+EXPLIB　formsを解釈してexportするシンボルをmodule_tableに登録する。
+
+IMPLIB　formsを解釈してexportされたシンボルの実体をimportする側のシンボルとで共有する。
+   
+[R7RS以外の独自機能] 
+デバッグ (mesh debug)ライブラリ 
+
+(debug sw) #tでデバッグモード。#fで通常モード。VMを２つもっておりデバッグモードではデバッグのための情報収集の機能をつけた2号vmが起動する。バックトレース,トレース、ステップ,プロファイラ実行が可能になる。以下の手続きはデバッグモードでのみ機能する。
+ 
+(trace fn1 fn2 ...fnn) トレース。引数なしの場合にはトレース中の手続きを表示。 
+
+(untrace fn1 fn2 ... fnn) トレース解除。引数なしの場合は全部トレース解除。 
+
+(profiler sw) #t でプロファイルを表示。#fで表示しない。 
+
+(step sw) #t でVMをステップ実行する。　#fで解除。 
+
+
+システム用　(mesh system)ライブラリ 
+
+(dump addr1 addr2) addr1~addr2のセルを表示する。addr2が省略された場合には10行表示。 
+
+(room) セルポインタなど内部情報表示。 
+
+(vm1 lis) (vm2 lis) vmで機械語を実行する。 
+
+(gbc sw) 引数なしの場合GC実行。#tでGC中に表示。#fで非表示。 
+
+(lambda/asm n lis) 引数がn涸のクロージャをlisに格納されたアセンブリをもとに生成する。 
+
+(sys-code x) クロージャｘの保持する命令列をS式にして表示。 
+
+(sys-env x) クロージャーｘの保持する環境を表示。 
+
+(system str) 文字列strで与えられたコマンドをMS-DOS/Windowsに実行させる。 
+
+コンパイラ (mesh compile)ライブラリ 
+
+(compile sexp) sexpをコンパイルしてニモニックをS式で返す。 
+
+(compile-file file) 文字列fileで与えられたファイルをコンパイルして実行形式のファイル(file.o)を生成する。fileには識別子scmを付加する。例(compile-file "foo") -> foo.o foo.oは(load ”foo.o")で読み込むことができる。Normalは起動時にncomp.oを読み込む、これは 第2版のコンパイラをコンパイルしたもの。これを書き直してコンパイルすればコンパイラを改良、改造することが可能。
+ 
+(assemble lis) コンパイルされたニモニックを受け取り機械語に変換されたリストを返す。 
+
+(macrotrace sw) sw=#tでマクロ展開時にパタンマッチングの様子を表示する。 
+
+(macrexpand x) (macroexpand-1 x) Gaucheと同じ。マクロの展開表示。 
+
+時間関係　(scheme time)ライブラリ 
+
+(time sexp) sexpの実行時間を計測表示。clock()を使っているため精度は高くない。 
+
+[セルの構造]
+   car    4byte 
+   cdr    4byte
+   aux    4byte
+   flag   enum
+   type   enum
+   name   *char
+
+[データタイプごとの利用状況]
+  type          car           cdr          aux         name
+  symbol        bind          trace        prop-list   pname
+  closure       code          env          address
+  continuation  code          stack          env
+  integer       -             -            -
+  float         double
+  rational      numerator     denominator
+  complex       real pointer  imag pointer
+  string                                   immutable?  string
+  vecor         *dyba_vector               immutable?
+  bytevector    *dyna_u8vector             immutable?
+  char                                                 char
+  code          *dyna_vector
+  stack         *dyna_vector
+  environment   ealloc
+  multiple      *dyna_vector
+　identifier    vairable==1 ellipsis==2   bind-name
+  trad-macro    transformer-clo
+  hygienic      transformer-clo env       compiler-env
+
+[局所環境データ構造] 
+
+動的配列により(m,n)行列を生成。m>=1の部分は旧環境であり旧環境参照する。ひとつの環境は 最初の要素が旧環境のアドレスでその次に(1,j) 要素が並ぶ。 lvar(i,j), lset(i,j)で参照、書き換えをする。これらの命令では要素の(i,j)は数学とことなり0行、0列から始まる。
+   |-[org1][0,0][0,1]...[0,m]
+  |
+  |addr
+  |- org1 [org2][0,1],[0,2],...[0,m']
+
+ 
+[モジュール] 
+
+モジュールはR7RS準拠を目指している。 
+
+(define-library <name-identifier> body) 
+
+(export forms) forms = id, (rename id1 id2) 
+
+(import <name-identifier>) 
+(mesh user) 通常作業領域
+(mesh system) コンパイラなどで利用するSUBR
+(mesh compile) コンパイラの格納用
+(mesh test) テストツール
+(mesh debug) デバッグツール
+
+起動時に以下のLibraryをimportしている。
+
+(import (scheme base)
+        (scheme load)
+        (scheme write)
+        (scheme read)
+        (scheme eval)
+        (scheme char)
+        (scheme inexact)
+        (only (mesh system) macroexpand macroexpand-1)
+        (only (scheme process-context) exit))
+
+
+ [モジュール管理配列のデータ構造]
+ 
+ module_table  列
+        行　　 library-name              export-list   
+           0  (mesh user)
+           1  (mesh system)
+           2  (mesh compile)
+           3  (scheme base)
+           4  (scheme inexact)
+           5  (scheme complex)
+           6  (scheme cxr)
+           7  (scheme lazy)
+           8  (scheme case-lambda)
+           9  (scheme eval)
+          10  (scheme repl)
+          11  (scheme process-context)
+          12  (scheme load)
+          13  (scheme file)
+          14  (scheme read)
+          15  (scheme write)
+          16  (scheme char)
+          17  (scheme r5rs)
+          18  (scheme time)
+        
+
+export-list (id1 id2 ... idn)
+
+[継続オブジェクトのデータ構造]
+heap-cont 
+  car cont_code
+  cdr cont_stack
+  aux (env current_module)
+
+
+cont_code
+0 継続開始アドレス
+1 code-pointer-end
+2 head
+3 tail
+4 closure0 address
+5 closure0 head
+6 closure1 address
+7 closure1 head
+2n+4 ....　４～４＋２＊(code_pointer_end-1) まで継続捕捉時のClosureの情報
+
+　　　　　継続捕捉時の0番地からtail番地までのコピー
+
+cont_stack
+0 スタックの深さ
+1 ... スタックのコピー
+
+stack-cont
+  car stack-pointer
+  cdr stack-size
+  aux (env current_module)
+
+stack-structure
+0 継続開始アドレス
+1 ... スタックのコピー
+
+
+[多値オブジェクトのデータ構造 ]
+0 値の個数
+1 ... 各値
+
+[健全マクロ関係　非標準手続き] 
+
+(make-syntactic-closure env fv expr) 
+
+(syntactic-closure-env x) 
+
+(syntactic-closure-freevar x) 
+
+(syntactic-closure-expr x) 
+
+(symbol->identifier x) 
+
+(identifier->symbol x) 
+
+(syntactic-closure? x) 
+
+(identifier? x) 
+
+(identifier-bind! x y) 識別子xの束縛値をyとする。 
+
+(identifier-free? x) 識別子xが束縛値を持たなければ#t 
+
+(identifier-bound? x) 識別子xが束縛値を持てば#t 
+
+(identifier-bound x) 識別子xの束縛値を返す。 
+
+(identifier-variable! x)　識別子をパターン変数とする。 
+
+(identifier-variable? x) 識別子がパターン変数なら#t 
+
+(identifier-ellipsis! x) 識別子を省略子変数とする。 
+
+(identifier-ellipsis? x) 識別子が省略子変数なら#t 
+
+(global-bound? x) シンボルxがcurrent-moduleで大域に束縛をもてば#t 
+
+[record型]
+
+(make-record size obj) 大きさがsizeでその初期値がobjのレコード型を返す。objが省略された場合にはundefが入る。 
+
+(record-set! x n y) レコードｘのn番目にyをセットする。 
+
+(record-ref x n) レコードｘのｎ番目を参照する。 
+
+(record? x) レコード型なら#tそうでなければ#f 
+
+[数学ライブラリ]
+
+計算実験、数学遊びをするための最低限のものを用意してあります。 
+
+(import (mesh math))で利用可能。 
+定数
+pi 円周率
+e 自然対数の底
+gamma　オイラーの定数γ
+
+数学関数
+
+(make-matrix m n) m行n列の行列を生成する。
+
+(matrix-ident n) n行n列の単位行列を生成する。
+
+(matrix-set! x i j y) 行列xの(i,j)要素をyとする。
+
+(matrix-ref x i j) 行列xの(i,j)要素を参照する。
+
+(matrix->list ls) リストlsを行列に変換する。
+
+(matrix-row x) 行列xの行数
+
+(matrix-col x) 行列ｘの列数
+
+(matrix? x) xが行列なら#t、そうでなければ#f。
+
+(matrix-square? x) xが正方行列なら#t、そうでなければ#f。
+
+(matrix-ident? x) xが単位行列なら#t、そうでなければ#f。
+
+(matrix-zero? x) xが零行列なら#t、そうでなければ#f。
+
+(m= x y) 行列x,yの相等。
+
+(m+ x y) 行列x,yの加算。
+
+(m- x y) 行列x,yの減算。
+
+(m* x y) 行列x,yの乗算。
+
+(m-expt x n) 行列xのn乗。
+
+(matrix-tr x) 行列xのトレース。
+
+(m/ x s) 行列xの各要素をスカラsで除算。
+ 
+(matrix->list x) 行列xをリストに変換する。
+
+(list->matrix ls) リストlsを行列に変換する。
+
+(vector-math-ref x) ベクタxの要素を参照する。要素は１から始まる。
+
+(vector-math-set! x i y) ベクタxのi番目の要素をyとする。要素は１から始まる。
+
+(sum ls) リストlsの要素の総和
+
+(product ls) リストlsの要素の積
+
+(coprime? x y) x,yが互いに素なら#t,そうでなければ#f。 
+
+(divisible? x y) xがｙで割り切れるなら#t、そうでなければ#f。
+
+(divisors x) xの約数。
+
+(eqmod? x y n) x,yが法nのもとで等しいか。
+
+(prime? x) xが素数か？
+
+(prime-factors x) xの素因数分解
+
+(phi x) オイラーのφ関数。
+ 
+(primitive-root? n p) 原始根の判定。ｎが素数ｐを法として原始根であるなら#t 素数なら必ず存在するが条件がそろっていなければ #fが返る。
+
+(primitive-root p) 素数ｐの最小の原始根を返す.
+
+(ind r a p) 指数の計算。原始根ｒを底として素数ｐを法としたaに対する指数を求める。
+指数は必ず存在するが与えられた値が条件に合わなければ#fが返る。
+

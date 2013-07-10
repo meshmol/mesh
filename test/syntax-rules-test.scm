@@ -1,7 +1,7 @@
 ;;syntax-rules テストコード
 ;;;紫藤さんの「Scheme入門15構文の定義（マクロ）」より
 
-(import (normal test))
+(import (mesh test))
 
 
 (define-syntax nil!

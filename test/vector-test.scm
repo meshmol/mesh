@@ -1,5 +1,5 @@
 ;;ベクタテスト
-(import (normal test))
+(import (mesh test))
 
 (test* "(vector 1 2 3)" #(1 2 3) (vector 1 2 3))
 (define a (vector 1 2 3))

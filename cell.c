@@ -61,9 +61,9 @@ void initcell(void){
 
 void initmodule(void){
 	
-    module_table[0][0] = list2(make_sym("normal"),make_sym("user"));
-    module_table[1][0] = list2(make_sym("normal"),make_sym("system"));
-    module_table[2][0] = list2(make_sym("normal"),make_sym("compile"));
+    module_table[0][0] = list2(make_sym("mesh"),make_sym("user"));
+    module_table[1][0] = list2(make_sym("mesh"),make_sym("system"));
+    module_table[2][0] = list2(make_sym("mesh"),make_sym("compile"));
     module_table[3][0] = list2(make_sym("scheme"),make_sym("base"));
     module_table[4][0] = list2(make_sym("scheme"),make_sym("inexact"));
     module_table[5][0] = list2(make_sym("scheme"),make_sym("complex"));

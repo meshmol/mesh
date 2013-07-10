@@ -1,6 +1,6 @@
 ;;record test
 
-(import (normal test))
+(import (mesh test))
 
 (define-record-type pare
     (kons x y)

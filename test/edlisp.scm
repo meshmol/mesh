@@ -1,8 +1,8 @@
 ;;教育用LISPインタープリタ　Ver0.3 for Normal
 ;;「まったくはじめての人のためのScheme」の後編で作ったPure Lispを
-;;Normalで動くように手直ししたものです。
+;;Meshで動くように手直ししたものです。
 
-(import (normal system))
+(import (mesh system))
 
 (define *env* '((T T)(NIL NIL)))
 

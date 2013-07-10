@@ -1,5 +1,5 @@
 
-(define-library (normal system)
+(define-library (mesh system)
   (export
     addr addr-prt butlast current-module debug dump entity-addr flush gensym
     global-bound? hygienic? hygienic-name? identifier->symbol identifier-bind! identifier-bound
@@ -13,7 +13,7 @@
     identifier-ellipsis! identifier-ellipsis? sleep putprop getprop))
     
     
-(define-library (normal compile)
+(define-library (mesh compile)
   (export compile comp assemble compile-file map for-each and or let let* letrec do case cond
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
           macrotrace lambda if set! quote begin define define-syntax predicate))
@@ -31,8 +31,8 @@
     cddddr cdddr cddr cdr))
 
 (define-library (scheme base)
-  (import (normal system)
-          (normal compile)
+  (import (mesh system)
+          (mesh compile)
           (only (scheme inexact) sqrt)
           (scheme cxr)
           (scheme char))
@@ -575,7 +575,7 @@ Copyright (C) Lars T Hansen (1999). All Rights Reserved.
 |#
 (define-library (scheme case-lambda)
   (import (scheme base)
-          (normal compile))
+          (mesh compile))
   (export case-lambda)
   (begin
     
@@ -647,7 +647,7 @@ from R7RS-Small draft9 p70
   (export delay-force delay force make-promise)
   (import (scheme base)
           (scheme cxr)
-          (normal compile))
+          (mesh compile))
   (begin
     (define-syntax delay-force
       (syntax-rules ()
@@ -689,7 +689,7 @@ from R7RS-Small draft9 p70
 
 
 (define-library (scheme process-context)
-  (import (normal compile))
+  (import (mesh compile))
   (export command-line get-environment-variable get-environment-variables exit emergency-exit)
   (begin
     (define (emergency-exit . obj)
@@ -697,7 +697,7 @@ from R7RS-Small draft9 p70
       (exit))))
 
 (define-library (scheme time)
-  (import (normal system)
+  (import (mesh system)
           (scheme base)
           (scheme write))
   (export current-second current-jiffy jiffies-per-second time)
@@ -725,7 +725,7 @@ from R7RS-Small draft9 p70
           file-exists?
           delete-file)
   (import (scheme base)
-          (normal system))
+          (mesh system))
   (begin
     ;;ファイル
     (define (call-with-input-file filename proc)
@@ -757,7 +757,7 @@ from R7RS-Small draft9 p70
     ))
 
 ;;テスト用のマクロ
-(define-library (normal test)
+(define-library (mesh test)
   (import (scheme base)
           (scheme write))
   (export test*)
@@ -778,8 +778,8 @@ from R7RS-Small draft9 p70
                       (newline))))))))
 
 ;;デバッグ用のマクロ
-(define-library (normal debug)
-  (import (normal system)
+(define-library (mesh debug)
+  (import (mesh system)
           (scheme base))
   (export trace untrace debug step profiler)
   (begin
@@ -794,7 +794,7 @@ from R7RS-Small draft9 p70
 
 ;;Gaucheとの互換ライブラリ
 ;;よく使うものだけ
-(define-library (normal gauche)
+(define-library (mesh gauche)
   (import (only (scheme base) for-each)
           (only (scheme write) display))
   (export print)
@@ -811,8 +811,8 @@ from R7RS-Small draft9 p70
         (scheme char)
         (scheme inexact)
         (scheme case-lambda)
-        (only (normal system) macroexpand macroexpand-1)
-        (only (normal compile) macrotrace)
+        (only (mesh system) macroexpand macroexpand-1)
+        (only (mesh compile) macrotrace)
         (only (scheme process-context) exit))
 
 

@@ -1,6 +1,6 @@
 
 
-(import (normal test))
+(import (mesh test))
 
 (test* "1 / 0.0" +inf.0 (/ 1 0.0))
 (test* "1 / -0.0" -inf.0 (/ 1 -0.0))

@@ -1,5 +1,5 @@
 
-(define-library (normal math)
+(define-library (mesh math)
   (import (scheme base)
           (scheme inexact))
   (export pi e gamma

@@ -1,7 +1,7 @@
 
-(import (normal test)
-        (normal compile)
-        (normal debug))
+(import (mesh test)
+        (mesh compile)
+        (mesh debug))
 
 (debug #t)
 (trace comp)
