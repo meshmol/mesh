@@ -1,4 +1,4 @@
-;;教育用LISPインタープリタ　Ver0.3 for Normal
+;;教育用LISPインタープリタ　Ver0.3 for Meiji-Scheme
 ;;「まったくはじめての人のためのScheme」の後編で作ったPure Lispを
 ;;Meshで動くように手直ししたものです。
 

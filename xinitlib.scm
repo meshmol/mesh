@@ -16,7 +16,7 @@
 (define-library (mesh compile)
   (export compile comp assemble compile-file map for-each and or let let* letrec do case cond
           call/cc call-with-current-continuation dynamic-wind call-with-values winders do-wind
-          macrotrace lambda if set! quote begin define define-syntax predicate))
+          macrotrace lambda if set! quote begin define define-syntax))
 
 
 (define-library (scheme inexact)
@@ -757,7 +757,7 @@ from R7RS-Small draft9 p70
     ))
 
 ;;テスト用のマクロ
-(define-library (normal test)
+(define-library (mesh test)
   (import (scheme base)
           (scheme write))
   (export test*)
@@ -778,7 +778,7 @@ from R7RS-Small draft9 p70
                       (newline))))))))
 
 ;;デバッグ用のマクロ
-(define-library (normal debug)
+(define-library (mesh debug)
   (import (mesh system)
           (scheme base))
   (export trace untrace debug step profiler)
@@ -794,7 +794,7 @@ from R7RS-Small draft9 p70
 
 ;;Gaucheとの互換ライブラリ
 ;;よく使うものだけ
-(define-library (normal gauche)
+(define-library (mesh gauche)
   (import (only (scheme base) for-each)
           (only (scheme write) display))
   (export print)

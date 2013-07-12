@@ -351,7 +351,7 @@ int quote,quasiquote,unquote,unquote_splicing,undef,end_of_file,empty_set;
 #define SECOND_STACK			stack[sp-2]
 #define THIRD_STACK				stack[sp-3]
 
-#define OPCODE 59
+#define OPCODE 51
 #define VM_ERR_CHK				if(code[pc] < 1 || code[pc] >= OPCODE) exception("vm2", ILLEGAL_VMCODE, NIL)
 
 //main.c

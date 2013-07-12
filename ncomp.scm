@@ -5,7 +5,7 @@
 ;;define-macroのときには#fにする。
 ;;--------------------------------- 
 (define hygienic '()) ;局所マクロ
-(define predicate '()) ;Prolog述語名
+
 
 (define (compile x)
   (set! hygienic '())
@@ -15,8 +15,6 @@
 (define (comp x env val? more? has-lambda? in-lambda? tail? if?)
   (cond ((null? x) (comp-const x val? more? in-lambda?))
         ((boolean? x) (comp-const x val? more? in-lambda?))
-        ((and (symbol? x)(memv x predicate))
-         (comp-clauses x))
         ((symbol? x) (comp-var x env val? more? in-lambda?))
         ((syntactic-closure? x) (comp-var x env val? more? in-lambda?))
         ((atom? x) (comp-const x val? more? in-lambda?))
@@ -98,26 +96,13 @@
         ((eqv? (car x) 'import)
          (args-count-check x 1 'infinity)
          (seq (gen 'implib (cdr x))))
-        ((eqv? (car x) 'math)
-         (comp (infix->prefix (cdr x)) env val? more? has-lambda? in-lambda? tail? if?))
         ((eqv? (car x) 'syntax-rules)
          (seq (comp `(lambda (expr) (expand ',(cddr x) expr ',(cadr x) ',env))
                     env val? more? has-lambda? in-lambda? tail? if?)
               (gen 'defh)))
         ((eqv? (car x) 'syntax-error)
          (apply error (cdr x)))
-        ((eqv? (car x) 'assert)
-         (let ((name (caadr x)))
-           (if (not (memv name predicate))
-               (set! predicate (cons name predicate)))
-           (putprop name (cons (cdr x) (getprop name)))
-           (seq (gen 'const name))))
-        ((eqv? (car x) 'retract)
-         (let ((name (caadr x)))
-           (if (not (memv name predicate))
-               (error "in retract not a predicate" name))
-           (putprop name (clause-remove (cadr x)(getprop name)))
-           (seq (gen 'const (undefined)))))
+        
         (else
           (comp-funcall (car x) (cdr x) env val? more? has-lambda? in-lambda? tail? if?))))
 
@@ -315,16 +300,16 @@
           ((and (list? f) (eqv? (car f) 'lambda) (null? (cadr f)))
            (if (not (null? args)) (error "too many arguments: " args) '())
            (comp-begin (cddr f) env val? more? has-lambda? #f tail? if?))
-          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)) (symbol? f))
-           (seq (comp-list args env has-lambda? in-lambda? tail? if?)
-                (comp f env #t #t has-lambda? in-lambda? tail? if?)
-                (gen 'callj (length args))))
-          ((eqv? f 'call/cc)
+          ((or (eqv? f 'call/cc) (eqv? f 'ncall/cc) (eqv? f 'call-with-current-continuation))
            (seq (comp-list args env has-lambda? in-lambda? #f if?)
                 (comp f env #t #t has-lambda? in-lambda? tail? if?)
                 (gen 'call (length args))
                 (if (not val?) (gen 'pop) '())
-                (if (not more?) (gen 'return) '())))
+                (if (and (not more?) in-lambda?) (gen 'return) '())))
+          ((and (not more?)(not has-lambda?) tail? (not (in-env? f env)) (symbol? f))
+           (seq (comp-list args env has-lambda? in-lambda? tail? if?)
+                (comp f env #t #t has-lambda? in-lambda? tail? if?)
+                (gen 'callj (length args))))
           (else
             (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                  (comp f env #t #t has-lambda? in-lambda? tail? if?)
@@ -468,141 +453,6 @@
         (else (or (inner-lambda? (car x))
                   (inner-lambda? (cdr x))))))
 
-;;Prologのコンパイル
-(define (comp-clauses sym)
-  (let* ((x (reverse(getprop sym)))
-         (args-n (length (cdaar x))))
-    (seq (gen 'fn args-n (seq (gen 'args args-n) (comp-clauses1 x)))
-         (gen 'def sym))))
-
-(define (comp-clauses1 x)
-  (cond ((null? (cdr x)) (seq (gen 'try #f) (comp-a-clause (car x))))
-        (else (let ((label (gen-label)))
-                (seq (gen 'try label)
-                     (comp-a-clause (car x))
-                     (list label)
-                     (comp-clauses1 (cdr x)))))))
-
-(define (comp-a-clause x)
-  (seq (comp-clause-head (car x))
-       (comp-clause-body (cdr x))))
-
-(define (comp-clause-body x)
-  (cond ((null? x) (gen 'proceed))
-        ((null? (cdr x)) (seq (comp-pred (car x))
-                            (gen 'proceed)))
-        (else
-          (seq (comp-pred (car x))
-               (gen 'pop)
-               (comp-clause-body (cdr x))))))
-
-(define (variable? x)
-  (and (symbol? x)
-       (char=? (string-ref (symbol->string x) 0) #\_)))
-
-
-(define (comp-pred x)
-  (seq (comp-term (cdr x))
-       (gen 'gvar (car x))
-       (gen 'call (length (cdr x)))))
-
-(define (comp-term x)
-  (if (null? x)
-      '()
-      (if (variable? (car x))
-          (seq (gen 'deref (car x))
-               (comp-term (cdr x)))
-          (seq (gen 'const (car x))
-               (comp-term (cdr x))))))
-
-
-(define (comp-clause-head x)
-  (comp-clause-head1 0 (cdr x)))
-
-(define (comp-clause-head1 n x)
-  (cond ((null? x) '())
-        ((variable? (car x)) (seq (gen 'unifyv 0 n (car x))
-                                  (comp-clause-head1 (+ n 1) (cdr x))))
-        ((atom? (car x)) (seq (gen 'unifyc 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        ((null? (car x)) (seq (gen 'unifyc 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        ((pair? (car x)) (seq (gen 'unify 0 n (car x))
-                              (comp-clause-head1 (+ n 1) (cdr x))))
-        (else
-          (error "illegal predicate term" (car x)))))
-
-
-;;内挿表現から前置表現へ変換する。
-
-(define (arg1 f)
-  (cadr f))
-
-(define (arg2 f)
-  (caddr f))
-
-(define (arg3 f)
-  (cadddr f))
-
-(define (op f)
-  (car f))
-
-
-(define (opcode op)
-  (case op
-        ((+) '+)((-) '-)((/) '/)((*) '*)((^) '^)
-        ((sin) 'sin)((cos) 'cos)((exp) 'exp)((log) 'log)
-        ((sinh) 'sinh)((cosh) 'cosh)
-        (else (error "opecode else: " op))))
-
-(define (weight op)
-  (case op
-        ((+) 1)((-) 1)((/) 2)((*) 3)((^) 4)
-        ((sin) 6)((cos) 6)((exp) 6)((log) 6)
-        ((cosh) 6)((sinh) 6)
-        (else 9)))
-
-(define (infix->prefix fmla)
-  (infip fmla))
-
-(define (infip fmla)
-  (if (atom? fmla) fmla (inf1 fmla '() '())))
-
-(define (inf1 fmla optr opln)
-  (if (or (< (weight (op fmla)) 5)
-          (> (weight (op fmla)) 7))
-      (inf2 (cdr fmla) optr (cons (infip (car fmla)) opln))
-      (inf3 (cddr fmla)
-            optr
-            (cons (list (op fmla) (infip (arg1 fmla))) opln))))
-
-(define (inf2 fmla optr opln)
-  (cond ((and (null? fmla) (null? optr))
-         (car opln))
-        ((and (not (null? fmla))
-              (or (null? optr)
-                  (> (weight (car fmla))
-                     (weight (car optr)))))
-         (inf1 (cdr fmla) (cons (car fmla) optr) opln))
-        (else (inf2 fmla
-                    (cdr optr)
-                    (cons (list (opcode (car optr))
-                                (cadr opln)
-                                (car opln))
-                          (cddr opln))))))
-
-(define (inf3 fmla optr opln)
-  (cond ((and (null? fmla) (null? opln))
-         (car opln))
-        ((and (not (null? fmla))
-              (or (null? optr)
-                  (> (weight (car fmla))
-                     (weight (cadr fmla)))))
-         (inf1 (cdr fmla) (cons (car fmla) optr) opln))
-        (else (inf2 fmla optr opln)))) ;原著修正
-
-
-
 
 ;;アセンブラ
 
@@ -673,18 +523,8 @@
         ((eqv? (car x) 'adapt) (list (op-code (car x))))
         ((eqv? (car x) 'deflib) (list (op-code (car x)) (cadr x) (caddr x)))
         ((eqv? (car x) 'explib) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'implib) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'deref) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'unify) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
-        ((eqv? (car x) 'unifyc) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
-        ((eqv? (car x) 'unifyv) (list (op-code (car x)) (cadr x) (caddr x) (cadddr x)))
-        ((eqv? (car x) 'try) (list (op-code (car x)) 
-                                   (if (not (cadr x))
-                                       (cadr x)
-                                       (- (cdr (assq (cadr x) labels)) pc))))
-        ((eqv? (car x) 'fail) (list (op-code (car x))))
-        ((eqv? (car x) 'callp) (list (op-code (car x)) (cadr x)))
-        ((eqv? (car x) 'proceed) (list (op-code (car x))))))
+        ((eqv? (car x) 'implib) (list (op-code (car x)) (cadr x)))))
+        
 
 (define (op-count x) 
   (length x))
@@ -704,8 +544,7 @@
         'add1 'sub1 'add2 'sub2 'gref 'catch 'pause 'car 'cdr 'cons 'adapt
         'deflib 'explib 'implib 
         'reserve1 'reserve2 'reserve3 'reserve4 'reserve5
-        'reserve6 'reserve7 'reserve8 'reserve9 'reserve10
-        'deref 'unify 'unifyc 'unifyv 'try 'fail 'callp 'proceed))
+        'reserve6 'reserve7 'reserve8 'reserve9 'reserve10))
 
 ;;(symbol-name args-min args-max always side-effect)
 (define *primitive*

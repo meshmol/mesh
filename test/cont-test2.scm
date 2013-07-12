@@ -1,6 +1,7 @@
 ;;continuation test
 ;; Scheme ‚É‚æ‚é‹L†ˆ—“ü–å by ’–ŒÒrŒõA‰vè^Ž¡@‹¤’˜
 
+(import (mesh system))
 
 (define cont1 '())
 
@@ -9,9 +10,9 @@
   (call/cc (lambda (exit) (set! cont1 exit)))
   (display "bar ")(display "baz "))
 
-;;; Simp> (cont)
+;;; mesh> (cont)
 ;;; foo bar baz #<undef>
-;;; Simp> (cont1 #t)
+;;; mesh> (cont1 #t)
 ;;; bar baz #<undef>
 
 (define (read-eval-print)
@@ -84,16 +85,13 @@
 
 
 
-
-;;; Simp> (define resume '())
-;;; resume
-;;; Simp> (queens-cont 8)
+;;; mesh> (queens-cont 8)
 ;;; (5 7 2 6 3 1 4 8)
-;;; Simp> (resume)
+;;; mesh> (resume)
 ;;; (4 7 5 2 6 1 3 8)
-;;; Simp> (resume)
+;;; mesh> (resume)
 ;;; (6 4 7 1 3 5 2 8)
-;;; Simp> 
+;;; mesh> 
 
 (define (increase n k)
   (if (> n 10)

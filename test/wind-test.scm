@@ -1,5 +1,6 @@
 ;;Shiroさんのテストコード。一部改編 動作不良
 
+  
 (let ((cc #f)
       (count #f))
   
@@ -17,6 +18,9 @@
         (lambda () (cc (+ count 1)))
         (lambda () (display "E"))))))
       
+      
+
+
 
 ;;R5RS より
 (let ((path '())

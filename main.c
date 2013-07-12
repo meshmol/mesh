@@ -1315,15 +1315,8 @@ int vm2(void){
     &&CASE_R7,     //47
     &&CASE_R8,     //48
     &&CASE_R9,     //49
-    &&CASE_R10,    //50
-    &&CASE_DEREF,  //51
-    &&CASE_UNIFY,  //52
-    &&CASE_UNIFYC, //53
-    &&CASE_UNIFYV, //54
-    &&CASE_TRY,    //55
-    &&CASE_FAIL,   //56
-    &&CASE_CALLP,  //57
-    &&CASE_PROCEED //58 
+    &&CASE_R10    //50
+    
 };
     
     prof_dt[0].name = "nop    ";
@@ -1377,14 +1370,7 @@ int vm2(void){
     prof_dt[48].name = "reserv8";
     prof_dt[49].name = "reserv9";
     prof_dt[50].name = "reserv10";
-    prof_dt[51].name = "deref  ";
-    prof_dt[52].name = "unify  ";
-    prof_dt[53].name = "unifyc ";
-    prof_dt[54].name = "unifyv ";
-    prof_dt[55].name = "try    ";
-    prof_dt[56].name = "fail  ";
-    prof_dt[57].name = "callp ";
-    prof_dt[58].name = "proceed";
+    
     
     for(i=0; i<OPCODE; i++){
     	prof_dt[i].count = 0;
@@ -2562,95 +2548,7 @@ int vm2(void){
     CASE_R9:
     CASE_R10: goto *JUMPTABLE[code[pc]];
     
-    CASE_DEREF:
-    CASE_UNIFY:
-    CASE_UNIFYC:
-    CASE_UNIFYV:
-    CASE_TRY:
-    	step();
-        
-		check_ctrl();        
-        n = ARG1;
-    	clo = POP_S;
-        start = clock();
-        push_t(n);
-        push_t(sp);
-        push_t(lsp);
-        overwrite_mode = 0;
-        pc = pc + 2;
-        
-        end = clock();
-        prof_dt[55].count++;
-        prof_dt[55].time = prof_dt[55].time + (end - start);
-        VM_ERR_CHK;
-        goto *JUMPTABLE[code[pc]];  
-        
-    CASE_FAIL:
-    CASE_CALLP:
-    	step();
-        
-		check_ctrl();        
-        n = ARG1;
-    	clo = POP_S;
-        start = clock();
-        
-		if(closurep(clo)){
-        	m = GET_ARGS_CNT(clo);
-            if(((m >=0 ) && m != n) ||
-               ( m < 0 && n < abs(m)-1))
-            	exception(GET_NAME(clo),INCORRECT_ARG_CNT,NIL);
-            
-        	//Ç‹ÇæìWäJÇ≥ÇÍÇƒÇ¢Ç»Ç¢ñΩóﬂóÒÇÃèÍçá
-			if((x=GET_AUX(clo)) == -1){
-                clo_code = GET_CAR(clo);
-                size = GET_CDR(clo_code);
-                for(i=0; i<size; i++)
-                	code[i+tail] = GET_VEC_ELT(clo_code,i);
-                head = tail;
-                tail = tail+size;
-                SET_AUX(clo,head);
-                code_pointer[code_pointer_end][0] = clo;
-                code_pointer[code_pointer_end][1] = head;
-                code_pointer_end++;
-                if(code_pointer_end > CLOSIZE)
-                	exception("callp", CLOSURE_OVERF,NIL);
-            	insert_stack(envp,pc+2,n);
-                env = GET_CDR(clo);
-                env_j = GET_AUX(env);
-				env_i = GET_CDR(env);
-            	pc = head;
-        	}
-            //ä˘Ç…ìWäJÇ≥ÇÍÇƒÇ¢ÇÈñΩóﬂóÒÇÃèÍçáÅB
-        	else{
-                insert_stack(envp,pc+2,n);
-                env = GET_CDR(clo);
-                env_j = GET_AUX(env);
-				env_i = GET_CDR(env);
-            	pc = x;
-        	}
-        }
-        end = clock();
-        prof_dt[57].count++;
-        prof_dt[57].time = prof_dt[57].time + (end - start);
-        VM_ERR_CHK;
-        goto *JUMPTABLE[code[pc]];  
-        
-    CASE_PROCEED:
-        step();
-        start = clock();
-        
-        pc = THIRD_STACK;
-        envp = SECOND_STACK;
-        stack[sp-3] = BOOLT;
-        sp = sp - 2;
-        overwrite_mode = 1; 
-        
-        end = clock();
-        prof_dt[58].count++;
-        prof_dt[58].time = prof_dt[58].time + (end - start);
-        VM_ERR_CHK;
-        goto *JUMPTABLE[code[pc]];
-        	goto *JUMPTABLE[code[pc]];
+    
 }
 
 
