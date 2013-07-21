@@ -1,5 +1,5 @@
-;;�����ċA�œK���e�X�g
-;;CALLJ���߂ɂ�胋�[�v�Ɠ��l�ɂȂ��Ă��Ȃ��Ƃ����Ȃ��B
+;;末尾再帰最適化テスト
+;;CALLJ命令によりループと同様になっていないといけない。
 
 (define lastl
   (lambda (l)

@@ -1,4 +1,4 @@
-;;gurad ƒeƒXƒg
+;;gurad ãƒ†ã‚¹ãƒˆ
 
 (guard (condition
          ((assq 'a condition) => cdr)

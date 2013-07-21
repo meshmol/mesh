@@ -3,7 +3,7 @@
 (import (mesh test))
 (import (scheme inexact))
 
-;;“™‰¿
+;;ç­‰ä¾¡
 (test* "(eqv? 'a 'a)" #t (eqv? 'a 'a))
 (test* "(eqv? 'a 'b)" #f (eqv? 'a 'b))
 (test* "(eqv? 2 2)" #t (eqv? 2 2))
@@ -18,7 +18,7 @@
 (test* "(equal? '(1 2) '(1 2))" #t (equal? '(1 2) '(1 2)))
 (test* "(equal? '(1) '(1 2))" #f (equal? '(1) '(1 2)))
 
-;;”’l
+;;æ•°å€¤
 (test* "(complex? 3+4i)" #t (complex? 3+4i))
 (test* "(complex? 3)" #t (complex? 3))
 (test* "(real? 3)" #t (real? 3))
@@ -65,12 +65,12 @@
 
 
 
-;;^‹U’l
+;;çœŸå½å€¤
 (test* "(not #t)" #f (not #t))
 (test* "(not 3)" #f (not 3))
 
 
-;;§Œä‹@”\
+;;åˆ¶å¾¡æ©Ÿèƒ½
 (test* "(procedure? car)" #t (procedure? car))
 (test* "(procedure? 'car)" #f (procedure? 'car))
 (test* "(procedure? (lambda (x) (* x x)))" #t (procedure? (lambda (x) (* x x))))
@@ -88,7 +88,7 @@
 (test* "(map + '(1 2 3) '(4 5 6))" '(5 7 9) (map + '(1 2 3) '(4 5 6)))
 ;;; 
 
-;;ƒŠƒXƒg
+;;ãƒªã‚¹ãƒˆ
 ;;(test* "list" '(a b c . d) '(a . (b . (c . d))))
 
 (define x (list 'a 'b 'c))

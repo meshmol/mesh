@@ -1,4 +1,4 @@
-;;•¶š—ñ‚ÌƒeƒXƒgR7RS
+;;æ–‡å­—åˆ—ã®ãƒ†ã‚¹ãƒˆR7RS
 
 (string-map 
   (lambda (c)

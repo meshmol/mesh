@@ -1,5 +1,5 @@
 
-R7Rs-Small€‹’i•sŠ®‘Sj‚ÌSchemeƒRƒ“ƒpƒCƒ‰‚Å‚·B
+R7Rs-Smallæº–æ‹ ï¼ˆä¸å®Œå…¨ï¼‰ã®Schemeã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ã§ã™ã€‚
 
-•êZA–¾Ž¡‘åŠw‚ÉŠñ‘¡‚¢‚½‚µ‚Ü‚·B‚²Î”[‚¢‚½‚¾‚¯‚ê‚ÎK‚¢‚Å‚·B
+æ¯æ ¡ã€æ˜Žæ²»å¤§å­¦ã«å¯„è´ˆã„ãŸã—ã¾ã™ã€‚ã”ç¬‘ç´ã„ãŸã ã‘ã‚Œã°å¹¸ã„ã§ã™ã€‚
 

@@ -1,4 +1,4 @@
-;;ƒxƒNƒ^ƒeƒXƒg
+;;ãƒ™ã‚¯ã‚¿ãƒ†ã‚¹ãƒˆ
 (import (mesh test))
 
 (test* "(vector 1 2 3)" #(1 2 3) (vector 1 2 3))

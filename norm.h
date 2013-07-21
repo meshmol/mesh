@@ -33,7 +33,7 @@
 #define SMALL_INT_MIN		-1000000000
 		
 
-//ƒ|ƒCƒ“ƒ^
+//ãƒã‚¤ãƒ³ã‚¿
 int cell_heap_p;
 int cell_free;
 int cell_hash_table[HASHTBSIZE][MODULESIZE];
@@ -82,43 +82,43 @@ typedef enum flag 	{FRE,USE} flag;
 
 
 /*
-BIGBANG	‹•–³ ‹óƒŠƒXƒg‚ð•\‚·Bí‚É0”Ô’n‚É—Bˆê‘¶Ý‚·‚éB
-EMP		‹óƒZƒ‹
-INTN	®”
-FLTN	•‚“®¬”“_”
-COMP	•¡‘f”
-BIG		‘½”{’·®”
-RAT		•ª”
-SYM		ƒVƒ“ƒ{ƒ‹
-LIS		ƒŠƒXƒg
-VEC		ƒxƒNƒ^[
-ELT		ƒxƒNƒ^[‚Ì—v‘f
-BOL		^‹U’l
-STR		•¶Žš—ñ
-CHR		•¶Žš
-SUBR	‘gžŠÖ”
-SYNT	“ÁŽêŒ`Ž®
-CLOS	ƒNƒ[ƒWƒƒ[
-SCONT	ƒXƒ^ƒbƒNã‚ÌŒp‘±
-HCONT   ƒq[ƒvã‚ÌŒp‘±
-MAC		ƒ}ƒNƒ
+BIGBANG	è™šç„¡ ç©ºãƒªã‚¹ãƒˆã‚’è¡¨ã™ã€‚å¸¸ã«0ç•ªåœ°ã«å”¯ä¸€å­˜åœ¨ã™ã‚‹ã€‚
+EMP		ç©ºã‚»ãƒ«
+INTN	æ•´æ•°
+FLTN	æµ®å‹•å°æ•°ç‚¹æ•°
+COMP	è¤‡ç´ æ•°
+BIG		å¤šå€é•·æ•´æ•°
+RAT		åˆ†æ•°
+SYM		ã‚·ãƒ³ãƒœãƒ«
+LIS		ãƒªã‚¹ãƒˆ
+VEC		ãƒ™ã‚¯ã‚¿ãƒ¼
+ELT		ãƒ™ã‚¯ã‚¿ãƒ¼ã®è¦ç´ 
+BOL		çœŸå½å€¤
+STR		æ–‡å­—åˆ—
+CHR		æ–‡å­—
+SUBR	çµ„è¾¼é–¢æ•°
+SYNT	ç‰¹æ®Šå½¢å¼
+CLOS	ã‚¯ãƒ­ãƒ¼ã‚¸ãƒ£ãƒ¼
+SCONT	ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã®ç¶™ç¶š
+HCONT   ãƒ’ãƒ¼ãƒ—ä¸Šã®ç¶™ç¶š
+MAC		ãƒžã‚¯ãƒ­
 HYG		hygienic-macro
-MUL		‘½’l
-PRT		ƒ|[ƒg
+MUL		å¤šå€¤
+PRT		ãƒãƒ¼ãƒˆ
 EOFO	end_of_file obj
-VEC		ƒxƒNƒ^
-IDNT	Ž¯•ÊŽqidentifier
+VEC		ãƒ™ã‚¯ã‚¿
+IDNT	è­˜åˆ¥å­identifier
 SYNCLO	syntactic-closure
-ENV		”z—ñŒ^‚Ì‹ÇŠŠÂ‹«
-CODE    ”z—ñŒ^‚Ì–½—ß—ñ
-STACK   ”z—ñŒ^‚ÌƒXƒ^ƒbƒN
-MEM		Œp‘±—p‚Ìƒƒ‚ƒŠ•Û‘¶ƒf[ƒ^
-REF		Prolog•Ï”
-EMPSET  ‹óW‡
-INF		–³ŒÀ
+ENV		é…åˆ—åž‹ã®å±€æ‰€ç’°å¢ƒ
+CODE    é…åˆ—åž‹ã®å‘½ä»¤åˆ—
+STACK   é…åˆ—åž‹ã®ã‚¹ã‚¿ãƒƒã‚¯
+MEM		ç¶™ç¶šç”¨ã®ãƒ¡ãƒ¢ãƒªä¿å­˜ãƒ‡ãƒ¼ã‚¿
+REF		Prologå¤‰æ•°
+EMPSET  ç©ºé›†åˆ
+INF		ç„¡é™
 NANN	not a number for Normal
 U8VEC	byte vector
-REC     recordŒ^
+REC     recordåž‹
 */
 
 
@@ -146,7 +146,7 @@ struct cell {
 };
 typedef struct cell cell;
 
-//ƒvƒƒtƒ@ƒCƒ‹‚Ìƒf[ƒ^’~Ï—p
+//ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‡ãƒ¼ã‚¿è“„ç©ç”¨
 struct prof{
 	char 	*name;
     int 	count;
@@ -154,7 +154,7 @@ struct prof{
 };
 typedef struct prof prof;
 
-//Prolog—plocal_stack
+//Prologç”¨local_stack
 struct locstk{
 	int elt1;
     int elt2;
@@ -190,7 +190,7 @@ struct septoken {
 typedef struct token token;
 typedef struct septoken septoken;
 
-//ƒGƒ‰[ƒR[ƒh
+//ã‚¨ãƒ©ãƒ¼ã‚³ãƒ¼ãƒ‰
 #define UNBOUND_VARIABLE	1
 #define CANT_READ			2
 #define ILLEGAL_ARGUMENT	3

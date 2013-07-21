@@ -1,5 +1,5 @@
-;;syntax-rules ƒeƒXƒgƒR[ƒh
-;;;‡“¡‚³‚ñ‚ÌuScheme“ü–å15\•¶‚Ì’è‹`iƒ}ƒNƒjv‚æ‚è
+;;syntax-rules ãƒ†ã‚¹ãƒˆã‚³ãƒ¼ãƒ‰
+;;;ç´«è—¤ã•ã‚“ã®ã€ŒSchemeå…¥é–€15æ§‹æ–‡ã®å®šç¾©ï¼ˆãƒã‚¯ãƒ­ï¼‰ã€ã‚ˆã‚Š
 
 (import (mesh test))
 
@@ -92,7 +92,7 @@
        (my-let* ((p2 v2) ...)
 		b ...)))))
 
-;;ˆÈ‰ºWilikiAShiro‚³‚ñ‚ª¦‚µ‚Ä‚¢‚½ƒR[ƒhB
+;;ä»¥ä¸‹Wilikiã€Shiroã•ã‚“ãŒç¤ºã—ã¦ã„ãŸã‚³ãƒ¼ãƒ‰ã€‚
 
 (define-syntax arithmetic-if 
   (syntax-rules ()

@@ -1,4 +1,4 @@
-;;‘½’l‚ÌƒeƒXƒg;; M.Hiroi ‚³‚ñ‚ÌHP‚É‚ ‚é—á‘è‚ğg‚í‚¹‚Ä‚¢‚½‚¾‚«‚Ü‚µ‚½B
+;;å¤šå€¤ã®ãƒ†ã‚¹ãƒˆ;; M.Hiroi ã•ã‚“ã®HPã«ã‚ã‚‹ä¾‹é¡Œã‚’ä½¿ã‚ã›ã¦ã„ãŸã ãã¾ã—ãŸã€‚
 (import (mesh test))
 
 (define (partition pred ls)
@@ -12,7 +12,7 @@
               (values (cons (car ls) a) b)   
               (values a (cons (car ls) b)))))))
 
-;;Kent–{
+;;Kentæœ¬
 (define split
   (lambda (ls)
     (if (or (null? ls) (null? (cdr ls)))

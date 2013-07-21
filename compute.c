@@ -175,7 +175,7 @@ int negative_zerop(int x){
     	
 }
 
-//”äŠr
+//æ¯”è¼ƒ
 int zerop(int x){
 	int arg;
     
@@ -192,21 +192,21 @@ int zerop(int x){
 
 int numeqp(int x, int y){
 	int arg1,arg2;
-    //®”Œ^‚Å‚ ‚Á‚ÄƒAƒhƒŒƒX‚ª“¯‚¶‚È‚ç‚Î“™‚µ‚¢B
+    //æ•´æ•°å‹ã§ã‚ã£ã¦ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒåŒã˜ãªã‚‰ã°ç­‰ã—ã„ã€‚
     if(IS_INTEGER(x) && IS_INTEGER(y)){
      	if(x == y)
     		return(1);
         else
         	return(0);
     }
-	//bignum‚Å‚ ‚Á‚Ä‘S•”‚ÌƒZƒ‹‚ª“¯‚¶”‚È‚ç‚Î“™‚µ‚¢B
+	//bignumã§ã‚ã£ã¦å…¨éƒ¨ã®ã‚»ãƒ«ãŒåŒã˜æ•°ãªã‚‰ã°ç­‰ã—ã„ã€‚
     if(bignump(x) && bignump(y)){
     	if(big_eqp(x,y))
         	return(1);
         else
         	return(0);
     }
-	//•¡‘f”“¯s‚Ìê‡‚É‚ÍÀ•”A‹••”‚ª“™‚µ‚¢‚È‚ç‚Î“™‚µ‚¢B
+	//è¤‡ç´ æ•°åŒå¸‚ã®å ´åˆã«ã¯å®Ÿéƒ¨ã€è™šéƒ¨ãŒç­‰ã—ã„ãªã‚‰ã°ç­‰ã—ã„ã€‚
     if(complexp(x) && complexp(y)){
     	if(GET_REAL_FLT(x) == GET_REAL_FLT(y) &&
            GET_IMAG_FLT(x) == GET_IMAG_FLT(y))
@@ -214,16 +214,16 @@ int numeqp(int x, int y){
         else
         	return(0);
     }
-    //inf.nan‚Ìê‡‚É‚ÍƒZƒ‹ƒAƒhƒŒƒX‚ª“¯‚¶‚È‚ç‚Î“™‚µ‚¢B
+    //inf.nanã®å ´åˆã«ã¯ã‚»ãƒ«ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒåŒã˜ãªã‚‰ã°ç­‰ã—ã„ã€‚
     if((infinityp(x) || nanp(x)) && (infinityp(y) || nanp(y))){
     	if(x == y)
         	return(1);
-		else if(car(x) == car(y) && cdr(x) == cdr(y)) //•¡‘f”‚Ìê‡
+		else if(car(x) == car(y) && cdr(x) == cdr(y)) //è¤‡ç´ æ•°ã®å ´åˆ
         	return(1);
         else
         	return(0);
     }
-    //‚»‚¤‚Å‚È‚¯‚ê‚Î•¡‘f”‚É•ÏŠ·‚µ‚ÄÀ•”A‹••”‚Æ‚à‚É“™‚µ‚¢‚È‚ç‚Î“™‚µ‚¢B	
+    //ãã†ã§ãªã‘ã‚Œã°è¤‡ç´ æ•°ã«å¤‰æ›ã—ã¦å®Ÿéƒ¨ã€è™šéƒ¨ã¨ã‚‚ã«ç­‰ã—ã„ãªã‚‰ã°ç­‰ã—ã„ã€‚	
     arg1 = realtocomp(x);
     arg2 = realtocomp(y);
     if((GET_REAL_FLT(arg1) == GET_REAL_FLT(arg2)) &&
@@ -234,11 +234,11 @@ int numeqp(int x, int y){
 }
 
 int eqp(int x1, int x2){
-	//”Ô’n‚ª“¯‚¶‚È‚ç“™‚µ‚¢
+	//ç•ªåœ°ãŒåŒã˜ãªã‚‰ç­‰ã—ã„
     if(x1 == x2)
     	return(1);
     if(!integerp(x1) && !integerp(x2)){
-	//”’l‚Å‚ ‚Á‚Ä‚È‚ç‚Î“™‚µ‚¢
+	//æ•°å€¤ã§ã‚ã£ã¦ï¼ãªã‚‰ã°ç­‰ã—ã„
     	if(numberp(x1) && numberp(x2) && IS_SAME_TYPE(x1,x2) && (numeqp(x1,x2)))
         	return(1);
     	else
@@ -250,19 +250,19 @@ int eqp(int x1, int x2){
 
 
 int eqvp(int x1, int x2){
-	//”Ô’n‚ª“¯‚¶‚È‚ç“™‚µ‚¢B
+	//ç•ªåœ°ãŒåŒã˜ãªã‚‰ç­‰ã—ã„ã€‚
     if(x1 == x2)
     	return(1);
-	//ˆóš–¼‚ª“¯‚¶•¶š—ñ‚È‚ç“™‚µ‚¢
+	//å°å­—åãŒåŒã˜æ–‡å­—åˆ—ãªã‚‰ç­‰ã—ã„
     if(stringp(x1) && stringp(x2) && (SAME_NAME(x1,x2)))
 		return(1);
-    //ˆóš–¼‚ª“¯‚¶•¶š‚È‚ç“™‚µ‚¢B
+    //å°å­—åãŒåŒã˜æ–‡å­—ãªã‚‰ç­‰ã—ã„ã€‚
     if(charp(x1) && charp(x2) && (SAME_NAME(x1,x2)))
     	return(1);
-    //”’l‚Å‚ ‚Á‚Ä‚È‚ç‚Î“™‚µ‚¢
+    //æ•°å€¤ã§ã‚ã£ã¦ï¼ãªã‚‰ã°ç­‰ã—ã„
     if(numberp(x1) && numberp(x2) && IS_SAME_TYPE(x1,x2) && (numeqp(x1,x2)))
         return(1);
-    //ƒVƒ“ƒ{ƒ‹‚ ‚é‚¢‚Í¯•Êq‚Å‚ ‚Á‚Äˆóš–¼‚ª“¯‚¶‚È‚ç“™‚µ‚¢BiƒRƒ“ƒpƒCƒ‰‚Ì“s‡j
+    //ã‚·ãƒ³ãƒœãƒ«ã‚ã‚‹ã„ã¯è­˜åˆ¥å­ã§ã‚ã£ã¦å°å­—åãŒåŒã˜ãªã‚‰ç­‰ã—ã„ã€‚ï¼ˆã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ã®éƒ½åˆï¼‰
     if((symbolp(x1) || IS_IDENTIFIER(x1)) && (symbolp(x2) || IS_IDENTIFIER(x2)) 
     	&& (SAME_NAME(x1,x2)))
         return(1);
@@ -349,7 +349,7 @@ int eqgreaterp(int x1, int x2){
 }
 
 //-------------------------------------------------
-//”’lŒ^•ÏŠ·
+//æ•°å€¤å‹å¤‰æ›
 double bignumtofloat(int x){
 	double val;
     int i,sgn,rev;
@@ -506,7 +506,7 @@ int inverse(int x){
 
 
 //-----------------------------------
-//l‘¥‰‰Z
+//å››å‰‡æ¼”ç®—
 
 int plus(int arg1, int arg2){
 	int n,m,s,t,u,tag1,tag2,i;
@@ -1216,7 +1216,7 @@ int quotient(int x, int y){
     return(undef);
 }
 
-//®”‚ÌÅ‘åŒö–ñ”
+//æ•´æ•°ã®æœ€å¤§å…¬ç´„æ•°
 int int_gcd(int x, int y){
 	int r;
 	
@@ -1231,7 +1231,7 @@ int int_gcd(int x, int y){
 	return(x);
 }
 
-//bignum‚ğŠÜ‚Ş®”‚ÌÅ‘åŒö–ñ”
+//bignumã‚’å«ã‚€æ•´æ•°ã®æœ€å¤§å…¬ç´„æ•°
 int gcd(int x, int y){
 	int r;
     
@@ -1256,18 +1256,18 @@ int gcd(int x, int y){
     return(s_abs(x));
 }
 
-//®”‚Ìê‡‚ÌÅ‘åŒö–ñ”
+//æ•´æ•°ã®å ´åˆã®æœ€å¤§å…¬ç´„æ•°
 int int_lcm(int m, int n){
 	if (m == 0 || n == 0)
 		return(0);
         
 	return ((m / int_gcd(m, n)) * n);
 }
-//bignum‚ğŠÜ‚Ş®”‚ÌÅ‘åŒö–ñ”
+//bignumã‚’å«ã‚€æ•´æ•°ã®æœ€å¤§å…¬ç´„æ•°
 int lcm(int x, int y){
 	int g,d,res;
 	if(integerp(x) && integerp(y) &&
-    	abs(get_int(x)) < 10000 && abs(get_int(y)) < 10000)// ‚È‚º‚È‚çx,y < sqrt(BIGNUM_BASE)
+    	abs(get_int(x)) < 10000 && abs(get_int(y)) < 10000)// ãªãœãªã‚‰x,y < sqrt(BIGNUM_BASE)
     	return(make_int(abs(int_lcm(get_int(x),get_int(y)))));
     
     if(floatp(x) && integerp(y))
@@ -1307,7 +1307,7 @@ int s_abs(int x){
 }
 
 
-//---------bignumŒ^‚Ì‰‰Z----------------
+//---------bignumå‹ã®æ¼”ç®—----------------
 int big_plus(int arg1, int arg2){
 	int res;
     if(big_positivep(arg1) && big_negativep(arg2))
@@ -1324,7 +1324,7 @@ int big_plus(int arg1, int arg2){
 
 
 
-//ğŒ arg1>0 arg2>0
+//æ¡ä»¶ arg1>0 arg2>0
 int big_plus1(int arg1, int arg2){
 	int x,y,z,c,q,res;
     
@@ -1363,7 +1363,7 @@ int big_plus1(int arg1, int arg2){
 }
 
 
-//•„†”½“]
+//ç¬¦å·åè»¢
 int big_rev(int arg){
 	int res;
     
@@ -1411,7 +1411,7 @@ int big_minus(int arg1, int arg2){
         	return(res); 
 }
 
-// ğŒ@arg1>0 arg2>0 arg1>arg2
+// æ¡ä»¶ã€€arg1>0 arg2>0 arg1>arg2
 int big_minus1(int arg1, int arg2){
 	int x,y,z,c,res;
     
@@ -1453,9 +1453,9 @@ int big_minus1(int arg1, int arg2){
     }
 }
 
-//bignum‚Æbignum‚Æ‚ÌæZ
+//bignumã¨bignumã¨ã®ä¹—ç®—
 int big_mult(int arg1, int arg2){
-	//”íæ”‚Ì•û‚ª‘å‚«‚¢•û‚ªƒƒ‚ƒŠŒø—¦‚ª‚¢‚¢‚½‚ßB
+	//è¢«ä¹—æ•°ã®æ–¹ãŒå¤§ãã„æ–¹ãŒãƒ¡ãƒ¢ãƒªåŠ¹ç‡ãŒã„ã„ãŸã‚ã€‚
 	if(big_greaterp(arg1,arg2))
     	return(big_mult1(arg1,arg2));
     else
@@ -1495,7 +1495,7 @@ int	big_mult1(int arg1, int arg2){
     return(res);
 }
 
-//bignum(arg1)‚Æint(arg2)‚Æ‚ÌæZ
+//bignum(arg1)ã¨int(arg2)ã¨ã®ä¹—ç®—
 int big_int_mult(int arg1, int arg2){
 	int res;
     long long int l,l1,l2,c,r;
@@ -1520,7 +1520,7 @@ int big_int_mult(int arg1, int arg2){
 }
 
 
-//ƒNƒk[ƒX@‘æ4Šª@88ƒy[ƒWQÆ
+//ã‚¯ãƒŒãƒ¼ã‚¹ã€€ç¬¬4å·»ã€€88ãƒšãƒ¼ã‚¸å‚ç…§
 int	big_quotient(int arg1, int arg2){
 	int result;
     
@@ -1539,23 +1539,23 @@ int	big_quotient(int arg1, int arg2){
     return(undef);
 }
 
-//”íœ”bignum‚Æœ”bignum‚Ìê‡‚Ì¤
+//è¢«é™¤æ•°bignumã¨é™¤æ•°bignumã®å ´åˆã®å•†
 int	big_quotient1(int arg1, int arg2){
-	int s,ds,p,res; //s=siftŒ…‡‚í‚¹, dsœ”,p=plus‘«‚µ–ß‚µ
+	int s,ds,p,res; //s=siftæ¡åˆã‚ã›, dsé™¤æ•°,p=plusè¶³ã—æˆ»ã—
     long long int d,u,v,q;
     
-    //”íœ”‚ªœ”‚æ‚è¬‚³‚¯‚ê‚Î‚O‚Æ‚·‚éB
+    //è¢«é™¤æ•°ãŒé™¤æ•°ã‚ˆã‚Šå°ã•ã‘ã‚Œã°ï¼ã¨ã™ã‚‹ã€‚
     if(smallerp(arg1,arg2))
     	return(make_int(0));
     
-    //”íœ”‚ªœ”‚Ì2”{‚æ‚è¬‚³‚¯‚ê‚Î‚P‚Æ‚·‚éB
-    //¤‚ª1‚É‚È‚éê‡‚É‚Í’è—‚Í¬‚è—§‚½‚È‚¢‚Í‚¸B
+    //è¢«é™¤æ•°ãŒé™¤æ•°ã®2å€ã‚ˆã‚Šå°ã•ã‘ã‚Œã°ï¼‘ã¨ã™ã‚‹ã€‚
+    //å•†ãŒ1ã«ãªã‚‹å ´åˆã«ã¯å®šç†ã¯æˆã‚Šç«‹ãŸãªã„ã¯ãšã€‚
     s = mult(arg2,make_int(2));
     if(smallerp(arg1,s))
     	return(make_int(1));
     
     res = NIL;
-    //œ”‚ª¬‚³‚¯‚ê‚Î’è—‚ª¬‚è—§‚Â‚æ‚¤‚É‘å‚«‚­‚·‚éB
+    //é™¤æ•°ãŒå°ã•ã‘ã‚Œã°å®šç†ãŒæˆã‚Šç«‹ã¤ã‚ˆã†ã«å¤§ããã™ã‚‹ã€‚
     v = (long long int)get_int(last(arg2));
     if(v < (BIGNUM_BASE / 2)){
         	d = BIGNUM_BASE / (v + 1);
@@ -1602,7 +1602,7 @@ int	big_quotient1(int arg1, int arg2){
     	return(res);
 }
 
-//”íœ”bignum‚Æœ”int‚Ìê‡‚Ì¤
+//è¢«é™¤æ•°bignumã¨é™¤æ•°intã®å ´åˆã®å•†
 int big_int_quotient(int arg1, int arg2){
 	int res;
     long long int u,v,q,r;
@@ -1636,7 +1636,7 @@ int big_int_quotient(int arg1, int arg2){
     return(res);	
 }
 
-//ãˆÊŒ…‚Ì‚O‚ğƒJƒbƒg‚·‚éB
+//ä¸Šä½æ¡ã®ï¼ã‚’ã‚«ãƒƒãƒˆã™ã‚‹ã€‚
 int norm_bignum(int arg){
 	int car_addr,lis,res;
     
@@ -1668,7 +1668,7 @@ int bignumtoint(int x){
     return(make_int(get_int(car(x))));	
 }
 
-//”äŠr
+//æ¯”è¼ƒ
 int big_eqp(int arg1, int arg2){
 	int l1,l2;
     
@@ -1764,7 +1764,7 @@ int big_smallerp(int arg1, int arg2){
 
 
 
-//intŒ^‚É•ÏŠ·‰Â”\‚©
+//intå‹ã«å¤‰æ›å¯èƒ½ã‹
 int big_integerizep(int x){
     int y;
     
@@ -1778,7 +1778,7 @@ int big_integerizep(int x){
     return(1);	
 }
 
-//ƒvƒ‰ƒX‚©
+//ãƒ—ãƒ©ã‚¹ã‹
 int big_positivep(int x){
 
     while(!nullp(cdr(x)))
@@ -1789,7 +1789,7 @@ int big_positivep(int x){
     else
     	return(0);
 }
-//ƒ}ƒCƒiƒX‚©
+//ãƒã‚¤ãƒŠã‚¹ã‹
 int big_negativep(int x){
 	
     while(!nullp(cdr(x)))
@@ -1810,7 +1810,7 @@ int	big_abs(int x){
 
 
 
-//‚ŒÂ•ª‚O‚ÌƒZƒ‹‚ğ•t‰ÁBƒrƒbƒgƒVƒtƒg‚Ì‚æ‚¤‚ÈŠ´‚¶B
+//ï½å€‹åˆ†ï¼ã®ã‚»ãƒ«ã‚’ä»˜åŠ ã€‚ãƒ“ãƒƒãƒˆã‚·ãƒ•ãƒˆã®ã‚ˆã†ãªæ„Ÿã˜ã€‚
 int	big_sift(int x, int n){
 	int res;
     
@@ -1826,7 +1826,7 @@ int	big_sift(int x, int n){
     return(res);
 }
 
-//bignum‚Æint‚Æ‚Ìè—]‚ğŒvZ‚·‚éB
+//bignumã¨intã¨ã®å‰°ä½™ã‚’è¨ˆç®—ã™ã‚‹ã€‚
 int	big_int_remainder(int x, int y){
 	int big,sign1,sign2;
     long long int i,j,r;

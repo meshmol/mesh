@@ -1,4 +1,4 @@
-;;‡“¡‚³‚ñ‚ÌƒR[ƒh
+;;ç´«è—¤ã•ã‚“ã®ã‚³ãƒ¼ãƒ‰
 ;;; This function is re-assigned in `choose' and `fail' itself.
 (define fail #f)
 

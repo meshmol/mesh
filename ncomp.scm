@@ -1,10 +1,10 @@
-;;––”öÄ‹AÅ“K‰»ƒRƒ“ƒpƒCƒ‰
-;;has-lambda? “ü‚êq‚Ìlambda®‚ğ‚à‚Â‚©‚Ç‚¤‚©B
-;;in-lambda?@lambda®‚Ì’†‚Ì®‚©‚Ç‚¤‚©H
-;;tail?@––”öÄ‹AÅ“K‰»‚ğ‚·‚é‚×‚«‚©‚Ç‚¤‚©H
-;;define-macro‚Ì‚Æ‚«‚É‚Í#f‚É‚·‚éB
+;;æœ«å°¾å†å¸°æœ€é©åŒ–ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©
+;;has-lambda? å…¥ã‚Œå­ã®lambdaå¼ã‚’ã‚‚ã¤ã‹ã©ã†ã‹ã€‚
+;;in-lambda?ã€€lambdaå¼ã®ä¸­ã®å¼ã‹ã©ã†ã‹ï¼Ÿ
+;;tail?ã€€æœ«å°¾å†å¸°æœ€é©åŒ–ã‚’ã™ã‚‹ã¹ãã‹ã©ã†ã‹ï¼Ÿ
+;;define-macroã®ã¨ãã«ã¯#fã«ã™ã‚‹ã€‚
 ;;--------------------------------- 
-(define hygienic '()) ;‹ÇŠƒ}ƒNƒ
+(define hygienic '()) ;å±€æ‰€ãƒã‚¯ãƒ­
 
 
 (define (compile x)
@@ -143,7 +143,7 @@
         ((eqv? (car x) 'let*)   (cons (car x) (cons (cadr x) (map inner-transfer1 (inner-transfer2 (cddr x))))))
         (else (cons (car x)(map inner-transfer1 (cdr x))))))
 
-;;’è‹`•”‚Æ–{‘Ì‚ğ•ª—£‚µ‚Äletrec/letrec-syntax‚É•ÏŠ·‚·‚éB
+;;å®šç¾©éƒ¨ã¨æœ¬ä½“ã‚’åˆ†é›¢ã—ã¦letrec/letrec-syntaxã«å¤‰æ›ã™ã‚‹ã€‚
 (define (inner-transfer2 x)
   (let* ((e (separate x))
          (def (car e))
@@ -158,7 +158,7 @@
             (list (cons 'letrec (cons (reverse def)
                                       (list (cons 'letrec-syntax (cons (reverse defsyn) body))))))))))
 
-;;’è‹`•”‚Æ–{‘Ì‚É•ª—£B
+;;å®šç¾©éƒ¨ã¨æœ¬ä½“ã«åˆ†é›¢ã€‚
 (define (separate x) 
   (separate1 x '() '()))
 
@@ -174,7 +174,7 @@
                     (cons (list (cadr (car x)) (caddr (car x))) defsyn)))
         (else (list def defsyn x))))
 
-;;’è‹`•¶‚©H
+;;å®šç¾©æ–‡ã‹ï¼Ÿ
 (define (define? x) 
   (and (list? x) (eqv? (car x) 'define)))
 
@@ -184,7 +184,7 @@
 (define (define-syntax? x)
   (and (list? x) (eqv? (car x) 'define-syntax)))
 
-;;mitƒXƒ^ƒCƒ‹‚È‚çlambda‚Ö•ÏŠ·B
+;;mitã‚¹ã‚¿ã‚¤ãƒ«ãªã‚‰lambdaã¸å¤‰æ›ã€‚
 (define (formal-define x)  
   (if (symbol? (cadr x))
       x   
@@ -256,7 +256,7 @@
             (args-count-check (cons f args) (prim-min prim) (prim-max prim))
             (cond ((and (not val?) (not (prim-side-effect? prim)))
                    (comp-begin args env #f more? has-lambda? in-lambda? tail? if?))
-                  ((and (memv f '(= < <= > >=))(= (length args) 2));;2€”äŠr‰‰Zq
+                  ((and (memv f '(= < <= > >=))(= (length args) 2));;2é …æ¯”è¼ƒæ¼”ç®—å­
                    (seq (comp-list args env has-lambda? in-lambda? tail? if?)
                         (gen (cadr (assv f binomial-op)))
                         (if (not val?) (gen 'pop) '())
@@ -340,7 +340,7 @@
   (and (not (in-env? x env))
        (assoc x *primitive*)))
 
-;;macro‚Å‚Ítail?=#f‚É‚µ‚Ä––”öÄ‹AÅ“K‰»‚Í‚µ‚È‚¢B
+;;macroã§ã¯tail?=#fã«ã—ã¦æœ«å°¾å†å¸°æœ€é©åŒ–ã¯ã—ãªã„ã€‚
 (define (comp-lambda args body env tail? if?)
   (if tail?
       (seq (gen 'args (args-count args))
@@ -391,8 +391,8 @@
 (define (gen opcode . args)
   (list (cons opcode args)))
 
-;;ƒ}ƒNƒ’è‹`ŠÂ‹«‚Ísyntactic-closure‚É•Û‘¶‚³‚ê‚Ä‚¢‚éB
-;;“WŠJ‚É‚Í“WŠJŠÂ‹«‚Æ‚Ì·•ª‚ğ’²®‚µ‚ÄˆÊ’u‚ğŒvZ‚µ‚Ä‚¢‚éB
+;;ãƒã‚¯ãƒ­å®šç¾©æ™‚ç’°å¢ƒã¯syntactic-closureã«ä¿å­˜ã•ã‚Œã¦ã„ã‚‹ã€‚
+;;å±•é–‹æ™‚ã«ã¯å±•é–‹æ™‚ç’°å¢ƒã¨ã®å·®åˆ†ã‚’èª¿æ•´ã—ã¦ä½ç½®ã‚’è¨ˆç®—ã—ã¦ã„ã‚‹ã€‚
 (define (gen-var var env)
   (let ((p (in-env? var env)))
     (cond (p (gen 'lvar (car p) (cadr p)))
@@ -454,7 +454,7 @@
                   (inner-lambda? (cdr x))))))
 
 
-;;ƒAƒZƒ“ƒuƒ‰
+;;ã‚¢ã‚»ãƒ³ãƒ–ãƒ©
 
 (define (assemble ls)
   (pass2 ls (pass1 ls))) 
@@ -831,7 +831,7 @@
     (getprop 1 1 #t #f)
     ))
 
-;;ƒRƒ“ƒpƒCƒ‹
+;;ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«
 (define (compile-file x)
   (let* ((inf (string-append x ".scm"))
          (outf (string-append x ".o"))
@@ -851,16 +851,16 @@
 
 
 
-;;Œp‘±
+;;ç¶™ç¶š
 (define ncall/cc 
   (lambda/asm 1 '((args 1) (catch) (lvar 0 0) (call 1) (return))))
 
-;;‘½’l
+;;å¤šå€¤
 (define call-with-values
   (lambda/asm 2 '((args 2) (lvar 0 0) (call 0) (adapt) (lvar 0 1) (call 0) (return))))
 
 ;;dynamic-wind 
-;;Kent dybvig p93 QÆ
+;;Kent dybvig p93 å‚ç…§
 (define winders '())
 
 (define (dynamic-wind before body after)
@@ -1008,7 +1008,7 @@
                     (r2 (subst-from-identifier1 (cdr p) n)))
                 (cond ((or (fail? r1) (fail? r2)) #f)
                       ((and (car p)(not (identifier-variable? (car p)))(not r1)) #f) ;;for improper list 
-                      ((and (cdr p)(not (identifier-variable? (cdr p)))(not r2)) #f) ;;atom‚Ì#f‚Å‚Í‚È‚¢‚à‚Ì‚ğsubst‚µ‚Ä#f‚ª•Ô‚é‚È‚ç‚Î‚»‚ê‚Í’â~ğŒB
+                      ((and (cdr p)(not (identifier-variable? (cdr p)))(not r2)) #f) ;;atomã®#fã§ã¯ãªã„ã‚‚ã®ã‚’substã—ã¦#fãŒè¿”ã‚‹ãªã‚‰ã°ãã‚Œã¯åœæ­¢æ¡ä»¶ã€‚
                       (else (cons r1 r2)))))))
 
 
@@ -1049,7 +1049,7 @@
         (else #f)))
         
         
-;;—á((1 2)(3 4)(5 6)) -> ((1 3 5)(2 4 6)) 
+;;ä¾‹((1 2)(3 4)(5 6)) -> ((1 3 5)(2 4 6)) 
 (define (transpose ls) 
   (define (iter m n) 
     (if (= m n) 
@@ -1058,21 +1058,21 @@
               (iter (+ m 1) n)))) 
   (iter 0 (length (car ls)))) 
 
-;;È—ªq
+;;çœç•¥å­
 (define (ellipsis? x)
   (and (list? x)
        (>= (length x) 2)
        (or (identifier? (car x)) (symbol? (car x)))
        (eqv? (cadr x) '...)))
 
-;;•¡‡È—ªq
+;;è¤‡åˆçœç•¥å­
 (define (sub-pattern? x)
   (and (list? x)
        (>= (length x) 2)
        (pair? (car x))
        (eqv? (cadr x) '...)))
 
-;;ƒxƒNƒ^È—ªq
+;;ãƒ™ã‚¯ã‚¿çœç•¥å­
 (define (vec-ellipsis? x)
   (and (vector? x)
        (eqv? (vector-ref x (- (vector-length x) 1)) '...)))
@@ -1233,9 +1233,9 @@
 
 ;;Normal macros
 ;;Scheme macros written by M.hiroi modified for Normal by k.sasagawa
-;;cond‚È‚Ç‚Ì§Œä\‘¢‚Íƒ}ƒNƒ‚Å—^‚¦‚ç‚ê‚éB
-;;M.Hiroi‚³‚ñ‚Ìmicro Scheme‚Ì‚à‚Ì‚ğg‚í‚¹‚Ä‚¢‚½‚¾‚¢‚Ä‚¢‚Ü‚·B
-;;Normal‚Ì‹N“®‚É“Ç‚İ‚Ü‚êƒRƒ“ƒpƒCƒ‹‚³‚ê‚éB
+;;condãªã©ã®åˆ¶å¾¡æ§‹é€ ã¯ãƒã‚¯ãƒ­ã§ä¸ãˆã‚‰ã‚Œã‚‹ã€‚
+;;M.Hiroiã•ã‚“ã®micro Schemeã®ã‚‚ã®ã‚’ä½¿ã‚ã›ã¦ã„ãŸã ã„ã¦ã„ã¾ã™ã€‚
+;;Normalã®èµ·å‹•æ™‚ã«èª­ã¿è¾¼ã¾ã‚Œã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã•ã‚Œã‚‹ã€‚
 
 (define map 
   (lambda (f ls . more)

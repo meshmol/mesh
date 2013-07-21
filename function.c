@@ -1,4 +1,4 @@
-﻿//Normal Scheme 
+//Normal Scheme 
 
 
 #include <stdio.h>

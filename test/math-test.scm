@@ -1,4 +1,4 @@
-;;”ŠwŠÖ”‚ÌƒeƒXƒg
+;;æ•°å­¦é–¢æ•°ã®ãƒ†ã‚¹ãƒˆ
 (import (mesh test)
         (scheme inexact)
         (scheme complex)

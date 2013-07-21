@@ -1,6 +1,6 @@
-;;����pLISP�C���^�[�v���^�@Ver0.3 for Meiji-Scheme
-;;�u�܂������͂��߂Ă̐l�̂��߂�Scheme�v�̌�҂ō����Pure Lisp��
-;;Mesh�œ����悤�Ɏ蒼���������̂ł��B
+;;教育用LISPインタープリタ　Ver0.3 for Meiji-Scheme
+;;「まったくはじめての人のためのScheme」の後編で作ったPure Lispを
+;;Meshで動くように手直ししたものです。
 
 (import (mesh system))
 

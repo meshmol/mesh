@@ -1,4 +1,4 @@
-;;r7rs ƒ‰ƒCƒuƒ‰ƒŠ“®ìŠm”F
+;;r7rs ãƒ©ã‚¤ãƒ–ãƒ©ãƒªå‹•ä½œç¢ºèª
 
 (define-library (test 1)
   (export a b c)

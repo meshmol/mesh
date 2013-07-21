@@ -727,7 +727,7 @@ from R7RS-Small draft9 p70
   (import (scheme base)
           (mesh system))
   (begin
-    ;;ƒtƒ@ƒCƒ‹
+    ;;ãƒ•ã‚¡ã‚¤ãƒ«
     (define (call-with-input-file filename proc)
       (let ((p (open-input-file filename)))
         (let ((v (proc p)))
@@ -756,7 +756,7 @@ from R7RS-Small draft9 p70
       (system (string-append "del " x)))
     ))
 
-;;ƒeƒXƒg—p‚Ìƒ}ƒNƒ
+;;ãƒ†ã‚¹ãƒˆç”¨ã®ãƒã‚¯ãƒ­
 (define-library (mesh test)
   (import (scheme base)
           (scheme write))
@@ -777,7 +777,7 @@ from R7RS-Small draft9 p70
                       (display result)
                       (newline))))))))
 
-;;ƒfƒoƒbƒO—p‚Ìƒ}ƒNƒ
+;;ãƒ‡ãƒãƒƒã‚°ç”¨ã®ãƒã‚¯ãƒ­
 (define-library (mesh debug)
   (import (mesh system)
           (scheme base))
@@ -792,8 +792,8 @@ from R7RS-Small draft9 p70
       (lambda fn
         `(sys-set-untrace ,@(map (lambda (x) (list 'quote x)) fn))))))
 
-;;Gauche‚Æ‚ÌŒİŠ·ƒ‰ƒCƒuƒ‰ƒŠ
-;;‚æ‚­g‚¤‚à‚Ì‚¾‚¯
+;;Gaucheã¨ã®äº’æ›ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
+;;ã‚ˆãä½¿ã†ã‚‚ã®ã ã‘
 (define-library (mesh gauche)
   (import (only (scheme base) for-each)
           (only (scheme write) display))

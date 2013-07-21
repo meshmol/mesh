@@ -1,4 +1,4 @@
-;;’x‰„•]‰¿‚ÌƒeƒXƒg
+;;é…å»¶è©•ä¾¡ã®ãƒ†ã‚¹ãƒˆ
 
 (import (scheme lazy))
 

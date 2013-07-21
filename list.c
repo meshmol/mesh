@@ -9,8 +9,8 @@ extern cell memory[];
 extern jmp_buf toplevel;
 
 
-//--------------ƒŠƒXƒg‘€ì---------------------
-//ƒGƒ‰[ˆ—‚È‚µB(cdr '()) = '() “à•”ˆ—‚Åg‚¤B
+//--------------ãƒªã‚¹ãƒˆæ“ä½œ---------------------
+//ã‚¨ãƒ©ãƒ¼å‡¦ç†ãªã—ã€‚(cdr '()) = '() å†…éƒ¨å‡¦ç†ã§ä½¿ã†ã€‚
 int car(int lis){
 	return(GET_CAR(lis));
 }
@@ -19,7 +19,7 @@ int cdr(int lis){
 	return(GET_CDR(lis));
 }
 
-//ƒGƒ‰[ˆ—‚ ‚èBSchemeƒŒƒxƒ‹‚Åg‚¤B
+//ã‚¨ãƒ©ãƒ¼å‡¦ç†ã‚ã‚Šã€‚Schemeãƒ¬ãƒ™ãƒ«ã§ä½¿ã†ã€‚
 int scm_car(int lis){
 	if(pairp(lis))
     	return(GET_CAR(lis));
@@ -304,7 +304,7 @@ int symbolp(int x){
     	return(0);
 }
 
-//nil‚ğ‹óƒŠƒXƒg‚Æ‰ğß‚µ‚Ä‚¢‚éB
+//nilã‚’ç©ºãƒªã‚¹ãƒˆã¨è§£é‡ˆã—ã¦ã„ã‚‹ã€‚
 int listp(int x){
 	if(0 <= x && x <= CELLSIZE){	
     	if(IS_LIST(x) && (!(improperp(x))))
@@ -531,7 +531,7 @@ int continuationp(int x){
     	return(0);
 }
 
-//ƒ}ƒNƒ‚Ì–¼‘O‚©‚Ç‚¤‚©H
+//ãƒã‚¯ãƒ­ã®åå‰ã‹ã©ã†ã‹ï¼Ÿ
 
 int macro_namep(int sym){
 	int addr;

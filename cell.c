@@ -56,7 +56,7 @@ void initcell(void){
     quasiquote = make_sym("quasiquote");
     unquote	= make_sym("unquote");
     unquote_splicing = make_sym("unquote-splicing");
-    empty_set = make_empty_set(); //‹óW‡@‘½’l‚Å—˜—p‚·‚éB
+    empty_set = make_empty_set(); //ç©ºé›†åˆã€€å¤šå€¤ã§åˆ©ç”¨ã™ã‚‹ã€‚
 }
 
 void initmodule(void){
@@ -317,7 +317,7 @@ int make_comp(double real, double imag){
     return(addr);
 }
 
-//inf,nan‚ª‚ ‚éê‡‚Ég—p‚·‚éB
+//inf,nanãŒã‚ã‚‹å ´åˆã«ä½¿ç”¨ã™ã‚‹ã€‚
 int make_comp1(int x, int y){
 	int addr;
     
@@ -624,7 +624,7 @@ int make_ident(char *name){
 }
 
 
-//“®“I‚Éms*n—ñ@s—ñ‚ğ¶¬‚·‚éB—v‘f‚Í‚O‚©‚çn‚Ü‚é‚±‚Æ‚É’ˆÓB
+//å‹•çš„ã«mè¡Œ*nåˆ—ã€€è¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹ã€‚è¦ç´ ã¯ï¼ã‹ã‚‰å§‹ã¾ã‚‹ã“ã¨ã«æ³¨æ„ã€‚
 int make_env(int m, int n){
 	int addr,x;
     
@@ -660,7 +660,7 @@ int make_code(int i){
 int make_stack(void){
 	int addr,i, *vec;
     
-    //ƒXƒ^ƒbƒN‚Ìã‚Q‚Â‚Íœ‚¢‚Ä•Û‘¶‚·‚éBŠÂ‹«‚Æ–ß‚èƒAƒhƒŒƒXB
+    //ã‚¹ã‚¿ãƒƒã‚¯ã®ä¸Šï¼’ã¤ã¯é™¤ã„ã¦ä¿å­˜ã™ã‚‹ã€‚ç’°å¢ƒã¨æˆ»ã‚Šã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
     addr = freshcell();
     SET_TAG(addr,STACK);
 	vec = (int *)malloc(sizeof(int)*(sp - 2));
@@ -679,9 +679,9 @@ int make_memory(void){
 	int addr,i,j,*vec,end;
     
     /*
-    Œp‘±—p‚ÌmemoryƒIƒuƒWƒFƒNƒg‚ÉŠ„‚è“–‚Ä‚ç‚ê‚½“®“I”z—ñ‚ª1ç–œ‚ğ’´‚¦‚½‚Æ‚«‚É
-    GC‚ğ‹N“®‚·‚éB(ctak 10 5 0)‚Å‚Í³í‚É“®‚­‚ª(ctak 12 6 0)‚Å‚Í“®ì‚µ‚È‚¢B
-    ‚¨‚»‚ç‚­malloc‚Ì“à•”“I‚È–â‘è‚Å‚Í‚È‚¢‚©‚Æv‚¤B
+    ç¶™ç¶šç”¨ã®memoryã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸå‹•çš„é…åˆ—ãŒ1åƒä¸‡ã‚’è¶…ãˆãŸã¨ãã«
+    GCã‚’èµ·å‹•ã™ã‚‹ã€‚(ctak 10 5 0)ã§ã¯æ­£å¸¸ã«å‹•ããŒ(ctak 12 6 0)ã§ã¯å‹•ä½œã—ãªã„ã€‚
+    ãŠãã‚‰ãmallocã®å†…éƒ¨çš„ãªå•é¡Œã§ã¯ãªã„ã‹ã¨æ€ã†ã€‚
     */
     if(cont_count > 10000000){
 		gbc();
@@ -786,7 +786,7 @@ void set_lvar(int i, int j, int val){
     }
 }
 
-//ƒVƒ“ƒ{ƒ‹‚ğƒJƒŒƒ“ƒgƒ‚ƒWƒ…[ƒ‹‚ÅƒŠƒƒCƒN‚µ‚Â‚ÂƒRƒs[‚·‚éB
+//ã‚·ãƒ³ãƒœãƒ«ã‚’ã‚«ãƒ¬ãƒ³ãƒˆãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ãƒªãƒ¡ã‚¤ã‚¯ã—ã¤ã¤ã‚³ãƒ”ãƒ¼ã™ã‚‹ã€‚
 int remake(int x){
 	
     if(nullp(x))

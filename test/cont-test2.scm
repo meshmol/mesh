@@ -1,5 +1,5 @@
 ;;continuation test
-;; Scheme ‚É‚æ‚é‹L†ˆ—“ü–å by ’–ŒÒrŒõA‰vè^¡@‹¤’˜
+;; Scheme ã«ã‚ˆã‚‹è¨˜å·å‡¦ç†å…¥é–€ by çŒªè‚¡ä¿Šå…‰ã€ç›Šå´çœŸæ²»ã€€å…±è‘—
 
 (import (mesh system))
 
@@ -28,7 +28,7 @@
                    (loop (read)))))
         (loop (read))))))
 
-;;ƒIƒŠƒWƒiƒ‹‚Ìc=exit ‚¾‚Æ“®ì•s—Ç
+;;ã‚ªãƒªã‚¸ãƒŠãƒ«ã®c=exit ã ã¨å‹•ä½œä¸è‰¯
 
 (define (node-expand n lst)
   (if (zero? n)

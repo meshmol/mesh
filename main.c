@@ -67,7 +67,7 @@ int lsp; //local stack pointer
 int tsp; //trail stack pointer
 
 
-//------vm2‹N“®‚Ìƒf[ƒ^•Û‘¶—p------
+//------vm2èµ·å‹•æ™‚ã®ãƒ‡ãƒ¼ã‚¿ä¿å­˜ç”¨------
 
 int s_pc; // program counter
 int s_sp; //stack pointer
@@ -99,9 +99,9 @@ int main( int argc, char *argv[] ){
     initsyntax();
     initmodule();
     init_r7rs();
-    SetConsoleCtrlHandler(NULL, FALSE ); //CTRL+C‚ğ—LŒø‚É‚·‚éB
+    SetConsoleCtrlHandler(NULL, FALSE ); //CTRL+Cã‚’æœ‰åŠ¹ã«ã™ã‚‹ã€‚
     SetConsoleCtrlHandler(CtrlHandler, TRUE );
-    //‰Šú‰»ƒtƒ@ƒCƒ‹‚Ìƒtƒ‹path‚ğ¶¬
+    //åˆæœŸåŒ–ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ãƒ«pathã‚’ç”Ÿæˆ
     memset(szPath,0,sizeof(szPath));
 	memset(szDrive,0,sizeof(szDrive));
 	memset(szDir,0,sizeof(szDir));
@@ -116,7 +116,7 @@ int main( int argc, char *argv[] ){
     _makepath(compfile,szDrive, szDir, "ncomp", "o");
     for(i=0; i<argc; i++){
     	p=argv[i];
-        	if(*p=='-'){  /* ƒIƒvƒVƒ‡ƒ“‚Ìˆø” */
+        	if(*p=='-'){  /* ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®å¼•æ•° */
         		p++;
                 switch(*p){
                 	case '2': /* -T(tail compiler2) */
@@ -127,7 +127,7 @@ int main( int argc, char *argv[] ){
                     	_makepath(initfile,szDrive, szDir, "initlib", "o");
                     	_makepath(compfile,szDrive, szDir, "ncomp", "o");
                     	break;
-                    case 'S': /*ƒZ[ƒtƒ‚[ƒh*/
+                    case 'S': /*ã‚»ãƒ¼ãƒ•ãƒ¢ãƒ¼ãƒ‰*/
                     	safeflag = 1;
                         break;
                 }
@@ -139,7 +139,7 @@ int main( int argc, char *argv[] ){
     int ret = setjmp(toplevel);
     fflush(stdin);
     
-    //----‰Šúƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş-----------
+    //----åˆæœŸãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€-----------
     if(initflag == 1 && safeflag == 0){
     	pc = 0;
         sp = 0;
@@ -148,7 +148,7 @@ int main( int argc, char *argv[] ){
         back_trace_end = 0;
         push_s(make_str(compfile));
         f_load(1);
-		//Å’áŒÀ•K—v‚Ècompile,assemble,compile-file‚ğ(normal user)‚Éexport‚·‚éB
+		//æœ€ä½é™å¿…è¦ãªcompile,assemble,compile-fileã‚’(normal user)ã«exportã™ã‚‹ã€‚
         export_id = list3(make_sym("compile"),make_sym("assemble"),make_sym("compile-file"));
         current_module = 0;
         while(!nullp(export_id)){
@@ -216,7 +216,7 @@ int eval(int x){
     savepc = pc;
     savesp = sp;
     
-	//(set! arg1 (asm (compile x)))‘Š“–‚ÌVM‹@ŠBŒê‚ğ¶¬B
+	//(set! arg1 (asm (compile x)))ç›¸å½“ã®VMæ©Ÿæ¢°èªã‚’ç”Ÿæˆã€‚
     
     arg1 = cons(make_int(2),
     	cons(x,
@@ -230,13 +230,13 @@ int eval(int x){
                  cons(make_int(1),
                   cons(make_int(1),NIL)))))))))));	
         	
-    //ƒAƒZƒ“ƒuƒ‹‚µ‚ÄVM‹@ŠBŒê‚ğ“¾‚éB
+    //ã‚¢ã‚»ãƒ³ãƒ–ãƒ«ã—ã¦VMæ©Ÿæ¢°èªã‚’å¾—ã‚‹ã€‚
     list_to_code(arg1);
     pc = head;
     arg2 = vm1();
         
          
-    //‚»‚Ì‹@ŠBŒê‚ğƒR[ƒh—Ìˆæ‚É“WŠJ‚µ‚ÄVMÀsB
+    //ãã®æ©Ÿæ¢°èªã‚’ã‚³ãƒ¼ãƒ‰é ˜åŸŸã«å±•é–‹ã—ã¦VMå®Ÿè¡Œã€‚
     head = savehead;
     tail = savetail;
     list_to_code(arg2);
@@ -406,10 +406,10 @@ void exception(char *fn, int code, int arg){
                                 printf("\n");
         						break;			
     }
-    //ƒXƒeƒbƒvÀs’†~
+    //ã‚¹ãƒ†ãƒƒãƒ—å®Ÿè¡Œä¸­æ­¢
     stepflag = 0;
     
-    //ƒfƒoƒbƒOƒ‚[ƒh‚È‚çƒoƒbƒNƒgƒŒ[ƒX‚ğo—Í
+    //ãƒ‡ãƒãƒƒã‚°ãƒ¢ãƒ¼ãƒ‰ãªã‚‰ãƒãƒƒã‚¯ãƒˆãƒ¬ãƒ¼ã‚¹ã‚’å‡ºåŠ›
     if(debugflag){
     	printf("back trace\n");
     	for(i=0; i<back_trace_end; i++){
@@ -419,17 +419,17 @@ void exception(char *fn, int code, int arg){
         }
     }
     	
-    //load’†‚È‚çƒNƒ[ƒY‚µ‚ÄƒgƒbƒvƒŒƒxƒ‹‚Ö•œ‹AB
+    //loadä¸­ãªã‚‰ã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦ãƒˆãƒƒãƒ—ãƒ¬ãƒ™ãƒ«ã¸å¾©å¸°ã€‚
     if(loadflag == 1)
     	fclose(input_port);
 	
-    //ƒNƒ[ƒWƒƒ‚É‹L‰¯‚µ‚½–½—ß—ñ‚ÌŠJnƒAƒhƒŒƒX‚ğÁ‹B
+    //ã‚¯ãƒ­ãƒ¼ã‚¸ãƒ£ã«è¨˜æ†¶ã—ãŸå‘½ä»¤åˆ—ã®é–‹å§‹ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ¶ˆå»ã€‚
     for(i=0; i< code_pointer_end; i++){
             SET_AUX(code_pointer[i][0] , -1);
         }
     code_pointer_end = 0;
 	
-    //ƒ‚ƒWƒ…[ƒ‹‚ğ(normal user)‚É•œ‹A
+    //ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã‚’(normal user)ã«å¾©å¸°
     current_module = 0;
     
 	longjmp(toplevel,1);
@@ -526,7 +526,7 @@ int vm1(void){
         
         push_s(res);
         
-        //ƒNƒ[ƒWƒƒ‚Ìê‡‚É‚Ígref–½—ß‚É’uŠ·‚·‚éB
+        //ã‚¯ãƒ­ãƒ¼ã‚¸ãƒ£ã®å ´åˆã«ã¯grefå‘½ä»¤ã«ç½®æ›ã™ã‚‹ã€‚
         if(IS_CLOSURE(res)){
         	code[pc] = 31; //(gref addr)
         	code[pc+1] = res;
@@ -604,25 +604,25 @@ int vm1(void){
         new_env = make_env(new_env_i,new_env_j);
 		
         
-        //ƒRƒs[Œ³‚ÌŠÂ‹«‚ÌƒAƒhƒŒƒX‚ğ‹L‰¯‚·‚éB
+        //ã‚³ãƒ”ãƒ¼å…ƒã®ç’°å¢ƒã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¨˜æ†¶ã™ã‚‹ã€‚
         SET_ENV_ORG(new_env,env);
         
         
-        //’Êí‚Ìˆø”‚Ìê‡B
+        //é€šå¸¸ã®å¼•æ•°ã®å ´åˆã€‚
         if(m >= 0){
 			for(j=n-1; j>=0; j--) 
                 SET_ENV_VEC_ELT(new_env, j ,pop_s());        
 		}
-        //—]èˆø”‚Ìê‡B
+        //ä½™å‰°å¼•æ•°ã®å ´åˆã€‚
 		else{
-        	x = count_stack() - (n-1);//è—]ˆø”‚ÌŒÂ”
-            //—]èˆø”‚ğƒŠƒXƒg‚É‚Ü‚Æ‚ß‚éB
+        	x = count_stack() - (n-1);//å‰°ä½™å¼•æ•°ã®å€‹æ•°
+            //ä½™å‰°å¼•æ•°ã‚’ãƒªã‚¹ãƒˆã«ã¾ã¨ã‚ã‚‹ã€‚
 			arg = NIL;
             for(i=x; i>0; i--)
             	arg = cons(POP_S,arg);
             SET_ENV_MAT_ELT(new_env, 0 , n-1, arg);
             n--;
-            //—]èˆÈŠO‚Ìˆø”‚ğŠÂ‹«‚ÉƒZƒbƒg‚·‚éB
+            //ä½™å‰°ä»¥å¤–ã®å¼•æ•°ã‚’ç’°å¢ƒã«ã‚»ãƒƒãƒˆã™ã‚‹ã€‚
             for(j=n-1; j>=0; j--) 
                 SET_ENV_VEC_ELT(new_env, j ,pop_s()); 	
         }
@@ -646,7 +646,7 @@ int vm1(void){
                ( m < 0 && n < abs(m)-1))
             	exception(GET_NAME(clo),INCORRECT_ARG_CNT,NIL);
             
-        	//‚Ü‚¾“WŠJ‚³‚ê‚Ä‚¢‚È‚¢–½—ß—ñ‚Ìê‡
+        	//ã¾ã å±•é–‹ã•ã‚Œã¦ã„ãªã„å‘½ä»¤åˆ—ã®å ´åˆ
 			if((x=GET_AUX(clo)) == -1){
                 clo_code = GET_CAR(clo);
                 size = GET_CDR(clo_code);
@@ -666,7 +666,7 @@ int vm1(void){
    				env_j = GET_AUX(env);
             	pc = head;
         	}
-            //Šù‚É“WŠJ‚³‚ê‚Ä‚¢‚é–½—ß—ñ‚Ìê‡B
+            //æ—¢ã«å±•é–‹ã•ã‚Œã¦ã„ã‚‹å‘½ä»¤åˆ—ã®å ´åˆã€‚
         	else{
                 i = sp-1;
     			for(j=n; j>0; j--){
@@ -685,7 +685,7 @@ int vm1(void){
         	goto *JUMPTABLE[code[pc]];
         }
         if(continuationp(clo)){
-			//Œp‘±‚©‚ç“n‚³‚ê‚½ˆø”
+			//ç¶™ç¶šã‹ã‚‰æ¸¡ã•ã‚ŒãŸå¼•æ•°
             if(n == 0)
             	arg = empty_set;
             else if (n == 1)
@@ -697,16 +697,16 @@ int vm1(void){
             }
                 
             contflag = 1;
-            //ƒƒ‚ƒŠ“WŠJî•ñ‚ÌƒNƒŠƒA
+            //ãƒ¡ãƒ¢ãƒªå±•é–‹æƒ…å ±ã®ã‚¯ãƒªã‚¢
             for(i=0; i< code_pointer_end; i++){
         		SET_AUX(code_pointer[i][0], -1);
         	}
         	code_pointer_end = 0;
 
  			
-            //Œp‘±‚Ì•Û‚·‚é–½—ß—ñ‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹å‘½ä»¤åˆ—ã‚’å¾©å…ƒ
         	cont_code = GET_CAR(clo);
-            pc = GET_VEC_ELT(cont_code,0); //pc‚È‚Ç‚ğ•œŒ³
+            pc = GET_VEC_ELT(cont_code,0); //pcãªã©ã‚’å¾©å…ƒ
             code_pointer_end = GET_VEC_ELT(cont_code,1);
             head = GET_VEC_ELT(cont_code,2);
             tail = GET_VEC_ELT(cont_code,3);
@@ -731,21 +731,21 @@ int vm1(void){
                 j++;
             }
             
-            //Œp‘±‚Ì•Û‚·‚éƒXƒ^ƒbƒN‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹ã‚¹ã‚¿ãƒƒã‚¯ã‚’å¾©å…ƒ
             cont_stack = GET_CDR(clo);
 			m = GET_CDR(cont_stack);
             for(i=0; i<m; i++)
             	stack[i] = GET_VEC_ELT(cont_stack,i);
             sp = m;
             
-            //Œp‘±‚É“n‚³‚ê‚½ˆø”‚ğƒXƒ^ƒbƒNƒgƒbƒv‚Ö
+            //ç¶™ç¶šã«æ¸¡ã•ã‚ŒãŸå¼•æ•°ã‚’ã‚¹ã‚¿ãƒƒã‚¯ãƒˆãƒƒãƒ—ã¸
             if(n == 0 || n == 1)
             	push_s(arg);
             else
             	push_s(make_multiple_values(arg));
 
 			
-            //Œp‘±‚Ì•Û‚·‚éŠÂ‹«‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹ç’°å¢ƒã‚’å¾©å…ƒ
             env = car(GET_AUX(clo));
             current_module = cadr(GET_AUX(clo));
             goto *JUMPTABLE[code[pc]];	
@@ -1472,7 +1472,7 @@ int vm2(void){
 		push_s(res);
         
         if(GET_CDR(arg) == 0 && IS_CLOSURE(arg)){
-        //ƒgƒŒ[ƒX‚ª‚Æ‚ê‚È‚­‚È‚é‚Ì‚ÅƒgƒŒ[ƒX’†‚Ígref‚Íg‚í‚È‚¢B
+        //ãƒˆãƒ¬ãƒ¼ã‚¹ãŒã¨ã‚Œãªããªã‚‹ã®ã§ãƒˆãƒ¬ãƒ¼ã‚¹ä¸­ã¯grefã¯ä½¿ã‚ãªã„ã€‚
         	code[pc] = 31; //(gref addr);
         	code[pc+1] = res;
         }
@@ -1628,25 +1628,25 @@ int vm2(void){
         new_env = make_env(new_env_i,new_env_j);
 		
         
-        //ƒRƒs[Œ³‚ÌŠÂ‹«‚ÌƒAƒhƒŒƒX‚ğ‹L‰¯‚·‚éB
+        //ã‚³ãƒ”ãƒ¼å…ƒã®ç’°å¢ƒã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¨˜æ†¶ã™ã‚‹ã€‚
         SET_ENV_ORG(new_env,env);
         
         
-        //’Êí‚Ìˆø”‚Ìê‡B
+        //é€šå¸¸ã®å¼•æ•°ã®å ´åˆã€‚
         if(m >= 0){
         	for(j=n-1; j>=0; j--) 
                 SET_ENV_VEC_ELT(new_env, j ,pop_s());        
 		}
-        //—]èˆø”‚Ìê‡B
+        //ä½™å‰°å¼•æ•°ã®å ´åˆã€‚
 		else{
-        	x = count_stack() - (n-1);//è—]ˆø”‚ÌŒÂ”
-            //—]èˆø”‚ğƒŠƒXƒg‚É‚Ü‚Æ‚ß‚éB
+        	x = count_stack() - (n-1);//å‰°ä½™å¼•æ•°ã®å€‹æ•°
+            //ä½™å‰°å¼•æ•°ã‚’ãƒªã‚¹ãƒˆã«ã¾ã¨ã‚ã‚‹ã€‚
 			arg = NIL;
             for(i=x; i>0; i--)
             	arg = cons(POP_S,arg);
             SET_ENV_MAT_ELT(new_env, 0 , n-1, arg);
             n--;
-            //—]èˆÈŠO‚Ìˆø”‚ğŠÂ‹«‚ÉƒZƒbƒg‚·‚éB
+            //ä½™å‰°ä»¥å¤–ã®å¼•æ•°ã‚’ç’°å¢ƒã«ã‚»ãƒƒãƒˆã™ã‚‹ã€‚
             for(j=n-1; j>=0; j--)
             	SET_ENV_VEC_ELT(new_env, j ,pop_s());	
         }
@@ -1699,7 +1699,7 @@ int vm2(void){
                ( m < 0 && n < abs(m)-1))
             	exception(GET_NAME(clo),INCORRECT_ARG_CNT,NIL);
             
-        	//‚Ü‚¾“WŠJ‚³‚ê‚Ä‚¢‚È‚¢–½—ß—ñ‚Ìê‡
+        	//ã¾ã å±•é–‹ã•ã‚Œã¦ã„ãªã„å‘½ä»¤åˆ—ã®å ´åˆ
 			if((x=GET_AUX(clo)) == -1){
                 clo_code = GET_CAR(clo);
                 size = GET_CDR(clo_code);
@@ -1719,7 +1719,7 @@ int vm2(void){
 				env_i = GET_CDR(env);
             	pc = head;
         	}
-            //Šù‚É“WŠJ‚³‚ê‚Ä‚¢‚é–½—ß—ñ‚Ìê‡B
+            //æ—¢ã«å±•é–‹ã•ã‚Œã¦ã„ã‚‹å‘½ä»¤åˆ—ã®å ´åˆã€‚
         	else{
                 insert_stack(env,pc+2,n);
                 env = GET_CDR(clo);
@@ -1729,7 +1729,7 @@ int vm2(void){
         	}
         }
         if(continuationp(clo)){
-			//Œp‘±‚©‚ç“n‚³‚ê‚½ˆø”
+			//ç¶™ç¶šã‹ã‚‰æ¸¡ã•ã‚ŒãŸå¼•æ•°
             if(n == 0)
             	arg = empty_set;
             else if (n == 1)
@@ -1741,16 +1741,16 @@ int vm2(void){
             }
                 
             contflag = 1;
-            //ƒƒ‚ƒŠ“WŠJî•ñ‚ÌƒNƒŠƒA
+            //ãƒ¡ãƒ¢ãƒªå±•é–‹æƒ…å ±ã®ã‚¯ãƒªã‚¢
             for(i=0; i< code_pointer_end; i++){
         		SET_AUX(code_pointer[i][0], -1);
         	}
         	code_pointer_end = 0;
 	
             
-            //Œp‘±‚Ì•Û‚·‚é–½—ß—ñ‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹å‘½ä»¤åˆ—ã‚’å¾©å…ƒ
         	cont_code = GET_CAR(clo);
-            pc = GET_VEC_ELT(cont_code,0); //pc‚È‚Ç‚ğ•œŒ³
+            pc = GET_VEC_ELT(cont_code,0); //pcãªã©ã‚’å¾©å…ƒ
             code_pointer_end = GET_VEC_ELT(cont_code,1);
             head = GET_VEC_ELT(cont_code,2);
             tail = GET_VEC_ELT(cont_code,3);
@@ -1775,14 +1775,14 @@ int vm2(void){
                 j++;
             }
             
-            //Œp‘±‚Ì•Û‚·‚éƒXƒ^ƒbƒN‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹ã‚¹ã‚¿ãƒƒã‚¯ã‚’å¾©å…ƒ
             cont_stack = GET_CDR(clo);
 			m = GET_CDR(cont_stack);
             for(i=0; i<m; i++)
             	stack[i] = GET_VEC_ELT(cont_stack,i);
             sp = m;
             
-            //Œp‘±‚É“n‚³‚ê‚½ˆø”‚ğƒXƒ^ƒbƒNƒgƒbƒv‚Ö
+            //ç¶™ç¶šã«æ¸¡ã•ã‚ŒãŸå¼•æ•°ã‚’ã‚¹ã‚¿ãƒƒã‚¯ãƒˆãƒƒãƒ—ã¸
             if(n == 0 || n == 1)
             	push_s(arg);
             else
@@ -1790,7 +1790,7 @@ int vm2(void){
             	
             
             
-            //Œp‘±‚Ì•Û‚·‚éŠÂ‹«‚ğ•œŒ³
+            //ç¶™ç¶šã®ä¿æŒã™ã‚‹ç’°å¢ƒã‚’å¾©å…ƒ
             env = car(GET_AUX(clo));
             current_module = cadr(GET_AUX(clo));
     
@@ -2932,7 +2932,7 @@ void step(void){
 	for(i=0; i<sp; i++){
     	printf("stack[%d] ", i);
         if(GET_TAG(stack[i+1]) == ENV && (i+1<sp))
-        	printf("%d", stack[i]); //–ß‚èƒAƒhƒŒƒX‚Ìê‡
+        	printf("%d", stack[i]); //æˆ»ã‚Šã‚¢ãƒ‰ãƒ¬ã‚¹ã®å ´åˆ
         else
         	print(stack[i]);
         printf("\n");
@@ -3295,12 +3295,12 @@ void gettoken(void){
     	c = getc(input_port);
     
  	skip:
-    //ƒXƒy[ƒX“™‚ÌƒXƒLƒbƒv
+    //ã‚¹ãƒšãƒ¼ã‚¹ç­‰ã®ã‚¹ã‚­ãƒƒãƒ—
     while((c == SPACE) || (c == EOL) || (c == TAB))
     	c = getc(input_port);
     
-    //ƒRƒƒ“ƒgs‚ÌƒXƒLƒbƒv
-    //ƒRƒƒ“ƒgs‚Ìs––‚ÉEOF‚ª‚ ‚Á‚½ê‡‚É‚ÍFILEEND‚ğ•Ô‚·B
+    //ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã®ã‚¹ã‚­ãƒƒãƒ—
+    //ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã®è¡Œæœ«ã«EOFãŒã‚ã£ãŸå ´åˆã«ã¯FILEENDã‚’è¿”ã™ã€‚
     if(c == ';'){
     	while(!(c == EOL)){
         	c = getc(input_port);
@@ -3313,7 +3313,7 @@ void gettoken(void){
     }
     
     
-    //ƒtƒ@ƒCƒ‹‚ÌI’[‚È‚çFILEEND‚ğ•Ô‚·B
+    //ãƒ•ã‚¡ã‚¤ãƒ«ã®çµ‚ç«¯ãªã‚‰FILEENDã‚’è¿”ã™ã€‚
     if(c == EOF){
     	stok.type = FILEEND;
     	return;
@@ -3327,12 +3327,12 @@ void gettoken(void){
         case ',':  	stok.type = UNQUOTE; break;
         case '@':	stok.type = SPLICING; break;
         case '.':  {c = getc(input_port);
-        			//Œã‚ë‚ª‹ó”’‚Ìdot‚Ídot-pair‚Æ‰ğß
+        			//å¾Œã‚ãŒç©ºç™½ã®dotã¯dot-pairã¨è§£é‡ˆ
         			if(c == SPACE){
         				stok.type = DOT;
                         break;
                     }
-                    //‚»‚êˆÈŠO‚ÍƒVƒ“ƒ{ƒ‹‚Æ‰ğß
+                    //ãã‚Œä»¥å¤–ã¯ã‚·ãƒ³ãƒœãƒ«ã¨è§£é‡ˆ
         			else{
                     	stok.buf[0] = '.';
                         stok.buf[1] = c;
@@ -3456,7 +3456,7 @@ void gettoken(void){
                 break;
             }
             
-            //æ‚É•¡‘f”‚Ì”»’è‚ğ‚µ‚È‚¢‚Æ-1-2i‚Ì‚æ‚¤‚ÈƒP[ƒX‚ÅƒVƒ“ƒ{ƒ‹‚É‚È‚Á‚Ä‚µ‚Ü‚¤B
+            //å…ˆã«è¤‡ç´ æ•°ã®åˆ¤å®šã‚’ã—ãªã„ã¨-1-2iã®ã‚ˆã†ãªã‚±ãƒ¼ã‚¹ã§ã‚·ãƒ³ãƒœãƒ«ã«ãªã£ã¦ã—ã¾ã†ã€‚
             if(comptoken(stok.buf)){
             	stok.type = COMPLEX;
                 stok.ctype = RECTANGLER;
@@ -3467,7 +3467,7 @@ void gettoken(void){
                 stok.ctype = POLAR;
                 break;
             }
-            //æ‚Ébignum‚Ì”»’è‚ğ‚·‚éBinttoken()‚ÍŒ…”‚Ì”»’è‚ğ‚µ‚Ä‚¢‚È‚¢B
+            //å…ˆã«bignumã®åˆ¤å®šã‚’ã™ã‚‹ã€‚inttoken()ã¯æ¡æ•°ã®åˆ¤å®šã‚’ã—ã¦ã„ãªã„ã€‚
             if(bignumtoken(stok.buf)){
             	stok.type = BIGNUM;
                 break;
@@ -3612,7 +3612,7 @@ int laststr(char buf[]){
 
 
 
-//•¶š‚Ì#\a -> a @#\‚ğæ‚èœ‚­
+//æ–‡å­—ã®#\a -> a ã€€#\ã‚’å–ã‚Šé™¤ã
 void dropchar(char buf[]){
 	int i,j;
     
@@ -3622,7 +3622,7 @@ void dropchar(char buf[]){
     buf[i-2] = NUL;
 }
 
-//•„†‚ ‚è®” Œ…”‚Í”»’è‚µ‚Ä‚¢‚È‚¢B
+//ç¬¦å·ã‚ã‚Šæ•´æ•° æ¡æ•°ã¯åˆ¤å®šã—ã¦ã„ãªã„ã€‚
 int inttoken(char buf[]){
 	int i;
     char c;
@@ -3648,7 +3648,7 @@ int inttoken(char buf[]){
     return(1);
 }
 
-// ³Šm‚È®”
+// æ­£ç¢ºãªæ•´æ•°
 int exact_inttoken(char buf[]){
     char buf1[BUFSIZE];
     
@@ -3666,7 +3666,7 @@ int exact_inttoken(char buf[]){
     	return(0);
 }
 
-// ”ñ³Šm‚È®”
+// éæ­£ç¢ºãªæ•´æ•°
 int inexact_inttoken(char buf[]){
     char buf1[BUFSIZE];
     
@@ -3684,7 +3684,7 @@ int inexact_inttoken(char buf[]){
     	return(0);
 }
 
-//•„†‚È‚µ®”
+//ç¬¦å·ãªã—æ•´æ•°
 int inttoken_nsgn(char buf[]){
 	int i;
     char c;
@@ -3699,7 +3699,7 @@ int inttoken_nsgn(char buf[]){
 }
 
 //bignum
-//•„†‚ğŠÜ‚ß‚È‚¢‚Å‚XƒPƒ^
+//ç¬¦å·ã‚’å«ã‚ãªã„ã§ï¼™ã‚±ã‚¿
 int bignumtoken(char buf[]){
 	int i;
     char c;
@@ -3729,7 +3729,7 @@ int bignumtoken(char buf[]){
     return(1); //bignum
 }
 
-// ³Šm‚È‹‘å®”
+// æ­£ç¢ºãªå·¨å¤§æ•´æ•°
 int exact_bignumtoken(char buf[]){
     char buf1[BUFSIZE];
     
@@ -3747,7 +3747,7 @@ int exact_bignumtoken(char buf[]){
     	return(0);
 }
 
-// ”ñ³Šm‚È‹‘å®”
+// éæ­£ç¢ºãªå·¨å¤§æ•´æ•°
 int inexact_bignumtoken(char buf[]){
     char buf1[BUFSIZE];
     
@@ -3917,7 +3917,7 @@ int comptoken(char buf[]){
         return(1);
     }
          
-    buf[lastindex] = NUL; // ‹•”’PˆÊ‚Ìi‚ğíœ‚·‚éB
+    buf[lastindex] = NUL; // è™šæ•°å˜ä½ã®iã‚’å‰Šé™¤ã™ã‚‹ã€‚
     
     tok = separater(buf, '+');
     
@@ -3926,7 +3926,7 @@ int comptoken(char buf[]){
     
     insertstr('+', tok.after);
     
-    //1+i‚Ì‚æ‚¤‚Èê‡
+    //1+iã®ã‚ˆã†ãªå ´åˆ
     if((inttoken(tok.before) || flttoken(tok.before)) &&
     	tok.after[1] == NUL){
     	strcpy(stok.before, tok.before);
@@ -3935,7 +3935,7 @@ int comptoken(char buf[]){
     	return(1);
     }
 	
-    //n+inf.0 , inf.0+n , n+nan.0 , nan.0+n ‚È‚Ç‚Ìê‡
+    //n+inf.0 , inf.0+n , n+nan.0 , nan.0+n ãªã©ã®å ´åˆ
 	if(((inttoken(tok.before) || flttoken(tok.before)) &&
     	(inftoken(tok.after)  || nantoken(tok.after)))
         ||
@@ -3950,7 +3950,7 @@ int comptoken(char buf[]){
        	return(1);
     }
     
-    //’Êí‚Ìn+mi‚Ìê‡
+    //é€šå¸¸ã®n+miã®å ´åˆ
     if((inttoken(tok.before)  || flttoken(tok.before)) &&
     	(inttoken(tok.after) || flttoken(tok.after))){
     	strcpy(stok.before, tok.before);
@@ -3958,7 +3958,7 @@ int comptoken(char buf[]){
        	return(1);
     }
     
-    minus: //—á 1-2i
+    minus: //ä¾‹ 1-2i
     
     tok = separater(buf, '-');
     
@@ -3967,7 +3967,7 @@ int comptoken(char buf[]){
     
     insertstr('-', tok.after);
     
-    //1-i‚Ì‚æ‚¤‚Èê‡
+    //1-iã®ã‚ˆã†ãªå ´åˆ
     if((inttoken(tok.before) || flttoken(tok.before)) &&
     	tok.after[1] == NUL){
     	strcpy(stok.before, tok.before);
@@ -3978,7 +3978,7 @@ int comptoken(char buf[]){
     }
     
     
-    //n-inf.0 , inf.0-n , n-nan.0 , nan.0-n ‚È‚Ç‚Ìê‡
+    //n-inf.0 , inf.0-n , n-nan.0 , nan.0-n ãªã©ã®å ´åˆ
 	if(((inttoken(tok.before) || flttoken(tok.before)) &&
     	(inftoken(tok.after)  || nantoken(tok.after)))
         ||
@@ -3993,7 +3993,7 @@ int comptoken(char buf[]){
        	return(1);
     }
         
-    //’Êí‚Ìn-mi‚Ìê‡
+    //é€šå¸¸ã®n-miã®å ´åˆ
     if((inttoken(tok.before)  || flttoken(tok.before)) &&
     	(inttoken(tok.after) || flttoken(tok.after))){
        	strcpy(stok.before, tok.before);
@@ -4003,9 +4003,9 @@ int comptoken(char buf[]){
     else
     	goto failexit;
     
-    failexit: //•¡‘f”‚Å‚Í‚È‚¢ê‡
+    failexit: //è¤‡ç´ æ•°ã§ã¯ãªã„å ´åˆ
     
-    buf[lastindex] = 'i'; //íœ‚µ‚½i‚ğ•œŒ³
+    buf[lastindex] = 'i'; //å‰Šé™¤ã—ãŸiã‚’å¾©å…ƒ
     return(0);
 }
 
@@ -4320,7 +4320,7 @@ void print(int x){
     }
 }
 
-//•‚“®¬”“_”‚Å®”‚Ìê‡‚ÉŒ…”‚ğ’²®‚µ‚Ä•\¦                            
+//æµ®å‹•å°æ•°ç‚¹æ•°ã§æ•´æ•°ã®å ´åˆã«æ¡æ•°ã‚’èª¿æ•´ã—ã¦è¡¨ç¤º                            
 void printflt(double x){
 	if(x - ceil(x) != 0)
     	fprintf(output_port, "%0.16g", x);
@@ -4413,10 +4413,10 @@ void print_record(int x){
     fprintf(output_port, ")");
 }
                             
-//-------ƒfƒoƒbƒO—p------------------  
+//-------ãƒ‡ãƒãƒƒã‚°ç”¨------------------  
 void cellprint(int addr);
 
-//ƒq[ƒvƒ_ƒ“ƒv	
+//ãƒ’ãƒ¼ãƒ—ãƒ€ãƒ³ãƒ—	
 void memorydump(int start, int end){
 	int i;
     
@@ -4474,7 +4474,7 @@ void cellprint(int addr){
 }   
 
 
-//---------ƒKƒx[ƒWƒRƒŒƒNƒVƒ‡ƒ“-----------
+//---------ã‚¬ãƒ™ãƒ¼ã‚¸ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³-----------
 
 void gbc(void){
 	register int addr;
@@ -4505,7 +4505,7 @@ void gbc(void){
 void markcell(int addr){
 	int n,i,j,x,y,tag;
     
-    //¬®”‚Ìê‡‚Íƒ}[ƒN‚·‚é•K—v‚È‚µB
+    //å°æ•´æ•°ã®å ´åˆã¯ãƒãƒ¼ã‚¯ã™ã‚‹å¿…è¦ãªã—ã€‚
     if(addr < 0 || addr > CELLSIZE){    
     	return;
     }	
@@ -4673,7 +4673,7 @@ void gbcmark(void){
     
     dyna_env_p2 = 0;
     
-    SET_FLAG_USE(NIL);  //NIL‚ğuseó‘Ô‚É‚·‚éB
+    SET_FLAG_USE(NIL);  //NILã‚’useçŠ¶æ…‹ã«ã™ã‚‹ã€‚
     SET_FLAG_USE(BOOLT);  //#t
     SET_FLAG_USE(BOOLF);  //#f
     SET_FLAG_USE(PINF);   //+inf.0
@@ -4689,24 +4689,24 @@ void gbcmark(void){
     SET_FLAG_USE(empty_set);
     
     
-    //Œ»ó‚ÌŠÂ‹«‚ğƒ}[ƒN
+    //ç¾çŠ¶ã®ç’°å¢ƒã‚’ãƒãƒ¼ã‚¯
     markcell(env);
     
-    //ƒgƒŒ[ƒXƒŠƒXƒg‚ğƒ}[ƒN
+    //ãƒˆãƒ¬ãƒ¼ã‚¹ãƒªã‚¹ãƒˆã‚’ãƒãƒ¼ã‚¯
     markcell(trace_list);
     
-    //ƒXƒ^ƒbƒN‚©‚ç‚Â‚È‚ª‚Á‚Ä‚¢‚écell‚ğƒ}[ƒNB
+    //ã‚¹ã‚¿ãƒƒã‚¯ã‹ã‚‰ã¤ãªãŒã£ã¦ã„ã‚‹cellã‚’ãƒãƒ¼ã‚¯ã€‚
     for(i=sp-1; i>=0; i--){
     	addr = stack[i];
         markcell(addr);
     }
-    //–½—ß—ñ‚©‚ç‚Â‚È‚ª‚Á‚Ä‚¢‚écell‚ğƒ}[ƒNB
+    //å‘½ä»¤åˆ—ã‹ã‚‰ã¤ãªãŒã£ã¦ã„ã‚‹cellã‚’ãƒãƒ¼ã‚¯ã€‚
     for(i=tail-1; i>=0; i--){
     	addr = stack[i];
         markcell(addr);
     }
     
-    //‘åˆæ’è‹`ƒVƒ“ƒ{ƒ‹‚ğƒ}[ƒNB
+    //å¤§åŸŸå®šç¾©ã‚·ãƒ³ãƒœãƒ«ã‚’ãƒãƒ¼ã‚¯ã€‚
     for(x=0; x<HASHTBSIZE; x++)
     	for(y=0; y<module_table_end; y++){
     		addr = cell_hash_table[x][y];	           
@@ -4718,12 +4718,12 @@ void gbcmark(void){
     	}
     }
     
-    //ƒ‰ƒCƒuƒ‰ƒŠ–¼‚ÌƒŠƒXƒg‚¨‚æ‚Ñexport‚³‚ê‚½ƒŠƒXƒg‚ğƒ}[ƒNB
+    //ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåã®ãƒªã‚¹ãƒˆãŠã‚ˆã³exportã•ã‚ŒãŸãƒªã‚¹ãƒˆã‚’ãƒãƒ¼ã‚¯ã€‚
     for(x=0; x<module_table_end; x++){
     	markcell(module_table[x][0]);	
     	markcell(module_table[x][1]);
     }
-    //emem2 ‚©‚çemem1‚ÉƒRƒs[
+    //emem2 ã‹ã‚‰emem1ã«ã‚³ãƒ”ãƒ¼
     for(x=0; x<dyna_env_p2; x++){
     	emem1[x] = emem2[x];
         SET_FLAG_USE(emem1[x]);
@@ -4734,7 +4734,7 @@ void gbcmark(void){
 void gbcsweep(void){
 	int addr;
     
-    //ƒZƒ‹—Ìˆæ‚ÌGC
+    //ã‚»ãƒ«é ˜åŸŸã®GC
     addr = 0;
     while(addr < CELLSIZE){
     	
@@ -4772,14 +4772,14 @@ void clrcell(int addr){
     SET_AUX(addr,0);
 }
 
-//©—RƒZƒ‹‚ªˆê’è”‚ğ‰º‰ñ‚Á‚½ê‡‚É‚Ígbc‚ğ‹N“®‚·‚éB
+//è‡ªç”±ã‚»ãƒ«ãŒä¸€å®šæ•°ã‚’ä¸‹å›ã£ãŸå ´åˆã«ã¯gbcã‚’èµ·å‹•ã™ã‚‹ã€‚
 void check_ctrl(void){
-	//ctrl+c ‚ª‚©‚©‚Á‚Ä‚¢‚é‚Æ‚«‚É‚ÍƒgƒbƒvƒŒƒxƒ‹‚É–ß‚éB
+	//ctrl+c ãŒã‹ã‹ã£ã¦ã„ã‚‹ã¨ãã«ã¯ãƒˆãƒƒãƒ—ãƒ¬ãƒ™ãƒ«ã«æˆ»ã‚‹ã€‚
 	if(exitflag == 1){
     	exitflag = 0;
         longjmp(toplevel,1);
     }
-    //ctrl+d ‚ª‚©‚©‚Á‚Ä‚¢‚é‚Æ‚«‚É‚Íˆ—Œn‚ğI—¹‚·‚éB
+    //ctrl+d ãŒã‹ã‹ã£ã¦ã„ã‚‹ã¨ãã«ã¯å‡¦ç†ç³»ã‚’çµ‚äº†ã™ã‚‹ã€‚
     if(exitflag == 2)
     	longjmp(toplevel,2);
 	if(cell_free < FREESIZE)
